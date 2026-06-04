@@ -1,0 +1,1797 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>布吉街道义务教育录取分析</title>
+  <script src="data/admission-data.js"></script>
+  <style>
+    :root {
+      --bg: #f4f6f2;
+      --panel: #ffffff;
+      --panel-2: #eef3ef;
+      --ink: #16221d;
+      --muted: #61716a;
+      --line: #d7dfd8;
+      --green: #0f6f59;
+      --green-2: #0a8b70;
+      --blue: #2e6f9f;
+      --amber: #c97919;
+      --red: #b7483e;
+      --shadow: 0 12px 28px rgba(23, 38, 31, .08);
+      --radius: 6px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(15, 111, 89, .06), transparent 280px),
+        var(--bg);
+      font-family: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .shell {
+      width: min(1680px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 22px 0 30px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) auto;
+      gap: 18px;
+      align-items: end;
+      padding: 6px 0 18px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(26px, 3vw, 42px);
+      line-height: 1.05;
+      font-family: "Microsoft JhengHei UI", "Microsoft YaHei UI", sans-serif;
+      font-weight: 800;
+    }
+
+    .brand p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 7px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, .72);
+      white-space: nowrap;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr .9fr .9fr 1.5fr;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .8);
+      box-shadow: var(--shadow);
+    }
+
+    .segmented {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-2);
+      min-width: 0;
+    }
+
+    .segmented button {
+      height: 34px;
+      padding: 0 10px;
+      border-radius: 4px;
+      color: var(--muted);
+      background: transparent;
+      white-space: nowrap;
+    }
+
+    .segmented button.active {
+      color: #fff;
+      background: var(--green);
+      box-shadow: 0 5px 12px rgba(15, 111, 89, .2);
+    }
+
+    .field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 44px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      min-width: 0;
+    }
+
+    .field span {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .field select,
+    .field input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      color: var(--ink);
+      background: transparent;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .metric {
+      min-height: 92px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .metric label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 9px;
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .metric small {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .calculator-panel {
+      margin-top: 12px;
+    }
+
+    .calculator-grid {
+      display: grid;
+      grid-template-columns: minmax(520px, 1.08fr) minmax(380px, .92fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .calc-form {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      align-content: start;
+    }
+
+    .calc-form .field {
+      height: 48px;
+    }
+
+    .calc-form .wide {
+      grid-column: span 2;
+    }
+
+    .check-field {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 48px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .check-field input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--green);
+    }
+
+    .calc-result {
+      display: grid;
+      gap: 10px;
+    }
+
+    .score-card {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcfb;
+    }
+
+    .score-card div {
+      min-width: 0;
+    }
+
+    .score-card label,
+    .bonus-list label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .score-card strong {
+      display: block;
+      margin-top: 7px;
+      font-size: 26px;
+      line-height: 1;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .prediction-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .prediction-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .prediction-head h3 {
+      margin: 0;
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .prediction-head p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .risk-pill {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 74px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--green);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .risk-pill.watch {
+      background: var(--amber);
+    }
+
+    .risk-pill.risk {
+      background: var(--red);
+    }
+
+    .predict-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .predict-item {
+      padding: 10px;
+      border-radius: var(--radius);
+      background: #f5f8f5;
+      min-width: 0;
+    }
+
+    .predict-item label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .predict-item strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 20px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .bonus-list {
+      display: grid;
+      gap: 6px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcfb;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .calc-note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(560px, 1.25fr) minmax(390px, .75fr);
+      gap: 12px;
+      margin-top: 12px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 54px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff, #f8faf7);
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.2;
+    }
+
+    .panel-head p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .panel-body {
+      padding: 14px;
+    }
+
+    .chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .chart-box {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcfb;
+      min-height: 246px;
+      overflow: hidden;
+    }
+
+    .chart-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .chart-title strong {
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    svg {
+      width: 100%;
+      display: block;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      max-height: 620px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      color: var(--muted);
+      background: #f5f8f5;
+      font-weight: 700;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th,
+    td {
+      padding: 10px 9px;
+      border-bottom: 1px solid #e9eee9;
+      vertical-align: middle;
+    }
+
+    tr.data-row {
+      cursor: pointer;
+    }
+
+    tr.data-row:hover {
+      background: #f3f8f5;
+    }
+
+    tr.data-row.selected {
+      background: #e7f3ee;
+      box-shadow: inset 3px 0 0 var(--green);
+    }
+
+    .school-cell {
+      min-width: 0;
+    }
+
+    .school-name {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 700;
+    }
+
+    .school-sub {
+      display: flex;
+      gap: 6px;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 42px;
+      height: 22px;
+      padding: 0 7px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: #fff;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .tag.public {
+      color: var(--green);
+      border-color: rgba(15, 111, 89, .24);
+      background: rgba(15, 111, 89, .08);
+    }
+
+    .tag.private {
+      color: var(--blue);
+      border-color: rgba(46, 111, 159, .24);
+      background: rgba(46, 111, 159, .08);
+    }
+
+    .score {
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      font-size: 17px;
+    }
+
+    .delta {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .delta.up {
+      color: var(--red);
+    }
+
+    .delta.down {
+      color: var(--green);
+    }
+
+    .delta.flat {
+      color: var(--muted);
+    }
+
+    .detail-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .detail-title h3 {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .detail-title small {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+    }
+
+    .detail-score {
+      text-align: right;
+      min-width: 86px;
+    }
+
+    .detail-score strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .detail-score span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .detail-chart {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fbfcfb;
+      overflow: hidden;
+    }
+
+    .year-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .year-row {
+      display: grid;
+      grid-template-columns: 60px 78px 1fr;
+      gap: 8px;
+      align-items: start;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+    }
+
+    .year-row strong {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .year-row p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 12px;
+      word-break: break-word;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-2);
+    }
+
+    .tabs button {
+      height: 34px;
+      border-radius: 4px;
+      color: var(--muted);
+      background: transparent;
+      white-space: nowrap;
+    }
+
+    .tabs button.active {
+      color: #fff;
+      background: var(--ink);
+    }
+
+    .rule-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .rule-item {
+      padding: 12px;
+      border-left: 3px solid var(--green);
+      background: #f7faf7;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      line-height: 1.65;
+      color: #26332e;
+      font-size: 13px;
+    }
+
+    .score-types {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .score-types td,
+    .score-types th {
+      position: static;
+      padding: 9px;
+      font-size: 12px;
+      background: #fff;
+    }
+
+    .score-types th {
+      color: var(--muted);
+      background: #f5f8f5;
+    }
+
+    .raw-section {
+      max-height: 350px;
+      overflow: auto;
+      margin-top: 12px;
+      padding-right: 4px;
+    }
+
+    .raw-section article {
+      margin-bottom: 10px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      line-height: 1.7;
+      color: #34423c;
+      font-size: 12px;
+    }
+
+    .empty {
+      min-height: 180px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      text-align: center;
+      padding: 30px;
+    }
+
+    .footer {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media (max-width: 1180px) {
+      .filters {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .filters .field.search {
+        grid-column: 1 / -1;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .calculator-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        width: min(100vw - 18px, 1680px);
+        padding-top: 12px;
+      }
+
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+
+      .filters,
+      .metrics,
+      .chart-grid,
+      .calc-form,
+      .score-card,
+      .predict-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .calc-form .wide {
+        grid-column: span 1;
+      }
+
+      .metric {
+        min-height: 76px;
+      }
+
+      .table-wrap {
+        max-height: none;
+      }
+
+      table {
+        min-width: 760px;
+      }
+
+      .year-row {
+        grid-template-columns: 54px 70px 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <h1>布吉街道义务教育录取分析</h1>
+        <p id="subtitle">小一、初一历年录取线与 2025 规则速查</p>
+      </div>
+      <div class="meta-pill" id="metaPill">数据加载中</div>
+    </header>
+
+    <section class="filters" aria-label="筛选">
+      <div class="segmented" id="stageFilter" aria-label="学段"></div>
+      <div class="segmented" id="typeFilter" aria-label="办学性质"></div>
+      <label class="field">
+        <span>年份</span>
+        <select id="yearSelect"></select>
+      </label>
+      <label class="field">
+        <span>类型</span>
+        <select id="admissionSelect"></select>
+      </label>
+      <label class="field search">
+        <span>搜索</span>
+        <input id="searchInput" type="search" placeholder="学校名称">
+      </label>
+    </section>
+
+    <section class="metrics" id="metrics"></section>
+
+    <section class="panel calculator-panel">
+      <div class="panel-head">
+        <div>
+          <h2>积分试算与录取预测</h2>
+          <p>按 2025 积分规则试算，并优先使用小一 cohort 信号判断初一下一届方向</p>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="calculator-grid">
+          <div class="calc-form" aria-label="积分试算">
+            <label class="field">
+              <span>学段</span>
+              <select id="calcStage"></select>
+            </label>
+            <label class="field wide">
+              <span>目标</span>
+              <select id="calcTarget"></select>
+            </label>
+            <label class="field">
+              <span>户籍</span>
+              <select id="calcHukou"></select>
+            </label>
+            <label class="field">
+              <span>居住</span>
+              <select id="calcResidence"></select>
+            </label>
+            <label class="field">
+              <span>社保月数</span>
+              <input id="calcSocialMonths" type="number" min="0" step="1">
+            </label>
+            <label class="field">
+              <span>产权日期</span>
+              <input id="calcPropertyDate" type="date">
+            </label>
+            <label class="field">
+              <span>租赁备案</span>
+              <input id="calcRentDate" type="date">
+            </label>
+            <label class="field">
+              <span>迁户日期</span>
+              <input id="calcHukouDate" type="date">
+            </label>
+            <label class="field">
+              <span>截止日</span>
+              <input id="calcCutoffDate" type="date">
+            </label>
+            <label class="check-field">
+              <input id="calcPriorityArea" type="checkbox">
+              <span>小一优享学区第一志愿</span>
+            </label>
+          </div>
+          <div class="calc-result" id="calcResult"></div>
+        </div>
+        <p class="calc-note">预测不是录取承诺。初一预测优先使用小一 cohort 信号；无同校样本时使用布吉同办学性质小学均线，初中自身近年趋势仅作辅助参考。</p>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div>
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>年度概览</h2>
+              <p id="overviewCaption"></p>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-grid">
+              <div class="chart-box">
+                <div class="chart-title">
+                  <strong>均分走势</strong>
+                  <span id="avgChartLabel"></span>
+                </div>
+                <div id="avgChart"></div>
+              </div>
+              <div class="chart-box">
+                <div class="chart-title">
+                  <strong>年度排行</strong>
+                  <span id="rankChartLabel"></span>
+                </div>
+                <div id="rankChart"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:12px">
+          <div class="panel-head">
+            <div>
+              <h2>学校列表</h2>
+              <p id="tableCaption"></p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:42%">学校</th>
+                  <th style="width:12%">年份</th>
+                  <th style="width:14%">分数</th>
+                  <th style="width:14%">变化</th>
+                  <th style="width:18%">备注</th>
+                </tr>
+              </thead>
+              <tbody id="schoolTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>学校详情</h2>
+            <p id="detailCaption"></p>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="tabs" id="detailTabs"></div>
+          <div id="detailPanel"></div>
+        </div>
+      </aside>
+    </section>
+
+    <div class="footer" id="footerNote"></div>
+  </main>
+
+  <script>
+    const data = window.ADMISSION_DATA;
+    const MAX_ADMISSION_SCORE = 110;
+    const admissionTypes = ["录取分数线", "民办直升"];
+    const state = {
+      stage: "全部",
+      type: "全部",
+      year: null,
+      admissionType: "录取分数线",
+      query: "",
+      selectedKey: "",
+      tab: "趋势",
+      calculator: {
+        stage: "初一",
+        targetId: "",
+        hukou: "学区户籍",
+        residence: "学区自购商品房",
+        propertyDate: "",
+        rentDate: "",
+        hukouDate: "",
+        socialMonths: 0,
+        cutoffDate: "2025-04-01",
+        priorityArea: false
+      }
+    };
+
+    const collator = new Intl.Collator("zh-Hans-CN");
+
+    function capScore(value) {
+      if (value === null || value === undefined || Number.isNaN(value)) return null;
+      return Math.round(Math.min(MAX_ADMISSION_SCORE, Math.max(0, Number(value))) * 100) / 100;
+    }
+
+    function formatScore(value) {
+      if (value === null || value === undefined || Number.isNaN(value)) return "-";
+      return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+    }
+
+    function formatDelta(value) {
+      if (value === null || value === undefined || Number.isNaN(value)) return "-";
+      if (Math.abs(value) < 0.005) return "持平";
+      return `${value > 0 ? "+" : ""}${formatScore(value)}`;
+    }
+
+    function deltaClass(value) {
+      if (value === null || value === undefined || Number.isNaN(value) || Math.abs(value) < 0.005) return "flat";
+      return value > 0 ? "up" : "down";
+    }
+
+    function unique(values) {
+      return Array.from(new Set(values));
+    }
+
+    function keyOf(record) {
+      return [record.stage, record.school_key, record.admission_type].join("|");
+    }
+
+    function visibleRecords() {
+      const q = state.query.trim().toLowerCase();
+      return data.records.filter(record => {
+        if (state.stage !== "全部" && record.stage !== state.stage) return false;
+        if (state.type !== "全部" && record.school_type !== state.type) return false;
+        if (record.admission_type !== state.admissionType) return false;
+        if (q && !`${record.school_name} ${record.school_key} ${record.note}`.toLowerCase().includes(q)) return false;
+        return true;
+      });
+    }
+
+    function recordsForTable() {
+      const records = visibleRecords().filter(record => state.year === "全部" || record.year === Number(state.year));
+      if (state.year !== "全部") {
+        return records
+          .filter(record => record.score_text)
+          .sort((a, b) => {
+            const scoreDiff = (b.score_value ?? -1) - (a.score_value ?? -1);
+            if (scoreDiff) return scoreDiff;
+            return collator.compare(a.school_name, b.school_name);
+          });
+      }
+
+      const latest = new Map();
+      records.forEach(record => {
+        const key = keyOf(record);
+        const old = latest.get(key);
+        if (!old || record.year > old.year) latest.set(key, record);
+      });
+      return Array.from(latest.values()).sort((a, b) => {
+        const scoreDiff = (b.score_value ?? -1) - (a.score_value ?? -1);
+        if (scoreDiff) return scoreDiff;
+        return collator.compare(a.school_name, b.school_name);
+      });
+    }
+
+    function historyFor(recordOrKey) {
+      const key = typeof recordOrKey === "string" ? recordOrKey : keyOf(recordOrKey);
+      const [stage, schoolKey, admissionType] = key.split("|");
+      return data.records
+        .filter(record => record.stage === stage && record.school_key === schoolKey && record.admission_type === admissionType)
+        .sort((a, b) => a.year - b.year);
+    }
+
+    function trendFor(record) {
+      if (record.score_value === null || record.score_value === undefined) return null;
+      const history = historyFor(record).filter(item => item.score_value !== null && item.year <= record.year);
+      const index = history.findIndex(item => item.year === record.year && item.source === record.source);
+      const currentIndex = index >= 0 ? index : history.findIndex(item => item.year === record.year);
+      if (currentIndex <= 0) return null;
+      return Math.round((record.score_value - history[currentIndex - 1].score_value) * 100) / 100;
+    }
+
+    function average(values) {
+      const nums = values.filter(value => value !== null && value !== undefined && !Number.isNaN(value));
+      if (!nums.length) return null;
+      return nums.reduce((sum, value) => sum + value, 0) / nums.length;
+    }
+
+    function calcTargetId(record) {
+      return [record.stage, record.school_key, record.school_type].join("|");
+    }
+
+    function parseTargetId(targetId) {
+      const [stage, schoolKey, schoolType] = targetId.split("|");
+      return { stage, schoolKey, schoolType };
+    }
+
+    function recordsForSchool(stage, schoolKey, schoolType, admissionType = "录取分数线") {
+      return data.records
+        .filter(record =>
+          record.stage === stage &&
+          record.school_key === schoolKey &&
+          record.school_type === schoolType &&
+          record.admission_type === admissionType
+        )
+        .sort((a, b) => a.year - b.year);
+    }
+
+    function latestRecordForSchool(stage, schoolKey, schoolType) {
+      return recordsForSchool(stage, schoolKey, schoolType)
+        .filter(record => record.score_value !== null)
+        .slice()
+        .pop();
+    }
+
+    function calcTargetOptions(stage) {
+      const latest = new Map();
+      data.records
+        .filter(record => record.stage === stage && record.admission_type === "录取分数线")
+        .forEach(record => {
+          const id = calcTargetId(record);
+          const old = latest.get(id);
+          if (!old || record.year > old.year) latest.set(id, record);
+        });
+      return Array.from(latest.values()).sort((a, b) => {
+        const typeDiff = a.school_type.localeCompare(b.school_type, "zh-Hans-CN");
+        if (typeDiff) return typeDiff;
+        return collator.compare(a.school_name, b.school_name);
+      });
+    }
+
+    function fullMonthsBetween(startDate, endDate) {
+      if (!startDate || !endDate) return 0;
+      const start = new Date(`${startDate}T00:00:00`);
+      const end = new Date(`${endDate}T00:00:00`);
+      if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start > end) return 0;
+      let months = (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth();
+      if (end.getDate() < start.getDate()) months -= 1;
+      return Math.max(0, months);
+    }
+
+    function bonusFromDate(label, dateValue, cutoffDate) {
+      const months = fullMonthsBetween(dateValue, cutoffDate);
+      return {
+        label,
+        months,
+        score: Math.round(months * 0.05 * 100) / 100,
+        text: dateValue ? `${label} ${months} 个月，+${formatScore(months * 0.05)}` : `${label}未填写，不计加分`
+      };
+    }
+
+    function baseCategory(hukou, residence) {
+      if (residence === "学区自购商品房") {
+        if (hukou === "非深圳户籍") return { category: "第四类", base: 80, text: "非深户籍 + 学区自购商品房" };
+        if (hukou === "深圳其他区户籍") return { category: "第二类", base: 95, text: "深圳其他区户籍 + 学区自购商品房" };
+        return { category: "第一类", base: 100, text: "龙岗/学区户籍 + 学区自购商品房" };
+      }
+      if (residence === "学区祖屋") {
+        if (hukou === "学区户籍") return { category: "第一类", base: 100, text: "学区户籍 + 学区祖屋" };
+        return { category: "需核验", base: null, text: "学区祖屋通常要求学区户籍，请按材料人工核验" };
+      }
+      if (hukou === "学区户籍") return { category: "第三类", base: 90, text: "学区户籍 + 租房/特殊住房" };
+      if (hukou === "龙岗户籍") return { category: "第五类", base: 75, text: "龙岗户籍 + 租房/特殊住房" };
+      if (hukou === "深圳其他区户籍") return { category: "第六类", base: 70, text: "深圳其他区户籍 + 租房/特殊住房" };
+      return { category: "第七类", base: 60, text: "非深户籍 + 租房/特殊住房" };
+    }
+
+    function calculateScore() {
+      const calc = state.calculator;
+      const category = baseCategory(calc.hukou, calc.residence);
+      const details = [];
+      let rawBonus = 0;
+
+      if (calc.residence === "学区自购商品房") {
+        const item = bonusFromDate("产权", calc.propertyDate, calc.cutoffDate);
+        rawBonus += item.score;
+        details.push(item.text);
+      }
+
+      if (calc.residence === "学区祖屋") {
+        const item = bonusFromDate("学区户籍", calc.hukouDate, calc.cutoffDate);
+        rawBonus += item.score;
+        details.push(item.text);
+      }
+
+      if (calc.residence === "学区租房或特殊住房") {
+        const rent = bonusFromDate("租赁备案", calc.rentDate, calc.cutoffDate);
+        rawBonus += rent.score;
+        details.push(rent.text);
+        if (calc.hukou === "学区户籍") {
+          const hukou = bonusFromDate("学区户籍", calc.hukouDate, calc.cutoffDate);
+          rawBonus += hukou.score;
+          details.push(hukou.text);
+        }
+      }
+
+      if (calc.hukou === "非深圳户籍") {
+        const months = Math.max(0, Number(calc.socialMonths || 0) - 12);
+        const socialBonus = Math.round(months * 0.05 * 100) / 100;
+        rawBonus += socialBonus;
+        details.push(`社保超过基础 12 个月部分 ${months} 个月，+${formatScore(socialBonus)}`);
+      }
+
+      if (calc.stage === "小一" && calc.priorityArea) {
+        rawBonus += 2.5;
+        details.push("小一优享学区第一志愿 +2.5");
+      }
+
+      const cappedBonus = Math.min(10, Math.round(rawBonus * 100) / 100);
+      const total = category.base === null ? null : capScore(category.base + cappedBonus);
+      if (rawBonus > 10) details.push(`加分原始合计 ${formatScore(rawBonus)}，按规则封顶为 10`);
+
+      return {
+        category,
+        rawBonus: Math.round(rawBonus * 100) / 100,
+        bonus: cappedBonus,
+        total,
+        details
+      };
+    }
+
+    function riskByMargin(margin) {
+      if (margin === null || margin === undefined || Number.isNaN(margin)) return { text: "无法判断", tone: "watch" };
+      if (margin >= 5) return { text: "较稳", tone: "safe" };
+      if (margin >= 1) return { text: "有机会", tone: "safe" };
+      if (margin >= 0) return { text: "压线", tone: "watch" };
+      if (margin >= -3) return { text: "偏紧", tone: "watch" };
+      return { text: "风险高", tone: "risk" };
+    }
+
+    function recentTrendPrediction(stage, schoolKey, schoolType) {
+      const history = recordsForSchool(stage, schoolKey, schoolType).filter(record => record.score_value !== null);
+      if (history.length < 2) return null;
+      const recent = history.slice(-3);
+      const changes = recent.slice(1).map((record, index) => record.score_value - recent[index].score_value);
+      const avgChange = average(changes) ?? 0;
+      const latest = recent[recent.length - 1];
+      const predictedScore = capScore(latest.score_value + avgChange);
+      return {
+        method: "近年趋势",
+        latestYear: latest.year,
+        predictedYear: latest.year + 1,
+        predictedScore,
+        change: Math.round((predictedScore - latest.score_value) * 100) / 100,
+        basis: `${recent[0].year}-${latest.year} 同校录取线变化`
+      };
+    }
+
+    function cohortPrediction(stage, schoolKey, schoolType) {
+      if (stage !== "初一" || !data.cohort_model) return null;
+      const pairs = data.cohort_model.pairs
+        .filter(item => item.school_key === schoolKey && item.school_type === schoolType)
+        .sort((a, b) => a.junior_year - b.junior_year);
+      const pair = pairs[pairs.length - 1];
+      if (!pair || pair.projected_next_junior_score === null || pair.projected_next_junior_score === undefined) {
+        return null;
+      }
+      return {
+        method: "小一到初一 cohort",
+        latestYear: pair.junior_year,
+        predictedYear: pair.projected_next_junior_year,
+        predictedScore: capScore(pair.projected_next_junior_score),
+        change: Math.round((capScore(pair.projected_next_junior_score) - pair.junior_score) * 100) / 100,
+        basis: `小一${pair.primary_year} ${formatScore(pair.primary_score)} -> 初一${pair.junior_year} ${formatScore(pair.junior_score)}；下一届参考小一${pair.next_primary_year} ${formatScore(pair.next_primary_score)}`,
+        cohortDelta: pair.cohort_delta
+      };
+    }
+
+    function groupedPrimaryCohortPrediction(stage, schoolKey, schoolType) {
+      if (stage !== "初一") return null;
+      const lagYears = data.cohort_model?.lag_years || 6;
+      const latest = latestRecordForSchool(stage, schoolKey, schoolType);
+      if (!latest || latest.score_value === null) return null;
+      const primaryYear = latest.year - lagYears;
+      const nextPrimaryYear = primaryYear + 1;
+      const primaryRecords = data.records.filter(record =>
+        record.stage === "小一" &&
+        record.school_type === schoolType &&
+        record.admission_type === "录取分数线" &&
+        record.year === primaryYear &&
+        record.score_value !== null
+      );
+      const nextPrimaryRecords = data.records.filter(record =>
+        record.stage === "小一" &&
+        record.school_type === schoolType &&
+        record.admission_type === "录取分数线" &&
+        record.year === nextPrimaryYear &&
+        record.score_value !== null
+      );
+      const primaryAvg = average(primaryRecords.map(record => record.score_value));
+      const nextPrimaryAvg = average(nextPrimaryRecords.map(record => record.score_value));
+      if (primaryAvg === null || nextPrimaryAvg === null) return null;
+      const cohortDelta = latest.score_value - primaryAvg;
+      const predictedScore = capScore(nextPrimaryAvg + cohortDelta);
+      return {
+        method: `${schoolType}小学整体 cohort`,
+        latestYear: latest.year,
+        predictedYear: latest.year + 1,
+        predictedScore,
+        change: Math.round((predictedScore - latest.score_value) * 100) / 100,
+        basis: `${schoolType}初中${latest.year}线 ${formatScore(latest.score_value)} - 布吉${schoolType}小学${primaryYear}均线 ${formatScore(primaryAvg)}；下一届参考布吉${schoolType}小学${nextPrimaryYear}均线 ${formatScore(nextPrimaryAvg)}`,
+        cohortDelta: Math.round(cohortDelta * 100) / 100
+      };
+    }
+
+    function predictionForTarget() {
+      if (!state.calculator.targetId) return null;
+      const target = parseTargetId(state.calculator.targetId);
+      const latest = latestRecordForSchool(target.stage, target.schoolKey, target.schoolType);
+      const direct = cohortPrediction(target.stage, target.schoolKey, target.schoolType);
+      const trend = recentTrendPrediction(target.stage, target.schoolKey, target.schoolType);
+      const grouped = groupedPrimaryCohortPrediction(target.stage, target.schoolKey, target.schoolType);
+      const forecast = target.stage === "初一"
+        ? (direct || grouped || trend)
+        : trend;
+      const auxiliary = target.stage === "初一"
+        ? (forecast === grouped ? trend : (grouped || trend))
+        : null;
+      return { target, latest, forecast, auxiliary };
+    }
+
+    function renderButtons(containerId, options, activeValue, onClick) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      options.forEach(option => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = option;
+        button.className = option === activeValue ? "active" : "";
+        button.addEventListener("click", () => onClick(option));
+        container.appendChild(button);
+      });
+    }
+
+    function renderFilters() {
+      renderButtons("stageFilter", ["全部", ...data.meta.stages], state.stage, value => {
+        state.stage = value;
+        state.selectedKey = "";
+        render();
+      });
+      renderButtons("typeFilter", ["全部", ...data.meta.school_types], state.type, value => {
+        state.type = value;
+        state.selectedKey = "";
+        render();
+      });
+
+      const yearSelect = document.getElementById("yearSelect");
+      yearSelect.innerHTML = ["全部", ...data.meta.years.slice().reverse()]
+        .map(year => `<option value="${year}">${year}</option>`)
+        .join("");
+      yearSelect.value = state.year;
+      yearSelect.onchange = event => {
+        state.year = event.target.value;
+        state.selectedKey = "";
+        render();
+      };
+
+      const admissionSelect = document.getElementById("admissionSelect");
+      admissionSelect.innerHTML = admissionTypes.map(type => `<option value="${type}">${type}</option>`).join("");
+      admissionSelect.value = state.admissionType;
+      admissionSelect.onchange = event => {
+        state.admissionType = event.target.value;
+        state.selectedKey = "";
+        render();
+      };
+
+      const searchInput = document.getElementById("searchInput");
+      if (document.activeElement !== searchInput) searchInput.value = state.query;
+      searchInput.oninput = event => {
+        state.query = event.target.value;
+        state.selectedKey = "";
+        render();
+      };
+    }
+
+    function renderMetrics(rows) {
+      const numeric = rows.filter(row => row.score_value !== null);
+      const avg = average(numeric.map(row => row.score_value));
+      const max = numeric.slice().sort((a, b) => b.score_value - a.score_value)[0];
+      const min = numeric.slice().sort((a, b) => a.score_value - b.score_value)[0];
+      const risingCount = rows.filter(row => (trendFor(row) ?? 0) > 0).length;
+      const publicCount = unique(rows.filter(row => row.school_type === "公办").map(row => keyOf(row))).length;
+
+      const metrics = [
+        { label: "学校数量", value: unique(rows.map(row => keyOf(row))).length, sub: `${publicCount} 个公办记录` },
+        { label: "平均录取线", value: formatScore(avg), sub: `${state.year} ${state.admissionType}` },
+        { label: "最高录取线", value: formatScore(max?.score_value), sub: max ? max.school_name : "-" },
+        { label: "最低录取线", value: formatScore(min?.score_value), sub: min ? min.school_name : "-" },
+        { label: "较上年上升", value: risingCount, sub: "按同校同类型对比" }
+      ];
+
+      document.getElementById("metrics").innerHTML = metrics.map(item => `
+        <article class="metric">
+          <label>${item.label}</label>
+          <strong>${item.value}</strong>
+          <small title="${item.sub}">${item.sub}</small>
+        </article>
+      `).join("");
+    }
+
+    function setSelectOptions(select, options, value) {
+      select.innerHTML = options.map(item => {
+        const optionValue = typeof item === "string" ? item : item.value;
+        const label = typeof item === "string" ? item : item.label;
+        return `<option value="${optionValue}">${label}</option>`;
+      }).join("");
+      select.value = value;
+    }
+
+    function bindCalculatorInput(id, key, transform = value => value) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (el.type === "checkbox") {
+        el.checked = Boolean(state.calculator[key]);
+        el.onchange = event => {
+          state.calculator[key] = event.target.checked;
+          renderCalculator();
+        };
+        return;
+      }
+      el.value = state.calculator[key] ?? "";
+      el.oninput = event => {
+        state.calculator[key] = transform(event.target.value);
+        renderCalculator();
+      };
+      el.onchange = event => {
+        state.calculator[key] = transform(event.target.value);
+        renderCalculator();
+      };
+    }
+
+    function renderCalculator() {
+      const calc = state.calculator;
+      const stageSelect = document.getElementById("calcStage");
+      setSelectOptions(stageSelect, data.meta.stages, calc.stage);
+      stageSelect.onchange = event => {
+        calc.stage = event.target.value;
+        calc.targetId = "";
+        calc.priorityArea = calc.stage === "小一" ? calc.priorityArea : false;
+        renderCalculator();
+      };
+
+      const targets = calcTargetOptions(calc.stage);
+      if (!calc.targetId || !targets.some(record => calcTargetId(record) === calc.targetId)) {
+        calc.targetId = targets.length ? calcTargetId(targets[0]) : "";
+      }
+      setSelectOptions(
+        document.getElementById("calcTarget"),
+        targets.map(record => ({
+          value: calcTargetId(record),
+          label: `${record.school_type} · ${record.school_name}`
+        })),
+        calc.targetId
+      );
+      document.getElementById("calcTarget").onchange = event => {
+        calc.targetId = event.target.value;
+        renderCalculator();
+      };
+
+      setSelectOptions(document.getElementById("calcHukou"), ["学区户籍", "龙岗户籍", "深圳其他区户籍", "非深圳户籍"], calc.hukou);
+      document.getElementById("calcHukou").onchange = event => {
+        calc.hukou = event.target.value;
+        renderCalculator();
+      };
+
+      setSelectOptions(document.getElementById("calcResidence"), ["学区自购商品房", "学区祖屋", "学区租房或特殊住房"], calc.residence);
+      document.getElementById("calcResidence").onchange = event => {
+        calc.residence = event.target.value;
+        renderCalculator();
+      };
+
+      bindCalculatorInput("calcSocialMonths", "socialMonths", value => Math.max(0, Number(value || 0)));
+      bindCalculatorInput("calcPropertyDate", "propertyDate");
+      bindCalculatorInput("calcRentDate", "rentDate");
+      bindCalculatorInput("calcHukouDate", "hukouDate");
+      bindCalculatorInput("calcCutoffDate", "cutoffDate");
+      bindCalculatorInput("calcPriorityArea", "priorityArea");
+      document.getElementById("calcPriorityArea").disabled = calc.stage !== "小一";
+
+      renderCalculatorResult();
+    }
+
+    function renderCalculatorResult() {
+      const result = calculateScore();
+      const prediction = predictionForTarget();
+      const latest = prediction?.latest;
+      const forecast = prediction?.forecast;
+      const auxiliary = prediction?.auxiliary;
+      const marginLatest = latest && result.total !== null ? Math.round((result.total - latest.score_value) * 100) / 100 : null;
+      const marginForecast = forecast && result.total !== null ? Math.round((result.total - forecast.predictedScore) * 100) / 100 : null;
+      const risk = riskByMargin(marginForecast ?? marginLatest);
+      const direction = forecast ? (forecast.change > 0 ? "预计上升" : forecast.change < 0 ? "预计下降" : "预计持平") : "暂无预测";
+      const directionClass = forecast ? deltaClass(forecast.change) : "flat";
+      const targetName = latest?.school_name || "请选择目标学校";
+
+      document.getElementById("calcResult").innerHTML = `
+        <div class="score-card">
+          <div>
+            <label>基础类别</label>
+            <strong>${result.category.category}</strong>
+          </div>
+          <div>
+            <label>加分</label>
+            <strong>${formatScore(result.bonus)}</strong>
+          </div>
+          <div>
+            <label>试算积分</label>
+            <strong>${formatScore(result.total)}</strong>
+          </div>
+        </div>
+        <div class="prediction-card">
+          <div class="prediction-head">
+            <div>
+              <h3>${targetName}</h3>
+              <p>${result.category.text}</p>
+            </div>
+            <span class="risk-pill ${risk.tone === "risk" ? "risk" : risk.tone === "watch" ? "watch" : ""}">${risk.text}</span>
+          </div>
+          <div class="predict-grid">
+            <div class="predict-item">
+              <label>最新录取线</label>
+              <strong>${latest ? `${latest.year} · ${formatScore(latest.score_value)}` : "-"}</strong>
+            </div>
+            <div class="predict-item">
+              <label>较最新线</label>
+              <strong class="delta ${deltaClass(marginLatest)}">${formatDelta(marginLatest)}</strong>
+            </div>
+            <div class="predict-item">
+              <label>下一届方向</label>
+              <strong class="delta ${directionClass}">${forecast ? `${direction} ${formatDelta(forecast.change)}` : "-"}</strong>
+            </div>
+            <div class="predict-item">
+              <label>参考预测线</label>
+              <strong>${forecast ? `${forecast.predictedYear} · ${formatScore(forecast.predictedScore)}` : "-"}</strong>
+            </div>
+            <div class="predict-item">
+              <label>较预测线</label>
+              <strong class="delta ${deltaClass(marginForecast)}">${formatDelta(marginForecast)}</strong>
+            </div>
+            <div class="predict-item">
+              <label>模型</label>
+              <strong>${forecast ? forecast.method : "样本不足"}</strong>
+            </div>
+          </div>
+        </div>
+        <div class="bonus-list">
+          <label>计算明细</label>
+          <div>基础分：${formatScore(result.category.base)}；加分原始合计：${formatScore(result.rawBonus)}；封顶后：${formatScore(result.bonus)}</div>
+          ${result.details.map(item => `<div>${item}</div>`).join("")}
+          <div>预测依据：${forecast ? forecast.basis : "该校有效历史分数不足，暂不生成方向预测"}</div>
+          ${auxiliary ? `<div>辅助参考：${auxiliary.basis}，参考预测线 ${auxiliary.predictedYear} · ${formatScore(auxiliary.predictedScore)}，变化 ${formatDelta(auxiliary.change)}</div>` : ""}
+          <div>所有试算积分和预测线均按 ${MAX_ADMISSION_SCORE} 分封顶。</div>
+        </div>
+      `;
+    }
+
+    function scalePoint(value, minValue, maxValue, start, end) {
+      if (maxValue === minValue) return (start + end) / 2;
+      return start + ((value - minValue) / (maxValue - minValue)) * (end - start);
+    }
+
+    function renderAverageChart() {
+      const records = visibleRecords().filter(record => record.score_value !== null);
+      const years = data.meta.years;
+      const points = years.map(year => {
+        const yearRecords = records.filter(record => record.year === year);
+        return { year, value: average(yearRecords.map(record => record.score_value)), count: yearRecords.length };
+      }).filter(point => point.value !== null);
+
+      const host = document.getElementById("avgChart");
+      document.getElementById("avgChartLabel").textContent = points.length ? `${points[0].year}-${points[points.length - 1].year}` : "";
+      if (!points.length) {
+        host.innerHTML = `<div class="empty">暂无数据</div>`;
+        return;
+      }
+
+      const width = 520;
+      const height = 204;
+      const pad = { top: 24, right: 22, bottom: 34, left: 42 };
+      const values = points.map(point => point.value);
+      const min = Math.floor(Math.min(...values) - 2);
+      const max = Math.ceil(Math.max(...values) + 2);
+      const x = year => scalePoint(year, years[0], years[years.length - 1], pad.left, width - pad.right);
+      const y = value => height - pad.bottom - scalePoint(value, min, max, 0, height - pad.top - pad.bottom);
+      const line = points.map(point => `${x(point.year)},${y(point.value)}`).join(" ");
+      const area = `${pad.left},${height - pad.bottom} ${line} ${x(points[points.length - 1].year)},${height - pad.bottom}`;
+
+      host.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="均分走势">
+          <path d="M ${pad.left} ${pad.top} V ${height - pad.bottom} H ${width - pad.right}" fill="none" stroke="#d7dfd8"/>
+          <polygon points="${area}" fill="rgba(15,111,89,.10)"></polygon>
+          <polyline points="${line}" fill="none" stroke="#0f6f59" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></polyline>
+          ${years.map(year => `<text x="${x(year)}" y="${height - 12}" text-anchor="middle" fill="#61716a" font-size="11">${year}</text>`).join("")}
+          <text x="8" y="${y(max)}" fill="#61716a" font-size="11">${formatScore(max)}</text>
+          <text x="8" y="${y(min)}" fill="#61716a" font-size="11">${formatScore(min)}</text>
+          ${points.map(point => `
+            <g>
+              <circle cx="${x(point.year)}" cy="${y(point.value)}" r="4.5" fill="#fff" stroke="#0f6f59" stroke-width="2"></circle>
+              <text x="${x(point.year)}" y="${y(point.value) - 10}" text-anchor="middle" fill="#16221d" font-size="11">${formatScore(point.value)}</text>
+            </g>
+          `).join("")}
+        </svg>
+      `;
+    }
+
+    function renderRankChart(rows) {
+      const host = document.getElementById("rankChart");
+      const label = state.year === "全部" ? "最新年份" : state.year;
+      document.getElementById("rankChartLabel").textContent = label;
+      const top = rows
+        .filter(row => row.score_value !== null)
+        .slice()
+        .sort((a, b) => b.score_value - a.score_value)
+        .slice(0, 8);
+
+      if (!top.length) {
+        host.innerHTML = `<div class="empty">暂无数据</div>`;
+        return;
+      }
+
+      const width = 520;
+      const rowHeight = 23;
+      const height = 42 + top.length * rowHeight;
+      const max = Math.max(...top.map(row => row.score_value));
+      host.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="年度排行">
+          ${top.map((row, index) => {
+            const y = 22 + index * rowHeight;
+            const barWidth = Math.max(8, (row.score_value / max) * 260);
+            const color = row.school_type === "公办" ? "#0f6f59" : "#2e6f9f";
+            const name = row.school_name.replace(/（.*?）/g, "").replace(/\(.*?\)/g, "");
+            return `
+              <text x="12" y="${y + 12}" fill="#16221d" font-size="12">${name.slice(0, 20)}</text>
+              <rect x="254" y="${y}" width="${barWidth}" height="14" rx="3" fill="${color}" opacity=".88"></rect>
+              <text x="${264 + barWidth}" y="${y + 12}" fill="#16221d" font-size="12">${formatScore(row.score_value)}</text>
+            `;
+          }).join("")}
+        </svg>
+      `;
+    }
+
+    function renderTable(rows) {
+      const body = document.getElementById("schoolTable");
+      document.getElementById("tableCaption").textContent = `${rows.length} 条记录`;
+
+      if (!state.selectedKey && rows.length) {
+        state.selectedKey = keyOf(rows[0]);
+      }
+
+      body.innerHTML = rows.map(row => {
+        const trend = trendFor(row);
+        const note = row.note || row.score_text;
+        const selected = keyOf(row) === state.selectedKey ? "selected" : "";
+        const typeClass = row.school_type === "公办" ? "public" : "private";
+        return `
+          <tr class="data-row ${selected}" data-key="${keyOf(row)}">
+            <td class="school-cell">
+              <span class="school-name" title="${row.school_name}">${row.school_name}</span>
+              <span class="school-sub"><span class="tag ${typeClass}">${row.school_type}</span><span>${row.stage}</span><span>${row.admission_type}</span></span>
+            </td>
+            <td>${row.year}</td>
+            <td><span class="score">${formatScore(row.score_value)}</span></td>
+            <td><span class="delta ${deltaClass(trend)}">${formatDelta(trend)}</span></td>
+            <td title="${note}">${note || "-"}</td>
+          </tr>
+        `;
+      }).join("");
+
+      body.querySelectorAll("tr.data-row").forEach(row => {
+        row.addEventListener("click", () => {
+          state.selectedKey = row.dataset.key;
+          state.tab = "趋势";
+          render();
+        });
+      });
+
+      if (!rows.length) {
+        body.innerHTML = `<tr><td colspan="5"><div class="empty">暂无匹配记录</div></td></tr>`;
+      }
+    }
+
+    function renderDetailTabs() {
+      renderButtons("detailTabs", ["趋势", "规则", "原文"], state.tab, value => {
+        state.tab = value;
+        renderDetail();
+      });
+    }
+
+    function renderDetail() {
+      renderDetailTabs();
+      const panel = document.getElementById("detailPanel");
+      const history = state.selectedKey ? historyFor(state.selectedKey) : [];
+      const current = history.slice().reverse().find(record => record.score_value !== null) || history[history.length - 1];
+      document.getElementById("detailCaption").textContent = current ? `${current.stage} · ${current.admission_type}` : "";
+
+      if (state.tab === "规则") {
+        const stage = current?.stage || (state.stage === "全部" ? "小一" : state.stage);
+        const stageRules = stage === "初一" ? data.rules.junior : data.rules.primary;
+        panel.innerHTML = `
+          <div class="rule-list">
+            ${data.rules.common.concat(stageRules).map(item => `<div class="rule-item">${item}</div>`).join("")}
+          </div>
+          <div class="score-types">
+            <table>
+              <thead><tr><th>类型</th><th>基础分</th><th>户籍</th><th>居住</th></tr></thead>
+              <tbody>
+                ${data.rules.score_types.map(item => `
+                  <tr><td>${item.type}</td><td>${item.base}</td><td>${item.hukou}</td><td>${item.residence}</td></tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
+        return;
+      }
+
+      if (state.tab === "原文") {
+        const stage = current?.stage || (state.stage === "全部" ? "小一" : state.stage);
+        const sections = data.rule_sections[stage] || [];
+        panel.innerHTML = `
+          <div class="raw-section">
+            ${sections.length ? sections.map(section => `
+              <article><strong>${stage}规则 PDF 第 ${section.page} 页</strong><br>${section.text}</article>
+            `).join("") : `<div class="empty">暂无布吉相关原文片段</div>`}
+          </div>
+        `;
+        return;
+      }
+
+      if (!current) {
+        panel.innerHTML = `<div class="empty">请选择学校</div>`;
+        return;
+      }
+
+      const numeric = history.filter(row => row.score_value !== null);
+      const trend = numeric.length > 1 ? numeric[numeric.length - 1].score_value - numeric[0].score_value : null;
+
+      panel.innerHTML = `
+        <div class="detail-title">
+          <div>
+            <h3>${current.school_name}</h3>
+            <small>${current.school_type} · ${current.region} · ${current.admission_type}</small>
+          </div>
+          <div class="detail-score">
+            <strong>${formatScore(current.score_value)}</strong>
+            <span>${current.year} 年</span>
+          </div>
+        </div>
+        <div class="detail-chart">${renderSchoolSvg(numeric)}</div>
+        <div class="year-list">
+          ${history.slice().reverse().map(row => `
+            <div class="year-row">
+              <strong>${row.year}</strong>
+              <span class="score">${formatScore(row.score_value)}</span>
+              <p>${row.note || row.score_text}<br>来源：${row.source} 第 ${row.source_row} 行</p>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function renderSchoolSvg(points) {
+      if (!points.length) return `<div class="empty">暂无可绘制分数</div>`;
+      const width = 520;
+      const height = 210;
+      const pad = { top: 24, right: 24, bottom: 34, left: 42 };
+      const years = points.map(point => point.year);
+      const values = points.map(point => point.score_value);
+      const minYear = Math.min(...years);
+      const maxYear = Math.max(...years);
+      const min = Math.floor(Math.min(...values) - 2);
+      const max = Math.ceil(Math.max(...values) + 2);
+      const x = year => scalePoint(year, minYear, maxYear, pad.left, width - pad.right);
+      const y = value => height - pad.bottom - scalePoint(value, min, max, 0, height - pad.top - pad.bottom);
+      const line = points.map(point => `${x(point.year)},${y(point.score_value)}`).join(" ");
+      const color = points[points.length - 1].school_type === "公办" ? "#0f6f59" : "#2e6f9f";
+      return `
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="学校历年趋势">
+          <path d="M ${pad.left} ${pad.top} V ${height - pad.bottom} H ${width - pad.right}" fill="none" stroke="#d7dfd8"/>
+          <polyline points="${line}" fill="none" stroke="${color}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></polyline>
+          ${points.map(point => `
+            <g>
+              <circle cx="${x(point.year)}" cy="${y(point.score_value)}" r="5" fill="#fff" stroke="${color}" stroke-width="2"></circle>
+              <text x="${x(point.year)}" y="${y(point.score_value) - 10}" text-anchor="middle" fill="#16221d" font-size="11">${formatScore(point.score_value)}</text>
+              <text x="${x(point.year)}" y="${height - 12}" text-anchor="middle" fill="#61716a" font-size="11">${point.year}</text>
+            </g>
+          `).join("")}
+        </svg>
+      `;
+    }
+
+    function render() {
+      renderFilters();
+      const rows = recordsForTable();
+      renderMetrics(rows);
+      renderCalculator();
+      renderAverageChart();
+      renderRankChart(rows);
+      renderTable(rows);
+      renderDetail();
+      document.getElementById("overviewCaption").textContent = `${state.stage} · ${state.type} · ${state.admissionType}`;
+    }
+
+    function init() {
+      if (!data) {
+        document.body.innerHTML = "<main class='shell'><div class='empty'>数据文件未加载</div></main>";
+        return;
+      }
+      state.year = String(Math.max(...data.meta.years));
+      document.getElementById("metaPill").textContent = `${data.meta.record_count} 条记录 · ${data.meta.school_count} 个学校组合 · ${data.meta.years[0]}-${data.meta.years[data.meta.years.length - 1]}`;
+      document.getElementById("footerNote").textContent = `生成时间：${data.meta.generated_at}；数据来源：${data.meta.source_files.join("、")}`;
+      render();
+    }
+
+    init();
+  </script>
+</body>
+</html>
