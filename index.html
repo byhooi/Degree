@@ -302,8 +302,16 @@
       line-height: 1.5;
     }
 
-    .risk-pill {
+    .prediction-badges {
       flex: 0 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+      max-width: 190px;
+    }
+
+    .risk-pill {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -323,6 +331,33 @@
 
     .risk-pill.risk {
       background: var(--red);
+    }
+
+    .model-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 74px;
+      height: 28px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 111, 89, .2);
+      color: var(--green);
+      background: rgba(15, 111, 89, .08);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .model-pill.watch {
+      border-color: rgba(201, 121, 25, .28);
+      color: var(--amber);
+      background: rgba(201, 121, 25, .10);
+    }
+
+    .model-pill.risk {
+      border-color: rgba(183, 72, 62, .28);
+      color: var(--red);
+      background: rgba(183, 72, 62, .10);
     }
 
     .predict-grid {
@@ -350,6 +385,51 @@
       margin-top: 6px;
       font-size: 20px;
       font-variant-numeric: tabular-nums;
+    }
+
+    .forecast-list {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .forecast-row {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+      gap: 8px;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 10px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .forecast-row:first-child {
+      border-top: 0;
+    }
+
+    .forecast-row.head {
+      min-height: 32px;
+      color: var(--muted);
+      background: #f5f8f5;
+      font-size: 12px;
+    }
+
+    .forecast-row strong {
+      font-size: 16px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .forecast-empty {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--muted);
+      background: #fbfcfb;
+      font-size: 12px;
     }
 
     .bonus-list {
@@ -771,6 +851,13 @@
         grid-template-columns: 1fr;
       }
 
+      .forecast-row {
+        grid-template-columns: 54px repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        padding: 8px;
+        font-size: 12px;
+      }
+
       .calc-form .wide {
         grid-column: span 1;
       }
@@ -826,7 +913,7 @@
       <div class="panel-head">
         <div>
           <h2>积分试算与录取预测</h2>
-          <p>按 2025 积分规则试算，并优先使用小一 cohort 信号判断初一下一届方向</p>
+          <p>按 2025 积分规则试算，并优先使用小一 cohort 信号判断未来三年趋势</p>
         </div>
       </div>
       <div class="panel-body">
@@ -875,7 +962,7 @@
           </div>
           <div class="calc-result" id="calcResult"></div>
         </div>
-        <p class="calc-note">预测不是录取承诺。初一预测优先使用小一 cohort 信号；无同校样本时使用布吉同办学性质小学均线，初中自身近年趋势仅作辅助参考。</p>
+        <p class="calc-note">预测不是录取承诺。初一预测优先使用小一 cohort 信号推演未来三年；无同校样本时使用布吉同办学性质小学均线，初中自身近年趋势仅作辅助参考。</p>
       </div>
     </section>
 
@@ -952,6 +1039,9 @@
   <script>
     const data = window.ADMISSION_DATA;
     const MAX_ADMISSION_SCORE = 110;
+    const FORECAST_YEAR_COUNT = 3;
+    const TREND_DECAY = 0.65;
+    const TREND_MAX_YEARLY_CHANGE = 5;
     const admissionTypes = ["录取分数线", "民办直升"];
     const state = {
       stage: "全部",
@@ -982,6 +1072,10 @@
       return Math.round(Math.min(MAX_ADMISSION_SCORE, Math.max(0, Number(value))) * 100) / 100;
     }
 
+    function roundDelta(value) {
+      return Math.round(value * 100) / 100;
+    }
+
     function formatScore(value) {
       if (value === null || value === undefined || Number.isNaN(value)) return "-";
       return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
@@ -996,6 +1090,44 @@
     function deltaClass(value) {
       if (value === null || value === undefined || Number.isNaN(value) || Math.abs(value) < 0.005) return "flat";
       return value > 0 ? "up" : "down";
+    }
+
+    function modelDirection(change) {
+      if (change === null || change === undefined || Number.isNaN(change) || Math.abs(change) < 0.005) return "flat";
+      return change > 0 ? "up" : "down";
+    }
+
+    function forecastDirection(change) {
+      const direction = modelDirection(change);
+      if (direction === "flat") return "预计持平";
+      return direction === "up" ? "预计上升" : "预计下降";
+    }
+
+    function clampTrendChange(value) {
+      return Math.max(-TREND_MAX_YEARLY_CHANGE, Math.min(TREND_MAX_YEARLY_CHANGE, value));
+    }
+
+    function weightedRecentChange(changes) {
+      if (!changes.length) return null;
+      let weighted = 0;
+      let totalWeight = 0;
+      changes.forEach((change, index) => {
+        const distanceFromLatest = changes.length - 1 - index;
+        const weight = Math.pow(TREND_DECAY, distanceFromLatest);
+        weighted += clampTrendChange(change) * weight;
+        totalWeight += weight;
+      });
+      return totalWeight ? weighted / totalWeight : null;
+    }
+
+    function formatForecastSeries(forecasts) {
+      if (!forecasts?.length) return "-";
+      return forecasts.map(item => `${item.year} ${formatScore(item.score)}`).join("、");
+    }
+
+    function forecastPeriodLabel(count) {
+      if (count >= FORECAST_YEAR_COUNT) return "未来三年";
+      return `未来${count}年`;
     }
 
     function unique(values) {
@@ -1207,22 +1339,68 @@
       return { text: "风险高", tone: "risk" };
     }
 
+    function forecastItemsFromScores(latestScore, futureScores) {
+      const forecasts = [];
+      let previousScore = latestScore;
+      futureScores.forEach(item => {
+        const score = capScore(item.score);
+        if (score === null) return;
+        forecasts.push({
+          year: item.year,
+          score,
+          change: roundDelta(score - previousScore),
+          cumulativeChange: roundDelta(score - latestScore),
+          source: item.source || ""
+        });
+        previousScore = score;
+      });
+      return forecasts;
+    }
+
+    function forecastResult(payload) {
+      const forecasts = (payload.forecasts || []).filter(item => item.score !== null && item.score !== undefined);
+      if (!forecasts.length) return null;
+      const first = forecasts[0];
+      return {
+        ...payload,
+        forecasts,
+        predictedYear: first.year,
+        predictedScore: first.score,
+        change: first.change
+      };
+    }
+
     function recentTrendPrediction(stage, schoolKey, schoolType) {
       const history = recordsForSchool(stage, schoolKey, schoolType).filter(record => record.score_value !== null);
       if (history.length < 2) return null;
-      const recent = history.slice(-3);
+      const recent = history.slice(-4);
       const changes = recent.slice(1).map((record, index) => record.score_value - recent[index].score_value);
-      const avgChange = average(changes) ?? 0;
+      const weightedChange = weightedRecentChange(changes) ?? 0;
       const latest = recent[recent.length - 1];
-      const predictedScore = capScore(latest.score_value + avgChange);
-      return {
+      const futureScores = [];
+      let previousScore = latest.score_value;
+      for (let step = 1; step <= FORECAST_YEAR_COUNT; step += 1) {
+        const score = capScore(previousScore + weightedChange);
+        futureScores.push({
+          year: latest.year + step,
+          score,
+          source: `近年加权变化 ${formatDelta(roundDelta(weightedChange))}`
+        });
+        previousScore = score;
+      }
+      const lowConfidence = history.length <= 2;
+      const clipped = changes.some(change => Math.abs(change) > TREND_MAX_YEARLY_CHANGE);
+      const notes = [
+        lowConfidence ? "仅 2 年有效数据，趋势仅供参考" : "",
+        clipped ? `年变化超过 ${TREND_MAX_YEARLY_CHANGE} 分时已截尾` : ""
+      ].filter(Boolean);
+      return forecastResult({
         method: "近年趋势",
         latestYear: latest.year,
-        predictedYear: latest.year + 1,
-        predictedScore,
-        change: Math.round((predictedScore - latest.score_value) * 100) / 100,
-        basis: `${recent[0].year}-${latest.year} 同校录取线变化`
-      };
+        forecasts: forecastItemsFromScores(latest.score_value, futureScores),
+        basis: `${recent[0].year}-${latest.year} 同校录取线变化，按 EWMA 加权变化 ${formatDelta(roundDelta(weightedChange))} 逐年延展${notes.length ? `；${notes.join("；")}` : ""}`,
+        confidenceNote: notes.join("；")
+      });
     }
 
     function cohortPrediction(stage, schoolKey, schoolType) {
@@ -1231,18 +1409,30 @@
         .filter(item => item.school_key === schoolKey && item.school_type === schoolType)
         .sort((a, b) => a.junior_year - b.junior_year);
       const pair = pairs[pairs.length - 1];
-      if (!pair || pair.projected_next_junior_score === null || pair.projected_next_junior_score === undefined) {
-        return null;
+      if (!pair) return null;
+      const primaryByYear = new Map(
+        recordsForSchool("小一", schoolKey, schoolType)
+          .filter(record => record.score_value !== null)
+          .map(record => [record.year, record])
+      );
+      const futureScores = [];
+      for (let step = 1; step <= FORECAST_YEAR_COUNT; step += 1) {
+        const primaryYear = pair.primary_year + step;
+        const primary = primaryByYear.get(primaryYear);
+        if (!primary) break;
+        futureScores.push({
+          year: pair.junior_year + step,
+          score: primary.score_value + pair.cohort_delta,
+          source: `小一${primaryYear} ${formatScore(primary.score_value)}`
+        });
       }
-      return {
+      return forecastResult({
         method: "小一到初一 cohort",
         latestYear: pair.junior_year,
-        predictedYear: pair.projected_next_junior_year,
-        predictedScore: capScore(pair.projected_next_junior_score),
-        change: Math.round((capScore(pair.projected_next_junior_score) - pair.junior_score) * 100) / 100,
-        basis: `小一${pair.primary_year} ${formatScore(pair.primary_score)} -> 初一${pair.junior_year} ${formatScore(pair.junior_score)}；下一届参考小一${pair.next_primary_year} ${formatScore(pair.next_primary_score)}`,
+        forecasts: forecastItemsFromScores(pair.junior_score, futureScores),
+        basis: `小一${pair.primary_year} ${formatScore(pair.primary_score)} -> 初一${pair.junior_year} ${formatScore(pair.junior_score)}；${forecastPeriodLabel(futureScores.length)}参考 ${futureScores.map(item => item.source).join("、")}`,
         cohortDelta: pair.cohort_delta
-      };
+      });
     }
 
     function groupedPrimaryCohortPrediction(stage, schoolKey, schoolType) {
@@ -1251,7 +1441,6 @@
       const latest = latestRecordForSchool(stage, schoolKey, schoolType);
       if (!latest || latest.score_value === null) return null;
       const primaryYear = latest.year - lagYears;
-      const nextPrimaryYear = primaryYear + 1;
       const primaryRecords = data.records.filter(record =>
         record.stage === "小一" &&
         record.school_type === schoolType &&
@@ -1259,43 +1448,73 @@
         record.year === primaryYear &&
         record.score_value !== null
       );
-      const nextPrimaryRecords = data.records.filter(record =>
-        record.stage === "小一" &&
-        record.school_type === schoolType &&
-        record.admission_type === "录取分数线" &&
-        record.year === nextPrimaryYear &&
-        record.score_value !== null
-      );
       const primaryAvg = average(primaryRecords.map(record => record.score_value));
-      const nextPrimaryAvg = average(nextPrimaryRecords.map(record => record.score_value));
-      if (primaryAvg === null || nextPrimaryAvg === null) return null;
+      if (primaryAvg === null) return null;
       const cohortDelta = latest.score_value - primaryAvg;
-      const predictedScore = capScore(nextPrimaryAvg + cohortDelta);
-      return {
+      const futureScores = [];
+      for (let step = 1; step <= FORECAST_YEAR_COUNT; step += 1) {
+        const futurePrimaryYear = primaryYear + step;
+        const futurePrimaryRecords = data.records.filter(record =>
+          record.stage === "小一" &&
+          record.school_type === schoolType &&
+          record.admission_type === "录取分数线" &&
+          record.year === futurePrimaryYear &&
+          record.score_value !== null
+        );
+        const futurePrimaryAvg = average(futurePrimaryRecords.map(record => record.score_value));
+        if (futurePrimaryAvg === null) break;
+        futureScores.push({
+          year: latest.year + step,
+          score: futurePrimaryAvg + cohortDelta,
+          source: `布吉${schoolType}小学${futurePrimaryYear}均线 ${formatScore(futurePrimaryAvg)}`
+        });
+      }
+      return forecastResult({
         method: `${schoolType}小学整体 cohort`,
         latestYear: latest.year,
-        predictedYear: latest.year + 1,
-        predictedScore,
-        change: Math.round((predictedScore - latest.score_value) * 100) / 100,
-        basis: `${schoolType}初中${latest.year}线 ${formatScore(latest.score_value)} - 布吉${schoolType}小学${primaryYear}均线 ${formatScore(primaryAvg)}；下一届参考布吉${schoolType}小学${nextPrimaryYear}均线 ${formatScore(nextPrimaryAvg)}`,
+        forecasts: forecastItemsFromScores(latest.score_value, futureScores),
+        basis: `${schoolType}初中${latest.year}线 ${formatScore(latest.score_value)} - 布吉${schoolType}小学${primaryYear}均线 ${formatScore(primaryAvg)}；${forecastPeriodLabel(futureScores.length)}参考 ${futureScores.map(item => item.source).join("、")}`,
         cohortDelta: Math.round(cohortDelta * 100) / 100
-      };
+      });
+    }
+
+    function modelAgreement(models) {
+      const usable = models.filter(Boolean);
+      if (!usable.length) {
+        return { text: "无模型", tone: "watch", detail: "暂无可用预测模型" };
+      }
+      if (usable.length < 2) {
+        return { text: "单模型", tone: "watch", detail: "仅有一个预测模型可用" };
+      }
+      const directions = usable.map(model => modelDirection(model.change));
+      const counts = directions.reduce((map, direction) => {
+        map[direction] = (map[direction] || 0) + 1;
+        return map;
+      }, {});
+      const uniqueDirections = Object.keys(counts);
+      const maxCount = Math.max(...Object.values(counts));
+      if (uniqueDirections.length === 1) {
+        return { text: "一致", tone: "safe", detail: `${usable.length} 个模型方向一致` };
+      }
+      if (maxCount >= 2) {
+        return { text: "有分歧", tone: "watch", detail: `${maxCount}/${usable.length} 个模型方向一致，需结合辅助参考` };
+      }
+      return { text: "分歧大", tone: "risk", detail: "模型方向分散，建议保守填报" };
     }
 
     function predictionForTarget() {
       if (!state.calculator.targetId) return null;
       const target = parseTargetId(state.calculator.targetId);
       const latest = latestRecordForSchool(target.stage, target.schoolKey, target.schoolType);
-      const direct = cohortPrediction(target.stage, target.schoolKey, target.schoolType);
+      const direct = target.stage === "初一" ? cohortPrediction(target.stage, target.schoolKey, target.schoolType) : null;
+      const grouped = target.stage === "初一" ? groupedPrimaryCohortPrediction(target.stage, target.schoolKey, target.schoolType) : null;
       const trend = recentTrendPrediction(target.stage, target.schoolKey, target.schoolType);
-      const grouped = groupedPrimaryCohortPrediction(target.stage, target.schoolKey, target.schoolType);
-      const forecast = target.stage === "初一"
-        ? (direct || grouped || trend)
-        : trend;
-      const auxiliary = target.stage === "初一"
-        ? (forecast === grouped ? trend : (grouped || trend))
-        : null;
-      return { target, latest, forecast, auxiliary };
+      const candidates = target.stage === "初一"
+        ? [direct, grouped, trend].filter(Boolean)
+        : [trend].filter(Boolean);
+      const forecast = candidates[0] || null;
+      const auxiliary = candidates.find(model => model !== forecast) || null;
+      return { target, latest, forecast, auxiliary, models: candidates, agreement: modelAgreement(candidates) };
     }
 
     function renderButtons(containerId, options, activeValue, onClick) {
@@ -1465,12 +1684,39 @@
       const latest = prediction?.latest;
       const forecast = prediction?.forecast;
       const auxiliary = prediction?.auxiliary;
-      const marginLatest = latest && result.total !== null ? Math.round((result.total - latest.score_value) * 100) / 100 : null;
-      const marginForecast = forecast && result.total !== null ? Math.round((result.total - forecast.predictedScore) * 100) / 100 : null;
+      const agreement = prediction?.agreement || { text: "单模型", tone: "watch", detail: "仅有一个预测模型可用" };
+      const forecasts = forecast?.forecasts || [];
+      const firstForecast = forecasts[0];
+      const lastForecast = forecasts[forecasts.length - 1];
+      const marginLatest = latest && result.total !== null ? roundDelta(result.total - latest.score_value) : null;
+      const marginForecast = firstForecast && result.total !== null ? roundDelta(result.total - firstForecast.score) : null;
       const risk = riskByMargin(marginForecast ?? marginLatest);
-      const direction = forecast ? (forecast.change > 0 ? "预计上升" : forecast.change < 0 ? "预计下降" : "预计持平") : "暂无预测";
-      const directionClass = forecast ? deltaClass(forecast.change) : "flat";
+      const trendChange = lastForecast ? lastForecast.cumulativeChange : null;
+      const direction = lastForecast ? forecastDirection(trendChange) : "暂无预测";
+      const directionClass = lastForecast ? deltaClass(trendChange) : "flat";
       const targetName = latest?.school_name || "请选择目标学校";
+      const agreementClass = agreement.tone === "risk" ? "risk" : agreement.tone === "watch" ? "watch" : "";
+      const forecastRows = forecasts.length ? `
+        <div class="forecast-list">
+          <div class="forecast-row head">
+            <span>年份</span>
+            <span>预测线</span>
+            <span>年变化</span>
+            <span>试算差</span>
+          </div>
+          ${forecasts.map(item => {
+            const margin = result.total !== null ? roundDelta(result.total - item.score) : null;
+            return `
+              <div class="forecast-row">
+                <span>${item.year}</span>
+                <strong>${formatScore(item.score)}</strong>
+                <span class="delta ${deltaClass(item.change)}">${formatDelta(item.change)}</span>
+                <span class="delta ${deltaClass(margin)}">${formatDelta(margin)}</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      ` : `<div class="forecast-empty">该校有效历史分数不足，暂不生成未来三年趋势。</div>`;
 
       document.getElementById("calcResult").innerHTML = `
         <div class="score-card">
@@ -1493,7 +1739,10 @@
               <h3>${targetName}</h3>
               <p>${result.category.text}</p>
             </div>
-            <span class="risk-pill ${risk.tone === "risk" ? "risk" : risk.tone === "watch" ? "watch" : ""}">${risk.text}</span>
+            <div class="prediction-badges">
+              <span class="risk-pill ${risk.tone === "risk" ? "risk" : risk.tone === "watch" ? "watch" : ""}">${risk.text}</span>
+              <span class="model-pill ${agreementClass}" title="${agreement.detail}">${agreement.text}</span>
+            </div>
           </div>
           <div class="predict-grid">
             <div class="predict-item">
@@ -1505,15 +1754,15 @@
               <strong class="delta ${deltaClass(marginLatest)}">${formatDelta(marginLatest)}</strong>
             </div>
             <div class="predict-item">
-              <label>下一届方向</label>
-              <strong class="delta ${directionClass}">${forecast ? `${direction} ${formatDelta(forecast.change)}` : "-"}</strong>
+              <label>三年趋势</label>
+              <strong class="delta ${directionClass}">${lastForecast ? `${direction} ${formatDelta(trendChange)}` : "-"}</strong>
             </div>
             <div class="predict-item">
-              <label>参考预测线</label>
-              <strong>${forecast ? `${forecast.predictedYear} · ${formatScore(forecast.predictedScore)}` : "-"}</strong>
+              <label>首年预测线</label>
+              <strong>${firstForecast ? `${firstForecast.year} · ${formatScore(firstForecast.score)}` : "-"}</strong>
             </div>
             <div class="predict-item">
-              <label>较预测线</label>
+              <label>较首年预测线</label>
               <strong class="delta ${deltaClass(marginForecast)}">${formatDelta(marginForecast)}</strong>
             </div>
             <div class="predict-item">
@@ -1521,13 +1770,15 @@
               <strong>${forecast ? forecast.method : "样本不足"}</strong>
             </div>
           </div>
+          ${forecastRows}
         </div>
         <div class="bonus-list">
           <label>计算明细</label>
           <div>基础分：${formatScore(result.category.base)}；加分原始合计：${formatScore(result.rawBonus)}；封顶后：${formatScore(result.bonus)}</div>
           ${result.details.map(item => `<div>${item}</div>`).join("")}
-          <div>预测依据：${forecast ? forecast.basis : "该校有效历史分数不足，暂不生成方向预测"}</div>
-          ${auxiliary ? `<div>辅助参考：${auxiliary.basis}，参考预测线 ${auxiliary.predictedYear} · ${formatScore(auxiliary.predictedScore)}，变化 ${formatDelta(auxiliary.change)}</div>` : ""}
+          <div>模型一致性：${agreement.detail}</div>
+          <div>预测依据：${forecast ? forecast.basis : "该校有效历史分数不足，暂不生成未来三年趋势"}</div>
+          ${auxiliary ? `<div>辅助参考：${auxiliary.basis}；三年参考 ${formatForecastSeries(auxiliary.forecasts)}</div>` : ""}
           <div>所有试算积分和预测线均按 ${MAX_ADMISSION_SCORE} 分封顶。</div>
         </div>
       `;
@@ -1787,7 +2038,11 @@
       }
       state.year = String(Math.max(...data.meta.years));
       document.getElementById("metaPill").textContent = `${data.meta.record_count} 条记录 · ${data.meta.school_count} 个学校组合 · ${data.meta.years[0]}-${data.meta.years[data.meta.years.length - 1]}`;
-      document.getElementById("footerNote").textContent = `生成时间：${data.meta.generated_at}；数据来源：${data.meta.source_files.join("、")}`;
+      const backtest = data.backtest;
+      const backtestText = backtest?.overall?.sample_count
+        ? `；${backtest.method} MAE ${formatScore(backtest.overall.mae)}（${backtest.overall.sample_count} 个样本）`
+        : "";
+      document.getElementById("footerNote").textContent = `生成时间：${data.meta.generated_at}；数据来源：${data.meta.source_files.join("、")}${backtestText}`;
       render();
     }
 

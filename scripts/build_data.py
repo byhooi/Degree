@@ -21,6 +21,8 @@ from pypdf import PdfReader  # type: ignore
 
 TARGET_KEYWORDS = ("布吉街道", "布吉片区")
 MAX_ADMISSION_SCORE = 110
+TREND_DECAY = 0.65
+TREND_MAX_YEARLY_CHANGE = 5
 
 EXCEL_FILES = [
     ("小一", ROOT / "小一19-25.xlsx"),
@@ -162,6 +164,10 @@ def extract_note(score_text: str) -> str:
 
 def cap_admission_score(value: float) -> float:
     return round(min(MAX_ADMISSION_SCORE, max(0, value)), 2)
+
+
+def clamp_trend_change(value: float) -> float:
+    return max(-TREND_MAX_YEARLY_CHANGE, min(TREND_MAX_YEARLY_CHANGE, value))
 
 
 def parse_year_from_header(header: str) -> int | None:
@@ -408,6 +414,73 @@ def build_cohort_model(records: list[dict]) -> dict:
     }
 
 
+def robust_trend_change(items: list[dict]) -> float | None:
+    if len(items) < 2:
+        return None
+
+    recent = items[-4:]
+    changes = [
+        clamp_trend_change(recent[index]["score_value"] - recent[index - 1]["score_value"])
+        for index in range(1, len(recent))
+    ]
+    if not changes:
+        return None
+
+    weighted = 0.0
+    total_weight = 0.0
+    for index, change in enumerate(changes):
+        distance_from_latest = len(changes) - 1 - index
+        weight = TREND_DECAY ** distance_from_latest
+        weighted += change * weight
+        total_weight += weight
+    return weighted / total_weight if total_weight else None
+
+
+def summarize_errors(errors: list[float]) -> dict:
+    if not errors:
+        return {"sample_count": 0, "mae": None, "max_abs_error": None}
+    return {
+        "sample_count": len(errors),
+        "mae": round(statistics.mean(errors), 2),
+        "max_abs_error": round(max(errors), 2),
+    }
+
+
+def build_backtest(records: list[dict]) -> dict:
+    grouped: dict[tuple[str, str, str], list[dict]] = defaultdict(list)
+    for record in records:
+        if record["admission_type"] != "录取分数线":
+            continue
+        if record["score_value"] is None:
+            continue
+        grouped[(record["stage"], record["school_key"], record["school_type"])].append(record)
+
+    all_errors: list[float] = []
+    stage_errors: dict[str, list[float]] = defaultdict(list)
+    for items in grouped.values():
+        items = sorted(items, key=lambda item: item["year"])
+        for index in range(2, len(items)):
+            actual = items[index]
+            prior = items[:index]
+            latest = prior[-1]
+            if actual["year"] != latest["year"] + 1:
+                continue
+            change = robust_trend_change(prior)
+            if change is None:
+                continue
+            predicted = cap_admission_score(latest["score_value"] + change)
+            error = abs(predicted - actual["score_value"])
+            all_errors.append(error)
+            stage_errors[actual["stage"]].append(error)
+
+    return {
+        "method": "近年趋势留一回测",
+        "description": "每个学校组合使用目标年前历史录取线预测下一年，年变化按 EWMA 加权并以 ±5 分截尾。",
+        "overall": summarize_errors(all_errors),
+        "by_stage": {stage: summarize_errors(errors) for stage, errors in sorted(stage_errors.items())},
+    }
+
+
 def pdf_text(path: Path) -> list[dict]:
     reader = PdfReader(str(path))
     pages: list[dict] = []
@@ -468,6 +541,7 @@ def build_data() -> dict:
         "rules": RULE_SUMMARY,
         "rule_sections": extract_buji_rule_sections(),
         "cohort_model": build_cohort_model(records),
+        "backtest": build_backtest(records),
         "records": records,
         "schools": stats,
     }

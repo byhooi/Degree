@@ -2,7 +2,7 @@
   "meta": {
     "title": "布吉街道义务教育录取分析",
     "scope": "布吉街道/布吉片区",
-    "generated_at": "2026-06-04T16:23:18",
+    "generated_at": "2026-06-04T20:29:22",
     "source_files": [
       "小一19-25.xlsx",
       "初一19-25.xlsx",
@@ -206,6 +206,27 @@
         "confidence": "同校同办学性质样本"
       }
     ]
+  },
+  "backtest": {
+    "method": "近年趋势留一回测",
+    "description": "每个学校组合使用目标年前历史录取线预测下一年，年变化按 EWMA 加权并以 ±5 分截尾。",
+    "overall": {
+      "sample_count": 176,
+      "mae": 5.08,
+      "max_abs_error": 48.85
+    },
+    "by_stage": {
+      "初一": {
+        "sample_count": 58,
+        "mae": 5.18,
+        "max_abs_error": 48.85
+      },
+      "小一": {
+        "sample_count": 118,
+        "mae": 5.03,
+        "max_abs_error": 47.3
+      }
+    }
   },
   "records": [
     {
