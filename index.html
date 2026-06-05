@@ -26,6 +26,10 @@
       box-sizing: border-box;
     }
 
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
       margin: 0;
       color: var(--ink);
@@ -63,7 +67,7 @@
 
     .brand h1 {
       margin: 0;
-      font-size: clamp(26px, 3vw, 42px);
+      font-size: 40px;
       line-height: 1.05;
       font-family: "Microsoft JhengHei UI", "Microsoft YaHei UI", sans-serif;
       font-weight: 800;
@@ -811,6 +815,10 @@
     }
 
     @media (max-width: 1180px) {
+      .brand h1 {
+        font-size: 34px;
+      }
+
       .filters {
         grid-template-columns: 1fr 1fr;
       }
@@ -833,49 +841,394 @@
     }
 
     @media (max-width: 760px) {
+      body {
+        background:
+          linear-gradient(180deg, rgba(15, 111, 89, .08), transparent 220px),
+          var(--bg);
+      }
+
       .shell {
-        width: min(100vw - 18px, 1680px);
-        padding-top: 12px;
+        width: 100%;
+        padding: 10px 10px 22px;
       }
 
       .topbar {
         grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 2px 0 10px;
       }
 
-      .filters,
-      .metrics,
-      .chart-grid,
-      .calc-form,
-      .score-card,
-      .predict-grid {
-        grid-template-columns: 1fr;
+      .brand h1 {
+        font-size: 25px;
+        line-height: 1.12;
       }
 
-      .forecast-row {
-        grid-template-columns: 54px repeat(3, minmax(0, 1fr));
-        gap: 6px;
-        padding: 8px;
+      .brand p {
+        margin-top: 6px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .meta-pill {
+        width: 100%;
+        min-height: 0;
+        padding: 8px 10px;
         font-size: 12px;
+        line-height: 1.45;
+        white-space: normal;
       }
 
-      .calc-form .wide {
-        grid-column: span 1;
+      .filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        padding: 8px;
+        box-shadow: 0 8px 20px rgba(23, 38, 31, .08);
+      }
+
+      .filters .field.search {
+        grid-column: 1 / -1;
+      }
+
+      .segmented {
+        gap: 3px;
+        padding: 3px;
+      }
+
+      .segmented button,
+      .tabs button {
+        height: 36px;
+        padding: 0 6px;
+        font-size: 13px;
+      }
+
+      .field {
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: center;
+        gap: 3px;
+        height: auto;
+        min-height: 56px;
+        padding: 7px 9px;
+      }
+
+      .field span {
+        font-size: 12px;
+        line-height: 1.1;
+      }
+
+      .field select,
+      .field input {
+        min-height: 24px;
+        font-size: 14px;
+      }
+
+      .metrics {
+        grid-template-columns: none;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(132px, 42vw);
+        gap: 8px;
+        overflow-x: auto;
+        margin: 10px -10px 0;
+        padding: 0 10px 4px;
+        scroll-snap-type: x proximity;
+        scrollbar-width: none;
+      }
+
+      .metrics::-webkit-scrollbar {
+        display: none;
       }
 
       .metric {
-        min-height: 76px;
+        min-height: 78px;
+        padding: 11px 12px;
+        scroll-snap-align: start;
+      }
+
+      .metric strong {
+        margin-top: 7px;
+        font-size: 24px;
+      }
+
+      .metric small {
+        margin-top: 6px;
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+
+      .calculator-panel {
+        margin-top: 10px;
+      }
+
+      .panel {
+        margin-right: -10px;
+        margin-left: -10px;
+        border-right: 0;
+        border-left: 0;
+        border-radius: 0;
+      }
+
+      .panel-head {
+        min-height: 0;
+        align-items: flex-start;
+        padding: 11px 10px;
+      }
+
+      .panel-head h2 {
+        font-size: 16px;
+      }
+
+      .panel-head p {
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .panel-body {
+        padding: 10px;
+      }
+
+      .calculator-grid,
+      .layout,
+      .chart-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .layout {
+        margin-top: 10px;
+      }
+
+      .calc-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .calc-form .wide,
+      .check-field {
+        grid-column: 1 / -1;
+      }
+
+      .check-field {
+        min-height: 44px;
+        padding: 8px 9px;
+        line-height: 1.35;
+      }
+
+      .score-card {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        padding: 8px;
+      }
+
+      .score-card strong {
+        font-size: 20px;
+      }
+
+      .prediction-card {
+        padding: 10px;
+      }
+
+      .prediction-head {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .prediction-badges {
+        justify-content: flex-start;
+        width: 100%;
+        max-width: none;
+      }
+
+      .predict-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .predict-item {
+        padding: 8px;
+      }
+
+      .predict-item strong {
+        font-size: 16px;
+        line-height: 1.25;
+        word-break: break-word;
+      }
+
+      .forecast-row {
+        grid-template-columns: 44px repeat(3, minmax(0, 1fr));
+        gap: 4px;
+        padding: 7px 8px;
+        font-size: 12px;
+      }
+
+      .forecast-row strong {
+        font-size: 14px;
+      }
+
+      .bonus-list {
+        padding: 9px;
+      }
+
+      .calc-note {
+        margin-top: 8px;
+      }
+
+      .chart-grid {
+        margin-bottom: 0;
+      }
+
+      .chart-box {
+        min-height: 210px;
+      }
+
+      .chart-title {
+        padding: 9px 10px 0;
       }
 
       .table-wrap {
         max-height: none;
+        overflow: visible;
+        padding: 0 10px 10px;
       }
 
-      table {
-        min-width: 760px;
+      .school-table {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 13px;
+      }
+
+      .school-table thead {
+        display: none;
+      }
+
+      .school-table tbody {
+        display: grid;
+        gap: 8px;
+      }
+
+      .school-table tr.data-row {
+        display: block;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: #fff;
+        box-shadow: 0 6px 16px rgba(23, 38, 31, .06);
+      }
+
+      .school-table tr.data-row:hover {
+        background: #fff;
+      }
+
+      .school-table tr.data-row.selected {
+        background: #f6fbf8;
+        box-shadow: inset 3px 0 0 var(--green), 0 6px 16px rgba(23, 38, 31, .06);
+      }
+
+      .school-table td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 10px;
+        border-bottom: 1px solid #edf1ed;
+        text-align: right;
+      }
+
+      .school-table td:last-child {
+        border-bottom: 0;
+      }
+
+      .school-table td::before {
+        content: attr(data-label);
+        flex: 0 0 auto;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+        text-align: left;
+      }
+
+      .school-table td.school-cell {
+        display: block;
+        padding: 10px;
+        text-align: left;
+        background: #fbfcfb;
+      }
+
+      .school-table td.school-cell::before,
+      .school-table td[colspan]::before {
+        content: none;
+      }
+
+      .school-table td[data-label="备注"] {
+        display: block;
+        color: var(--muted);
+        line-height: 1.55;
+        text-align: left;
+        word-break: break-word;
+      }
+
+      .school-table td[data-label="备注"]::before {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .school-table td[colspan] {
+        display: block;
+        padding: 0;
+      }
+
+      .school-name {
+        line-height: 1.35;
+        white-space: normal;
+      }
+
+      .school-sub {
+        flex-wrap: wrap;
+        overflow: visible;
+        white-space: normal;
+      }
+
+      .score {
+        font-size: 16px;
+      }
+
+      .detail-title {
+        flex-direction: column;
+      }
+
+      .detail-score {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        min-width: 0;
+        text-align: left;
+      }
+
+      .detail-score strong {
+        font-size: 24px;
+      }
+
+      .detail-chart {
+        margin-top: 10px;
       }
 
       .year-row {
-        grid-template-columns: 54px 70px 1fr;
+        grid-template-columns: 54px 64px minmax(0, 1fr);
+        gap: 6px;
+        padding: 8px;
+      }
+
+      .raw-section {
+        max-height: none;
+      }
+
+      .footer {
+        padding: 0 2px;
+        line-height: 1.5;
       }
     }
   </style>
@@ -1003,7 +1356,7 @@
             </div>
           </div>
           <div class="table-wrap">
-            <table>
+            <table class="school-table">
               <thead>
                 <tr>
                   <th style="width:42%">学校</th>
@@ -1019,7 +1372,7 @@
         </div>
       </div>
 
-      <aside class="panel">
+      <aside class="panel" id="detailSection">
         <div class="panel-head">
           <div>
             <h2>学校详情</h2>
@@ -1884,14 +2237,14 @@
         const typeClass = row.school_type === "公办" ? "public" : "private";
         return `
           <tr class="data-row ${selected}" data-key="${keyOf(row)}">
-            <td class="school-cell">
+            <td class="school-cell" data-label="学校">
               <span class="school-name" title="${row.school_name}">${row.school_name}</span>
               <span class="school-sub"><span class="tag ${typeClass}">${row.school_type}</span><span>${row.stage}</span><span>${row.admission_type}</span></span>
             </td>
-            <td>${row.year}</td>
-            <td><span class="score">${formatScore(row.score_value)}</span></td>
-            <td><span class="delta ${deltaClass(trend)}">${formatDelta(trend)}</span></td>
-            <td title="${note}">${note || "-"}</td>
+            <td data-label="年份">${row.year}</td>
+            <td data-label="分数"><span class="score">${formatScore(row.score_value)}</span></td>
+            <td data-label="变化"><span class="delta ${deltaClass(trend)}">${formatDelta(trend)}</span></td>
+            <td data-label="备注" title="${note}">${note || "-"}</td>
           </tr>
         `;
       }).join("");
@@ -1901,6 +2254,9 @@
           state.selectedKey = row.dataset.key;
           state.tab = "趋势";
           render();
+          if (window.matchMedia("(max-width: 760px)").matches) {
+            document.getElementById("detailSection")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
         });
       });
 
