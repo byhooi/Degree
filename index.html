@@ -210,6 +210,16 @@
       align-items: stretch;
     }
 
+    .calc-input-column {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .calc-input-column .calc-note {
+      margin: 0;
+    }
+
     .calc-form {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -460,7 +470,23 @@
       grid-template-columns: minmax(560px, 1.25fr) minmax(390px, .75fr);
       gap: 12px;
       margin-top: 12px;
-      align-items: start;
+      align-items: stretch;
+    }
+
+    .layout-column {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    #detailSection {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+
+    #detailSection .panel-body {
+      flex: 1;
     }
 
     .panel {
@@ -534,7 +560,7 @@
 
     .table-wrap {
       overflow: auto;
-      max-height: 620px;
+      max-height: 760px;
     }
 
     table {
@@ -1271,56 +1297,59 @@
       </div>
       <div class="panel-body">
         <div class="calculator-grid">
-          <div class="calc-form" aria-label="积分试算">
-            <label class="field">
-              <span>学段</span>
-              <select id="calcStage"></select>
-            </label>
-            <label class="field wide">
-              <span>目标</span>
-              <select id="calcTarget"></select>
-            </label>
-            <label class="field">
-              <span>户籍</span>
-              <select id="calcHukou"></select>
-            </label>
-            <label class="field">
-              <span>居住</span>
-              <select id="calcResidence"></select>
-            </label>
-            <label class="field">
-              <span>社保月数</span>
-              <input id="calcSocialMonths" type="number" min="0" step="1">
-            </label>
-            <label class="field">
-              <span>产权日期</span>
-              <input id="calcPropertyDate" type="date">
-            </label>
-            <label class="field">
-              <span>租赁备案</span>
-              <input id="calcRentDate" type="date">
-            </label>
-            <label class="field">
-              <span>迁户日期</span>
-              <input id="calcHukouDate" type="date">
-            </label>
-            <label class="field">
-              <span>截止日</span>
-              <input id="calcCutoffDate" type="date">
-            </label>
-            <label class="check-field">
-              <input id="calcPriorityArea" type="checkbox">
-              <span>小一优享学区第一志愿</span>
-            </label>
+          <div class="calc-input-column">
+            <div class="calc-form" aria-label="积分试算">
+              <label class="field">
+                <span>学段</span>
+                <select id="calcStage"></select>
+              </label>
+              <label class="field wide">
+                <span>目标</span>
+                <select id="calcTarget"></select>
+              </label>
+              <label class="field">
+                <span>户籍</span>
+                <select id="calcHukou"></select>
+              </label>
+              <label class="field">
+                <span>居住</span>
+                <select id="calcResidence"></select>
+              </label>
+              <label class="field">
+                <span>社保月数</span>
+                <input id="calcSocialMonths" type="number" min="0" step="1">
+              </label>
+              <label class="field">
+                <span>产权日期</span>
+                <input id="calcPropertyDate" type="date">
+              </label>
+              <label class="field">
+                <span>租赁备案</span>
+                <input id="calcRentDate" type="date">
+              </label>
+              <label class="field">
+                <span>迁户日期</span>
+                <input id="calcHukouDate" type="date">
+              </label>
+              <label class="field">
+                <span>截止日</span>
+                <input id="calcCutoffDate" type="date">
+              </label>
+              <label class="check-field">
+                <input id="calcPriorityArea" type="checkbox">
+                <span>小一优享学区第一志愿</span>
+              </label>
+            </div>
+            <div class="bonus-list" id="calcDetails" aria-label="计算明细"></div>
+            <p class="calc-note">预测不是录取承诺。初一预测优先使用小一 cohort 信号推演未来三年；无同校样本时使用布吉同办学性质小学均线，初中自身近年趋势仅作辅助参考。</p>
           </div>
           <div class="calc-result" id="calcResult"></div>
         </div>
-        <p class="calc-note">预测不是录取承诺。初一预测优先使用小一 cohort 信号推演未来三年；无同校样本时使用布吉同办学性质小学均线，初中自身近年趋势仅作辅助参考。</p>
       </div>
     </section>
 
     <section class="layout">
-      <div>
+      <div class="layout-column">
         <div class="panel">
           <div class="panel-head">
             <div>
@@ -1348,7 +1377,7 @@
           </div>
         </div>
 
-        <div class="panel" style="margin-top:12px">
+        <div class="panel">
           <div class="panel-head">
             <div>
               <h2>学校列表</h2>
@@ -2125,15 +2154,16 @@
           </div>
           ${forecastRows}
         </div>
-        <div class="bonus-list">
-          <label>计算明细</label>
-          <div>基础分：${formatScore(result.category.base)}；加分原始合计：${formatScore(result.rawBonus)}；封顶后：${formatScore(result.bonus)}</div>
-          ${result.details.map(item => `<div>${item}</div>`).join("")}
-          <div>模型一致性：${agreement.detail}</div>
-          <div>预测依据：${forecast ? forecast.basis : "该校有效历史分数不足，暂不生成未来三年趋势"}</div>
-          ${auxiliary ? `<div>辅助参考：${auxiliary.basis}；三年参考 ${formatForecastSeries(auxiliary.forecasts)}</div>` : ""}
-          <div>所有试算积分和预测线均按 ${MAX_ADMISSION_SCORE} 分封顶。</div>
-        </div>
+      `;
+
+      document.getElementById("calcDetails").innerHTML = `
+        <label>计算明细</label>
+        <div>基础分：${formatScore(result.category.base)}；加分原始合计：${formatScore(result.rawBonus)}；封顶后：${formatScore(result.bonus)}</div>
+        ${result.details.map(item => `<div>${item}</div>`).join("")}
+        <div>模型一致性：${agreement.detail}</div>
+        <div>预测依据：${forecast ? forecast.basis : "该校有效历史分数不足，暂不生成未来三年趋势"}</div>
+        ${auxiliary ? `<div>辅助参考：${auxiliary.basis}；三年参考 ${formatForecastSeries(auxiliary.forecasts)}</div>` : ""}
+        <div>所有试算积分和预测线均按 ${MAX_ADMISSION_SCORE} 分封顶。</div>
       `;
     }
 
@@ -2201,21 +2231,24 @@
         return;
       }
 
-      const width = 520;
+      const width = 560;
       const rowHeight = 23;
       const height = 42 + top.length * rowHeight;
       const max = Math.max(...top.map(row => row.score_value));
+      const barX = 254;
+      const scoreX = width - 12;
+      const maxBarWidth = scoreX - barX - 48;
       host.innerHTML = `
         <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="年度排行">
           ${top.map((row, index) => {
             const y = 22 + index * rowHeight;
-            const barWidth = Math.max(8, (row.score_value / max) * 260);
+            const barWidth = Math.max(8, (row.score_value / max) * maxBarWidth);
             const color = row.school_type === "公办" ? "#0f6f59" : "#2e6f9f";
             const name = row.school_name.replace(/（.*?）/g, "").replace(/\(.*?\)/g, "");
             return `
               <text x="12" y="${y + 12}" fill="#16221d" font-size="12">${name.slice(0, 20)}</text>
-              <rect x="254" y="${y}" width="${barWidth}" height="14" rx="3" fill="${color}" opacity=".88"></rect>
-              <text x="${264 + barWidth}" y="${y + 12}" fill="#16221d" font-size="12">${formatScore(row.score_value)}</text>
+              <rect x="${barX}" y="${y}" width="${barWidth}" height="14" rx="3" fill="${color}" opacity=".88"></rect>
+              <text x="${scoreX}" y="${y + 12}" text-anchor="end" fill="#16221d" font-size="12">${formatScore(row.score_value)}</text>
             `;
           }).join("")}
         </svg>
