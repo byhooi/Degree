@@ -4,6 +4,19 @@
 
 直接打开 `index.html`，即可查看布吉街道/布吉片区的小一、初一历年录取线分析。
 
+## 线上部署
+
+项目已从 GitHub Pages 迁移到 Cloudflare Pages。当前站点是纯静态页面，不需要安装依赖或执行构建命令；Cloudflare Pages 直接发布仓库根目录即可。
+
+推荐 Cloudflare Pages 配置：
+
+- Framework preset：`None` 或静态 HTML
+- Build command：留空
+- Build output directory：`/`
+- Production branch：以 Cloudflare Pages 控制台当前绑定为准
+
+页面资源均使用相对路径，例如 `data/admission-data.js`，适合在 Cloudflare Pages 的自定义域名或 `*.pages.dev` 域名下发布。自定义域名、DNS 和重定向规则在 Cloudflare Pages 控制台维护；仓库根目录的 `CNAME` 文件仅为历史 GitHub Pages 配置，不参与 Cloudflare Pages 发布配置。
+
 ## 更新数据
 
 手动调整本地 Excel 或 PDF 数据源后，在当前目录运行：
