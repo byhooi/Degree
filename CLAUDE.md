@@ -17,6 +17,12 @@ python -m py_compile scripts/build_data.py
 
 # 内嵌 JS 语法检查
 node -e "const fs=require('fs'); const h=fs.readFileSync('index.html','utf8'); [...h.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m=>new Function(m[1])); console.log('ok')"
+
+# 导出 2026 年预测备份（数据更新后运行，用于后续对比）
+node scripts/export_2026_predictions.js
+
+# 对比 2026 年预测与实际录取分数（需先将 2026 数据录入 Excel 并运行 build_data.py）
+node scripts/compare_2026_predictions.js
 ```
 
 `scripts/build_data.py` 依赖 `.codex_deps/` 中的 `openpyxl`、`xlrd`、`pypdf`。运行前需确认根目录存在 `小一19-25.xlsx`、`初一19-25.xlsx`、`2026小一录取规则.pdf`、`2026初一录取规则.pdf`（均在 `.gitignore` 中，不提交）。
