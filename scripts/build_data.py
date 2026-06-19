@@ -24,13 +24,14 @@ MAX_ADMISSION_SCORE = 110
 TREND_DECAY = 0.8
 TREND_MAX_YEARLY_CHANGE = 3
 COHORT_DELTA_OUTLIER_THRESHOLD = 10
+COHORT_DELTA_WEIGHT_DECAY = 0.75
 BACKTEST_LARGE_ERROR_THRESHOLD = 20
 TREND_DECAY_SCAN_VALUES = [round(value / 100, 2) for value in range(30, 91, 5)]
 TREND_MAX_CHANGE_SCAN_VALUES = list(range(3, 11))
 
 EXCEL_FILES = [
-    ("小一", ROOT / "小一19-25.xlsx"),
-    ("初一", ROOT / "初一19-25.xlsx"),
+    ("小一", ROOT / "小一17-25.xlsx"),
+    ("初一", ROOT / "初一17-25.xlsx"),
 ]
 
 PDF_FILES = [
@@ -98,7 +99,7 @@ def read_sheet(path: Path) -> list[list[str]]:
 def find_header_row(rows: list[list[str]]) -> int:
     for idx, row in enumerate(rows):
         text = "|".join(row)
-        if "学校" in text and "录取分数线" in text:
+        if "学校" in text and re.search(r"20\d{2}年", text):
             return idx
     raise ValueError("未找到表头行")
 
@@ -187,9 +188,7 @@ def parse_records(stage: str, path: Path) -> list[dict]:
     headers = rows[header_index]
 
     region_col = next((i for i, h in enumerate(headers) if "街道" in h or "片区" in h), None)
-    if region_col is None:
-        # 历史小一表第一列就是街道；保留兜底，避免个别文件表头被合并单元格影响。
-        region_col = 0
+    has_region_col = region_col is not None
     type_col = next((i for i, h in enumerate(headers) if "办学性质" in h), None)
     school_col = next((i for i, h in enumerate(headers) if h in ("学校", "学校名称") or "学校名称" in h), None)
     if school_col is None:
@@ -200,7 +199,7 @@ def parse_records(stage: str, path: Path) -> list[dict]:
         year = parse_year_from_header(header)
         if year is None:
             continue
-        admission_type = "民办直升" if "民办直升" in header else "录取分数线"
+        admission_type = "民办直升" if "直升" in header else "录取分数线"
         score_cols.append((col, year, admission_type))
 
     records: list[dict] = []
@@ -208,9 +207,12 @@ def parse_records(stage: str, path: Path) -> list[dict]:
     current_type = ""
     for row_index, row in enumerate(rows[header_index + 1 :], start=header_index + 2):
         row = row + [""] * max(0, len(headers) - len(row))
-        region = row[region_col] if region_col < len(row) else ""
-        if region:
-            current_region = region
+        if has_region_col and region_col is not None:
+            region = row[region_col] if region_col < len(row) else ""
+            if region:
+                current_region = region
+        else:
+            current_region = "布吉街道"
 
         if type_col is not None and type_col < len(row) and row[type_col]:
             current_type = row[type_col]
@@ -227,10 +229,13 @@ def parse_records(stage: str, path: Path) -> list[dict]:
             score_text = row[col] if col < len(row) else ""
             if not score_text:
                 continue
+            effective_admission_type = admission_type
+            if stage == "初一" and "直升" in score_text:
+                effective_admission_type = "民办直升"
             value = extract_score_value(score_text)
             records.append(
                 {
-                    "id": f"{stage}-{year}-{school_key}-{admission_type}-{path.name}",
+                    "id": f"{stage}-{year}-{school_key}-{effective_admission_type}-{path.name}",
                     "stage": stage,
                     "year": year,
                     "region": current_region,
@@ -238,7 +243,7 @@ def parse_records(stage: str, path: Path) -> list[dict]:
                     "school_type": school_type,
                     "school_name": school_name,
                     "school_key": school_key,
-                    "admission_type": admission_type,
+                    "admission_type": effective_admission_type,
                     "score_text": score_text,
                     "score_value": value,
                     "note": extract_note(score_text),
@@ -252,6 +257,8 @@ def parse_records(stage: str, path: Path) -> list[dict]:
 def deduplicate_records(records: list[dict]) -> list[dict]:
     # 同一年数据会在滚动三年表里重复出现，优先保留较新的来源文件。
     priority = {
+        "小一17-25.xlsx": 10,
+        "初一17-25.xlsx": 10,
         "小一19-25.xlsx": 10,
         "初一19-25.xlsx": 10,
         "小一22-24.xls": 3,
@@ -347,6 +354,96 @@ def build_school_stats(records: list[dict]) -> list[dict]:
     )
 
 
+def cohort_pair_usable(pair: dict) -> bool:
+    return abs(pair["cohort_delta"]) <= COHORT_DELTA_OUTLIER_THRESHOLD
+
+
+def weighted_cohort_delta(pairs: list[dict]) -> float | None:
+    usable = [pair for pair in pairs if cohort_pair_usable(pair)]
+    if not usable:
+        return None
+
+    latest_year = max(pair["junior_year"] for pair in usable)
+    weighted = 0.0
+    total_weight = 0.0
+    for pair in usable:
+        distance = latest_year - pair["junior_year"]
+        weight = COHORT_DELTA_WEIGHT_DECAY ** distance
+        weighted += pair["cohort_delta"] * weight
+        total_weight += weight
+    return round(weighted / total_weight, 2) if total_weight else None
+
+
+def build_cohort_school_summaries(pairs: list[dict]) -> dict[str, dict]:
+    grouped: dict[str, list[dict]] = defaultdict(list)
+    for pair in pairs:
+        grouped[f"{pair['school_key']}|{pair['school_type']}"].append(pair)
+
+    summaries: dict[str, dict] = {}
+    for key, items in grouped.items():
+        items = sorted(items, key=lambda item: item["junior_year"])
+        usable = [item for item in items if cohort_pair_usable(item)]
+        deltas = [item["cohort_delta"] for item in items]
+        usable_deltas = [item["cohort_delta"] for item in usable]
+        latest = items[-1]
+        summaries[key] = {
+            "school_key": latest["school_key"],
+            "school_type": latest["school_type"],
+            "pair_count": len(items),
+            "usable_pair_count": len(usable),
+            "outlier_pair_count": len(items) - len(usable),
+            "years": [item["junior_year"] for item in items],
+            "latest_junior_year": latest["junior_year"],
+            "latest_junior_score": latest["junior_score"],
+            "latest_primary_year": latest["primary_year"],
+            "latest_primary_score": latest["primary_score"],
+            "latest_delta": latest["cohort_delta"],
+            "weighted_delta": weighted_cohort_delta(items),
+            "mean_delta": round(statistics.mean(usable_deltas), 2) if usable_deltas else None,
+            "median_delta": round(statistics.median(usable_deltas), 2) if usable_deltas else None,
+            "delta_stdev": round(statistics.pstdev(usable_deltas), 2) if len(usable_deltas) > 1 else 0,
+            "min_delta": round(min(deltas), 2) if deltas else None,
+            "max_delta": round(max(deltas), 2) if deltas else None,
+            "outlier_years": [item["junior_year"] for item in items if not cohort_pair_usable(item)],
+        }
+    return dict(sorted(summaries.items()))
+
+
+def collect_direct_cohort_backtest_errors(pairs: list[dict]) -> list[dict]:
+    grouped: dict[str, list[dict]] = defaultdict(list)
+    for pair in pairs:
+        grouped[f"{pair['school_key']}|{pair['school_type']}"].append(pair)
+
+    errors: list[dict] = []
+    for items in grouped.values():
+        items = sorted(items, key=lambda item: item["junior_year"])
+        for index in range(1, len(items)):
+            actual = items[index]
+            prior = items[:index]
+            delta = weighted_cohort_delta(prior)
+            if delta is None:
+                continue
+            predicted = cap_admission_score(actual["primary_score"] + delta)
+            errors.append(
+                {
+                    "school_key": actual["school_key"],
+                    "school_type": actual["school_type"],
+                    "school_name": actual["junior_school"],
+                    "junior_year": actual["junior_year"],
+                    "primary_year": actual["primary_year"],
+                    "primary_score": actual["primary_score"],
+                    "actual_score": actual["junior_score"],
+                    "predicted_score": predicted,
+                    "abs_error": round(abs(predicted - actual["junior_score"]), 2),
+                    "weighted_delta": delta,
+                    "used_pair_count": len([item for item in prior if cohort_pair_usable(item)]),
+                    "history_years": [item["junior_year"] for item in prior],
+                    "history_deltas": [item["cohort_delta"] for item in prior],
+                }
+            )
+    return errors
+
+
 def build_cohort_model(records: list[dict]) -> dict:
     lag_years = 6
     by_key: dict[tuple[str, str, int, str], dict] = {}
@@ -407,6 +504,12 @@ def build_cohort_model(records: list[dict]) -> dict:
                 }
             )
 
+    school_summaries = build_cohort_school_summaries(pairs)
+    direct_backtest_errors = collect_direct_cohort_backtest_errors(pairs)
+    backtest_by_type: dict[str, list[dict]] = defaultdict(list)
+    for item in direct_backtest_errors:
+        backtest_by_type[item["school_type"]].append(item)
+
     numeric_changes = [item["projected_change"] for item in pairs if item["projected_change"] is not None]
     deltas = [item["cohort_delta"] for item in pairs]
     outliers = [
@@ -422,9 +525,11 @@ def build_cohort_model(records: list[dict]) -> dict:
         "method": "同校同办学性质小一录取线滞后 6 年映射到初一录取线；下一届预测使用下一年小一录取线叠加已观测 cohort 差值。",
         "lag_years": lag_years,
         "delta_outlier_threshold": COHORT_DELTA_OUTLIER_THRESHOLD,
+        "delta_weight_decay": COHORT_DELTA_WEIGHT_DECAY,
         "common_school_count": len(common_keys),
         "pair_count": len(pairs),
         "school_pair_counts": dict(sorted(pair_counts.items())),
+        "school_summaries": school_summaries,
         "delta_stats": {
             "count": len(deltas),
             "mean": round(statistics.mean(deltas), 2) if deltas else None,
@@ -443,6 +548,15 @@ def build_cohort_model(records: list[dict]) -> dict:
             ],
         },
         "average_projected_change": round(statistics.mean(numeric_changes), 2) if numeric_changes else None,
+        "direct_backtest": {
+            "method": "direct cohort 逐年留一回测；使用目标年前已观测同校同办学性质 delta 的时间加权均值预测目标年初一线。",
+            "overall": summarize_error_items(direct_backtest_errors),
+            "by_school_type": {
+                school_type: summarize_error_items(items)
+                for school_type, items in sorted(backtest_by_type.items())
+            },
+            "errors": direct_backtest_errors,
+        },
         "pairs": pairs,
     }
 

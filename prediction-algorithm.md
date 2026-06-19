@@ -20,23 +20,24 @@
 | `MAX_ADMISSION_SCORE` | 110 | `index.html` / `scripts/build_data.py` | 试算积分和预测线封顶值 |
 | `TREND_DECAY` | 0.8 | `index.html` / `scripts/build_data.py` | 近年趋势 EWMA 衰减系数 |
 | `TREND_MAX_YEARLY_CHANGE` | 3 | `index.html` / `scripts/build_data.py` | 单年趋势变化截尾值 |
+| `COHORT_DELTA_WEIGHT_DECAY` | 0.75 | `scripts/build_data.py` | 多届 cohort delta 时间加权衰减系数 |
 | `FORECAST_YEAR_COUNT` | 3 | `index.html` | 前端展示未来预测年数 |
 | `cohort lag_years` | 6 | `scripts/build_data.py` | 小一到初一 cohort 滞后年数 |
 
 ## 二、数据现状与约束
 
-当前结构化数据覆盖 2019-2025 年：
+当前结构化数据覆盖 2017-2025 年：
 
 | 学段 | 有效录取线记录 | 学校组合数 | 年份 |
 |------|----------------|------------|------|
-| 小一 | 168 | 25 | 2019-2025 |
-| 初一 | 94 | 15 | 2019-2025 |
+| 小一 | 197 | 24 | 2017-2025 |
+| 初一 | 98 | 14 | 2017-2025 |
 
-cohort 使用 6 年滞后映射，因此目前只能形成一届真实映射：`小一2019 -> 初一2025`。这带来三个重要约束：
+cohort 使用 6 年滞后映射，目前可形成三届真实映射：`小一2017 -> 初一2023`、`小一2018 -> 初一2024`、`小一2019 -> 初一2025`。这带来三个重要变化：
 
-- direct cohort 当前不能做真正的跨年留一回测。
-- 每所学校只有 1 个有效 cohort pair，当前无法实现有实际收益的多对 delta 加权均值。
-- 需要等 2026 初一实际录取线进入数据后，才会形成 `小一2020 -> 初一2026` 的第二届 pair。
+- direct cohort 已可做逐年留一回测。
+- 有 2 届以上有效 pair 的学校已可使用多对 delta 时间加权均值。
+- 仍需剔除异常 delta，避免学校变更、数据口径变化或异常年份直接污染主预测。
 
 ## 三、模型说明与问题
 
@@ -49,27 +50,16 @@ cohort_delta = 初一(N+6) - 小一(N)
 预测 初一(N+7) = 小一(N+1) + cohort_delta
 ```
 
-当前有效 pair 共 8 对，全部是 `小一2019 -> 初一2025`：
-
-| 学校 | 办学性质 | 映射 | cohort_delta | projected_change |
-|------|----------|------|-------------:|-----------------:|
-| 爱义学校 | 民办 | 小一2019 -> 初一2025 | -2.60 | +0.60 |
-| 承翰学校 | 民办 | 小一2019 -> 初一2025 | -1.65 | -0.85 |
-| 贤义外国语学校 | 公办 | 小一2019 -> 初一2025 | +1.20 | -0.75 |
-| 木棉湾实验 | 民办 | 小一2019 -> 初一2025 | +1.25 | -0.20 |
-| 科城实验学校 | 民办 | 小一2019 -> 初一2025 | +2.20 | -1.80 |
-| 东升学校 | 民办 | 小一2019 -> 初一2025 | +3.95 | -0.85 |
-| 龙岭学校 | 民办 | 小一2019 -> 初一2025 | +6.25 | +0.80 |
-| 智民实验学校 | 民办 | 小一2019 -> 初一2025 | +44.50 | -0.25 |
+当前普通录取线有效 pair 共 19 对，覆盖 9 个同校同办学性质组合。其中东升学校、木棉湾实验、贤义外国语学校、龙岭学校、智民实验学校各有 3 届 pair，科城实验学校有 2 届 pair。
 
 主要问题：
 
-- 单点脆弱：每所学校只有 1 个 pair，异常年份会直接影响主预测。
-- delta 恒定性假设过强：模型默认同校 cohort delta 在不同届之间稳定，但目前没有第二届数据验证。
-- 智民实验学校 `+44.50` 是极端异常值，若直接用于主预测会明显误导用户。
-- 当前没有 direct cohort 的可靠 MAE，不能用于模型加权融合。
+- 单点脆弱已缓解，但仍存在：部分学校仍只有 1 个 pair，异常年份仍可能影响主预测。
+- delta 稳定性仍需观察：虽然已有三届映射，但同校样本仍偏少，不能假设 delta 长期稳定。
+- 承翰学校 `-21.45`、智民实验学校 `+36.75`、`+19.45`、`+35.40` 是异常值，若直接用于主预测会明显误导用户。
+- direct cohort 已有初步留一回测，但样本仍只有 9 个，不足以支撑模型加权融合。
 
-当前判断：direct cohort 可继续作为候选模型，但必须增加异常保护和样本置信提示。
+当前判断：direct cohort 可继续作为初一普通录取线主模型；有多届有效 pair 时使用时间加权 delta，异常 delta 从加权中剔除，并保留样本置信提示。
 
 ### 3.2 Grouped Primary Cohort
 
@@ -124,14 +114,14 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 | 有分歧 | 多数模型方向相同 | watch |
 | 分歧大 | 模型方向分散 | risk |
 
-当前 UI 主要展示最高优先级模型的预测值，只展示一个辅助模型说明。这会带来一个问题：当 direct cohort 来自单一异常 pair，而 grouped cohort 和 trend 给出不同方向时，用户仍然会优先看到 direct cohort 的主预测。
+当前 UI 主要展示最高优先级模型的预测值，同时在模型分歧或预测差距较大时展示预测区间，并在计算明细中列出所有可用模型依据。
 
 后续展示策略应调整为：
 
 - 保留优先级模型作为主预测，但异常 direct cohort 必须自动降级。
 - 当模型方向分歧大，或首年预测线最大差值达到阈值时，展示所有模型预测区间。
 - 模型一致性不能只看方向。若多个模型首年预测方向一致，但预测线最大差值达到风险阈值，也应标记为“分歧大”或至少提升到风险提示，避免“同向但数值差距很大”的盲区。当前可先以 `>= 6` 分作为候选风险阈值，并结合趋势模型 MAE 继续校准。
-- 暂不做加权融合，因为 direct cohort 和 grouped cohort 还没有可靠 MAE。
+- 暂不做跨模型加权融合，因为 grouped cohort 还没有可靠 MAE，direct cohort 回测样本也偏少。
 
 ## 五、优化优先级
 
@@ -142,11 +132,12 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 | P0 | direct cohort 异常 delta 自动降级 | `index.html` | 已实施 |
 | P1 | cohort 诊断统计输出 | `scripts/build_data.py` / `data/admission-data.json` | 已实施 |
 | P1 | 模型分歧时展示预测区间 | `index.html` | 已实施 |
+| P1 | direct cohort 多对加权均值 | `scripts/build_data.py` / `index.html` | 已实施 |
+| P1 | direct cohort 留一回测 | `scripts/build_data.py` / `data/admission-data.json` | 已实施 |
 | P1 | 模型一致性加入首年预测极差判定 | `index.html` | 值得优先实施，避免同向大偏差被误判为一致 |
 | P2 | 趋势远期预测衰减 | `index.html` / `scripts/build_data.py` 离线校准 | 可作为保守展示优化，参数需回测 |
 | P2 | 预测参数配置随数据同步 | `scripts/build_data.py` / `data/admission-data.json` / `index.html` | 建议输出显式采用参数，不直接自动套用扫描 best |
 | P2 | grouped cohort 分档实验 | `scripts/build_data.py` | 先验证样本量，不直接上线 |
-| P2 | direct cohort 多对均值 | `index.html` | 等 2026 初一数据后才有实际收益 |
 | P3 | 趋势模型均值回归 | `scripts/build_data.py` 离线实验 | 参数较多，避免先上线 |
 | P3 | 加权模型融合 | 暂不实施 | 等 cohort 有跨年 MAE 后再评估 |
 
@@ -161,8 +152,8 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 - 已在 `scripts/build_data.py` 增加趋势回测异常样本输出，当前阈值为 `abs_error >= 20`。
 - 已增加趋势参数扫描，扫描结果显示 `TREND_DECAY = 0.8`、`TREND_MAX_YEARLY_CHANGE = 3` 为当前网格下最佳组合。
 - 已同步修改 Python 和前端趋势常量，并重新生成 `data/admission-data.json`、`data/admission-data.js`。
-- 已增加 cohort delta 诊断统计，当前 `abs(cohort_delta) > 10` 的异常学校为智民实验学校。
-- 已在前端增加 direct cohort 异常降级。
+- 已增加 cohort delta 诊断统计，当前 `abs(cohort_delta) > 10` 的异常 pair 包括承翰学校与智民实验学校。
+- 已在前端增加 direct cohort 异常剔除；若无有效 pair，则自动降级。
 
 实现细节：
 
@@ -184,8 +175,8 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 
 4. 在 `index.html` 增加 direct cohort 异常降级。
    - 建议先用 `abs(cohort_delta) > 10` 作为保护阈值。
-   - 超阈值时不使用 direct cohort 作为主预测，自动降级到 grouped cohort 或 recent trend。
-   - UI 明确说明降级原因，例如“该校 cohort delta 为 +44.50，超出正常范围，已使用替代模型预测。”
+   - 超阈值 pair 不进入多届加权 delta；若该校没有有效 pair，则不使用 direct cohort 作为主预测，自动降级到 grouped cohort 或 recent trend。
+   - UI 明确说明处理原因，例如“该校有 1 届 cohort delta 超过 10 分，已从加权 delta 中剔除。”
 
 ### 第二阶段：已实施
 
@@ -196,7 +187,7 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 - 已在 `predictionForTarget()` 中保留所有可用模型结果。
 - 已在模型分歧大或首年预测差距达到阈值时展示预测区间。
 - 已在计算明细中展示所有可用模型的首年预测线和依据。
-- 已对 direct cohort 单 pair 和异常 delta 增加提示。
+- 已对 direct cohort 单 pair、多 pair 加权和异常 delta 增加提示。
 
 实现细节：
 
@@ -205,18 +196,20 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
    - 当 `agreement.tone === "risk"` 时展示区间。
    - 或当多个模型首年预测线最大差值 `>= 5` 分时展示区间。
 3. 在计算明细中展示所有模型的首年预测线、模型名称和依据。
-4. 对 direct cohort 的单 pair 情况增加提示：“仅 1 届 cohort 样本，delta = X.XX”。
+4. 对 direct cohort 的样本情况增加提示：“仅 1 届有效 cohort 样本”或“X 届有效 cohort 样本”。
 
-### 第三阶段：数据更新后的 cohort 成熟化
+### 第三阶段：已实施
 
-目标：等 2026 初一实际录取线进入后，重新评估 cohort 是否能成为可靠主模型。
+目标：利用 2017-2025 更新数据，重新评估 cohort 是否能成为更可靠的初一普通线主模型。
 
-1. 更新 `初一19-25.xlsx` 或后续数据源，纳入 2026 初一实际录取线。
-2. 运行 `python scripts/build_data.py`，形成 `小一2020 -> 初一2026` 第二届 pair。
-3. 比较同一学校两届 delta 的稳定性。
-4. 对有两届以上 pair 的学校启用多对加权均值。
-5. 增加 direct cohort 留一回测，产出 MAE。
-6. 若 grouped cohort 也能形成可比较回测，再评估是否做 MAE 反比加权融合。
+实施状态：
+
+- 已更新数据源为 `小一17-25.xlsx`、`初一17-25.xlsx`。
+- 已形成 19 个 direct cohort pair，覆盖 9 个同校同办学性质组合。
+- 已对有两届以上有效 pair 的学校启用时间加权 delta，当前 `COHORT_DELTA_WEIGHT_DECAY = 0.75`。
+- 已将 `abs(cohort_delta) > 10` 的 pair 从加权 delta 中剔除。
+- 已增加 direct cohort 逐年留一回测，当前样本数 9，MAE 3.81，最大绝对误差 9.20。
+- 暂不做 MAE 反比加权融合，因为 grouped cohort 仍缺少可比较回测，direct cohort 回测样本也偏少。
 
 ### 第四阶段：候选模型实验
 
@@ -268,7 +261,7 @@ node -e "const fs=require('fs'); const h=fs.readFileSync('index.html','utf8'); [
 
 - 试算积分和预测线仍按 110 分封顶。
 - 公办和民办 cohort 不混用。
-- 智民实验学校等异常 delta 学校会触发降级或明确提示。
+- 承翰学校、智民实验学校等异常 delta 学校会触发剔除、降级或明确提示。
 - 模型分歧时能看到预测区间。
 - 页面文案仍明确说明预测仅作填报参考，不保证录取。
 

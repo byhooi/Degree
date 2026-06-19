@@ -1592,12 +1592,12 @@
     }
 
     function calcTargetId(record) {
-      return [record.stage, record.school_key, record.school_type].join("|");
+      return [record.stage, record.school_key, record.school_type, record.admission_type].join("|");
     }
 
     function parseTargetId(targetId) {
-      const [stage, schoolKey, schoolType] = targetId.split("|");
-      return { stage, schoolKey, schoolType };
+      const [stage, schoolKey, schoolType, admissionType = "录取分数线"] = targetId.split("|");
+      return { stage, schoolKey, schoolType, admissionType };
     }
 
     function recordsForSchool(stage, schoolKey, schoolType, admissionType = "录取分数线") {
@@ -1611,8 +1611,8 @@
         .sort((a, b) => a.year - b.year);
     }
 
-    function latestRecordForSchool(stage, schoolKey, schoolType) {
-      return recordsForSchool(stage, schoolKey, schoolType)
+    function latestRecordForSchool(stage, schoolKey, schoolType, admissionType = "录取分数线") {
+      return recordsForSchool(stage, schoolKey, schoolType, admissionType)
         .filter(record => record.score_value !== null)
         .slice()
         .pop();
@@ -1621,7 +1621,7 @@
     function calcTargetOptions(stage) {
       const latest = new Map();
       data.records
-        .filter(record => record.stage === stage && record.admission_type === "录取分数线")
+        .filter(record => record.stage === stage)
         .forEach(record => {
           const id = calcTargetId(record);
           const old = latest.get(id);
@@ -1630,7 +1630,9 @@
       return Array.from(latest.values()).sort((a, b) => {
         const typeDiff = a.school_type.localeCompare(b.school_type, "zh-Hans-CN");
         if (typeDiff) return typeDiff;
-        return collator.compare(a.school_name, b.school_name);
+        const nameDiff = collator.compare(a.school_name, b.school_name);
+        if (nameDiff) return nameDiff;
+        return collator.compare(a.admission_type, b.admission_type);
       });
     }
 
@@ -1764,8 +1766,8 @@
       };
     }
 
-    function recentTrendPrediction(stage, schoolKey, schoolType) {
-      const history = recordsForSchool(stage, schoolKey, schoolType).filter(record => record.score_value !== null);
+    function recentTrendPrediction(stage, schoolKey, schoolType, admissionType = "录取分数线") {
+      const history = recordsForSchool(stage, schoolKey, schoolType, admissionType).filter(record => record.score_value !== null);
       if (history.length < 2) return null;
       const recent = history.slice(-4);
       const changes = recent.slice(1).map((record, index) => record.score_value - recent[index].score_value);
@@ -1805,20 +1807,31 @@
       return pairs[pairs.length - 1] || null;
     }
 
+    function cohortSummary(schoolKey, schoolType) {
+      return data.cohort_model?.school_summaries?.[`${schoolKey}|${schoolType}`] || null;
+    }
+
     function cohortPairOutlier(pair) {
       return pair && Math.abs(pair.cohort_delta) > COHORT_DELTA_OUTLIER_THRESHOLD;
     }
 
-    function cohortOutlierMessage(pair) {
+    function cohortOutlierMessage(summary, pair) {
+      if (summary?.outlier_pair_count) {
+        const years = summary.outlier_years?.length ? `（${summary.outlier_years.join("、")}）` : "";
+        if (summary.usable_pair_count) {
+          return `该校有 ${summary.outlier_pair_count} 届 cohort delta 超过 ${COHORT_DELTA_OUTLIER_THRESHOLD} 分${years}，已从加权 delta 中剔除。`;
+        }
+        return `该校 cohort delta 均超过 ${COHORT_DELTA_OUTLIER_THRESHOLD} 分保护阈值${years}，已自动使用替代模型预测。`;
+      }
       if (!pair) return "";
       return `该校 cohort delta 为 ${formatDelta(pair.cohort_delta)}，超过 ${COHORT_DELTA_OUTLIER_THRESHOLD} 分保护阈值，已自动使用替代模型预测。`;
     }
 
     function cohortPrediction(stage, schoolKey, schoolType) {
       if (stage !== "初一" || !data.cohort_model) return null;
+      const summary = cohortSummary(schoolKey, schoolType);
       const pair = latestCohortPair(schoolKey, schoolType);
-      if (!pair) return null;
-      if (cohortPairOutlier(pair)) return null;
+      if (!summary || !pair || summary.weighted_delta === null || summary.weighted_delta === undefined) return null;
       const primaryByYear = new Map(
         recordsForSchool("小一", schoolKey, schoolType)
           .filter(record => record.score_value !== null)
@@ -1826,29 +1839,38 @@
       );
       const futureScores = [];
       for (let step = 1; step <= FORECAST_YEAR_COUNT; step += 1) {
-        const primaryYear = pair.primary_year + step;
+        const primaryYear = summary.latest_primary_year + step;
         const primary = primaryByYear.get(primaryYear);
         if (!primary) break;
         futureScores.push({
-          year: pair.junior_year + step,
-          score: primary.score_value + pair.cohort_delta,
+          year: summary.latest_junior_year + step,
+          score: primary.score_value + summary.weighted_delta,
           source: `小一${primaryYear} ${formatScore(primary.score_value)}`
         });
       }
+      const multiPair = summary.usable_pair_count > 1;
+      const method = multiPair ? "小一到初一 cohort 加权" : "小一到初一 cohort";
+      const confidence = summary.usable_pair_count > 1
+        ? `${summary.usable_pair_count} 届有效 cohort 样本`
+        : "仅 1 届有效 cohort 样本";
+      const deltaBasis = multiPair
+        ? `有效 delta 加权均值 ${formatDelta(summary.weighted_delta)}，样本年 ${summary.years.join("、")}`
+        : `cohort delta ${formatDelta(summary.weighted_delta)}`;
       return forecastResult({
-        method: "小一到初一 cohort",
-        latestYear: pair.junior_year,
-        forecasts: forecastItemsFromScores(pair.junior_score, futureScores),
-        basis: `小一${pair.primary_year} ${formatScore(pair.primary_score)} -> 初一${pair.junior_year} ${formatScore(pair.junior_score)}；cohort delta ${formatDelta(pair.cohort_delta)}；仅 1 届 cohort 样本；${forecastPeriodLabel(futureScores.length)}参考 ${futureScores.map(item => item.source).join("、")}`,
-        cohortDelta: pair.cohort_delta,
-        confidenceNote: "仅 1 届 cohort 样本"
+        method,
+        latestYear: summary.latest_junior_year,
+        forecasts: forecastItemsFromScores(summary.latest_junior_score, futureScores),
+        basis: `最新映射小一${summary.latest_primary_year} ${formatScore(summary.latest_primary_score)} -> 初一${summary.latest_junior_year} ${formatScore(summary.latest_junior_score)}；${deltaBasis}；${confidence}；${forecastPeriodLabel(futureScores.length)}参考 ${futureScores.map(item => item.source).join("、")}`,
+        cohortDelta: summary.weighted_delta,
+        confidenceNote: confidence
       });
     }
 
-    function groupedPrimaryCohortPrediction(stage, schoolKey, schoolType) {
+    function groupedPrimaryCohortPrediction(stage, schoolKey, schoolType, admissionType = "录取分数线") {
       if (stage !== "初一") return null;
+      if (admissionType !== "录取分数线") return null;
       const lagYears = data.cohort_model?.lag_years || 6;
-      const latest = latestRecordForSchool(stage, schoolKey, schoolType);
+      const latest = latestRecordForSchool(stage, schoolKey, schoolType, admissionType);
       if (!latest || latest.score_value === null) return null;
       const primaryYear = latest.year - lagYears;
       const primaryRecords = data.records.filter(record =>
@@ -1940,13 +1962,14 @@
     function predictionForTarget() {
       if (!state.calculator.targetId) return null;
       const target = parseTargetId(state.calculator.targetId);
-      const latest = latestRecordForSchool(target.stage, target.schoolKey, target.schoolType);
-      const pair = target.stage === "初一" ? latestCohortPair(target.schoolKey, target.schoolType) : null;
-      const warnings = pair && cohortPairOutlier(pair) ? [cohortOutlierMessage(pair)] : [];
-      const direct = target.stage === "初一" ? cohortPrediction(target.stage, target.schoolKey, target.schoolType) : null;
-      const grouped = target.stage === "初一" ? groupedPrimaryCohortPrediction(target.stage, target.schoolKey, target.schoolType) : null;
-      const trend = recentTrendPrediction(target.stage, target.schoolKey, target.schoolType);
-      const candidates = target.stage === "初一"
+      const latest = latestRecordForSchool(target.stage, target.schoolKey, target.schoolType, target.admissionType);
+      const pair = target.stage === "初一" && target.admissionType === "录取分数线" ? latestCohortPair(target.schoolKey, target.schoolType) : null;
+      const summary = target.stage === "初一" && target.admissionType === "录取分数线" ? cohortSummary(target.schoolKey, target.schoolType) : null;
+      const warnings = summary?.outlier_pair_count || (pair && cohortPairOutlier(pair)) ? [cohortOutlierMessage(summary, pair)] : [];
+      const direct = target.stage === "初一" && target.admissionType === "录取分数线" ? cohortPrediction(target.stage, target.schoolKey, target.schoolType) : null;
+      const grouped = target.stage === "初一" ? groupedPrimaryCohortPrediction(target.stage, target.schoolKey, target.schoolType, target.admissionType) : null;
+      const trend = recentTrendPrediction(target.stage, target.schoolKey, target.schoolType, target.admissionType);
+      const candidates = target.stage === "初一" && target.admissionType === "录取分数线"
         ? [direct, grouped, trend].filter(Boolean)
         : [trend].filter(Boolean);
       const forecast = candidates[0] || null;
@@ -2086,7 +2109,7 @@
         document.getElementById("calcTarget"),
         targets.map(record => ({
           value: calcTargetId(record),
-          label: `${record.school_type} · ${record.school_name}`
+          label: `${record.school_type} · ${record.school_name} · ${record.admission_type}`
         })),
         calc.targetId
       );
