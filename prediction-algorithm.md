@@ -41,6 +41,8 @@ cohort 使用 6 年滞后映射，目前可形成三届真实映射：`小一201
 - 有 2 届以上有效 pair 的学校已可使用多对 delta 时间加权均值。
 - 仍需剔除异常 delta，避免学校变更、数据口径变化或异常年份直接污染主预测。
 
+**结构性样本约束（重要）**：由于 cohort 使用 6 年滞后映射，2017-2025 数据**结构上只能形成 3 届真实映射**，且映射届数随年份线性增长。这意味着在约 2028 年前，cohort 模型的统计基础不会有质变，**不具备支撑跨模型加权融合的样本条件**。后续维护者无需反复评估融合可行性——这是被样本量结构性卡死的问题，须等映射届数自然增长。
+
 ## 三、模型说明与问题
 
 ### 3.1 Direct Cohort
@@ -126,6 +128,16 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 - 若多个模型首年预测方向一致，但预测线最大差值 `>= 6` 分，也标记为“分歧大”，避免“同向但数值差距很大”的盲区。
 - 暂不做跨模型加权融合，因为 grouped cohort 还没有可靠 MAE，direct cohort 回测样本也偏少。
 
+### 实现层面待改进项（代码评审发现）
+
+以下问题在代码层面已存在，按"低风险优先"排列，可在做 P2 项时一并处理：
+
+1. **`modelAgreement()` 让小一永远拿不到 `safe`**（`index.html:1926-1928`）。`usable.length < 2` 直接返回 `单模型/watch`，而小一只有 `recentTrendPrediction` 一个模型，导致小一预测永远显示 watch 色。"单模型"只是无法交叉验证，不等于"需警惕"。建议给单模型一个中性 tone（如 `info`），或在文案上区分"无法交叉验证"与"模型分歧"。
+2. **分歧判定只看首年**（`firstForecastsForModels()`，`index.html:1915`）。只取 `forecasts[0]` 算极差，但 cohort 用对应年份真实小一数据、trend 用线性外推，第 2、3 年发散往往远大于首年，远期完全不进入 `modelAgreement`/`showRange` 判定。建议远期年份也算一次极差，或对 `forecast[1]`/`forecast[2]` 标注"远期不确定性放大"。
+3. **阈值 5/6 与 agreement 不完全自洽**。`MODEL_SPREAD_RANGE_THRESHOLD=5` 触发显示区间、`MODEL_SPREAD_RISK_THRESHOLD=6` 触发标红；spread ∈ [5,6) 且方向一致时会"显示区间但 agreement 仍为 safe"。两常量仅差 1 分、区分意义不大且易混。建议合并为单阈值，或让 agreement 在 `spread >= RANGE_THRESHOLD` 时也降到 `watch`。
+4. **`groupedPrimaryCohortPrediction` 的 delta 是单年单点**（`index.html:1887`，`cohortDelta = latest.score_value - primaryAvg`）。direct cohort 已上多届时间加权，grouped 这个最脆弱的兜底模型却用了最不稳的单点 delta。可低成本改成最近 2-3 届均线 delta 的加权，但**前提是先输出 grouped 回测 MAE**，否则只是"看起来更稳"，无法证明确实更准。
+5. **异常 delta 用绝对阈值 10，未考虑分数量级**（`build_data.py:357`，`cohort_pair_usable`）。对高分校 10 分可能是噪声、对低分校可能是真实波动。样本充足时可考虑相对阈值或 MAD/中位数偏离；**当前 9 个回测样本下不要改**，否则会过拟合。
+
 ## 五、优化优先级
 
 | 优先级 | 事项 | 涉及文件 | 当前判断 |
@@ -138,8 +150,8 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 | P1 | direct cohort 多对加权均值 | `scripts/build_data.py` / `index.html` | 已实施 |
 | P1 | direct cohort 留一回测 | `scripts/build_data.py` / `data/admission-data.json` | 已实施 |
 | P1 | 模型一致性加入首年预测极差判定 | `index.html` | 已实施 |
-| P2 | 趋势远期预测衰减 | `index.html` / `scripts/build_data.py` 离线校准 | 可作为保守展示优化，参数需回测 |
-| P2 | 预测参数配置随数据同步 | `scripts/build_data.py` / `data/admission-data.json` / `index.html` | 建议输出显式采用参数，不直接自动套用扫描 best |
+| P2 | 趋势远期预测衰减 | `index.html` / `scripts/build_data.py` 离线校准 | **下一步优先（精度收益明确）**；上线前须做 1/2/3 年分年回测，样本不足时仅作"保守收敛展示"，不宣称提精度 |
+| P2 | 预测参数配置随数据同步 | `scripts/build_data.py` / `data/admission-data.json` / `index.html` | **下一步优先（纯工程，零统计风险）**；当前 json 仅有 `parameter_scan.current/best`，无前端可读 `prediction_config`。输出显式采用参数，不直接自动套用扫描 best |
 | P2 | grouped cohort 分档实验 | `scripts/build_data.py` | 先验证样本量，不直接上线 |
 | P3 | 趋势模型均值回归 | `scripts/build_data.py` 离线实验 | 参数较多，避免先上线 |
 | P3 | 加权模型融合 | 暂不实施 | 等 cohort 有跨年 MAE 后再评估 |
