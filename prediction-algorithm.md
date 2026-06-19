@@ -21,6 +21,8 @@
 | `TREND_DECAY` | 0.8 | `index.html` / `scripts/build_data.py` | 近年趋势 EWMA 衰减系数 |
 | `TREND_MAX_YEARLY_CHANGE` | 3 | `index.html` / `scripts/build_data.py` | 单年趋势变化截尾值 |
 | `COHORT_DELTA_WEIGHT_DECAY` | 0.75 | `scripts/build_data.py` | 多届 cohort delta 时间加权衰减系数 |
+| `MODEL_SPREAD_RANGE_THRESHOLD` | 5 | `index.html` | 多模型首年预测线极差达到该值时展示预测区间 |
+| `MODEL_SPREAD_RISK_THRESHOLD` | 6 | `index.html` | 多模型首年预测线极差达到该值时标记为分歧大 |
 | `FORECAST_YEAR_COUNT` | 3 | `index.html` | 前端展示未来预测年数 |
 | `cohort lag_years` | 6 | `scripts/build_data.py` | 小一到初一 cohort 滞后年数 |
 
@@ -91,14 +93,14 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 
 | 范围 | 样本数 | MAE | 最大绝对误差 |
 |------|--------|-----|--------------|
-| 全部 | 181 | 4.73 | 48.85 |
-| 初一 | 63 | 5.27 | 48.85 |
-| 小一 | 118 | 4.45 | 45.30 |
+| 全部 | 216 | 4.54 | 44.19 |
+| 初一 | 68 | 4.42 | 30.15 |
+| 小一 | 148 | 4.60 | 44.19 |
 
 主要问题：
 
 - MAE 约 5 分，在积分录取场景中偏高。
-- 最大绝对误差达到 47-48 分，说明存在数据异常、学校变更、政策突变或模型完全失效样本。
+- 最大绝对误差仍达到 44 分以上，说明存在数据异常、学校变更、政策突变或模型完全失效样本。
 - 参数扫描已将 `TREND_DECAY` 调整为 `0.8`，`TREND_MAX_YEARLY_CHANGE` 调整为 `3`，但仍需持续观察新数据表现。
 - 线性外推缺少均值回归，连续上涨或下跌后不会自然收敛。
 
@@ -106,21 +108,22 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 
 ## 四、模型融合与展示现状
 
-当前 `modelAgreement()` 只判断模型方向是否一致，不做数值融合：
+当前 `modelAgreement()` 同时判断模型方向和首年预测线极差，不做数值融合：
 
 | 判定 | 条件 | 标注 |
 |------|------|------|
 | 一致 | 所有可用模型方向相同 | safe |
 | 有分歧 | 多数模型方向相同 | watch |
 | 分歧大 | 模型方向分散 | risk |
+| 分歧大 | 多模型首年预测线极差 `>= 6` 分 | risk |
 
 当前 UI 主要展示最高优先级模型的预测值，同时在模型分歧或预测差距较大时展示预测区间，并在计算明细中列出所有可用模型依据。
 
-后续展示策略应调整为：
+当前展示策略：
 
 - 保留优先级模型作为主预测，但异常 direct cohort 必须自动降级。
-- 当模型方向分歧大，或首年预测线最大差值达到阈值时，展示所有模型预测区间。
-- 模型一致性不能只看方向。若多个模型首年预测方向一致，但预测线最大差值达到风险阈值，也应标记为“分歧大”或至少提升到风险提示，避免“同向但数值差距很大”的盲区。当前可先以 `>= 6` 分作为候选风险阈值，并结合趋势模型 MAE 继续校准。
+- 当模型方向分歧大，或首年预测线最大差值 `>= 5` 分时，展示所有模型预测区间。
+- 若多个模型首年预测方向一致，但预测线最大差值 `>= 6` 分，也标记为“分歧大”，避免“同向但数值差距很大”的盲区。
 - 暂不做跨模型加权融合，因为 grouped cohort 还没有可靠 MAE，direct cohort 回测样本也偏少。
 
 ## 五、优化优先级
@@ -134,7 +137,7 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 | P1 | 模型分歧时展示预测区间 | `index.html` | 已实施 |
 | P1 | direct cohort 多对加权均值 | `scripts/build_data.py` / `index.html` | 已实施 |
 | P1 | direct cohort 留一回测 | `scripts/build_data.py` / `data/admission-data.json` | 已实施 |
-| P1 | 模型一致性加入首年预测极差判定 | `index.html` | 值得优先实施，避免同向大偏差被误判为一致 |
+| P1 | 模型一致性加入首年预测极差判定 | `index.html` | 已实施 |
 | P2 | 趋势远期预测衰减 | `index.html` / `scripts/build_data.py` 离线校准 | 可作为保守展示优化，参数需回测 |
 | P2 | 预测参数配置随数据同步 | `scripts/build_data.py` / `data/admission-data.json` / `index.html` | 建议输出显式采用参数，不直接自动套用扫描 best |
 | P2 | grouped cohort 分档实验 | `scripts/build_data.py` | 先验证样本量，不直接上线 |
@@ -216,10 +219,11 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 目标：在有诊断和回测基础后，再引入更复杂模型。
 
 1. 模型一致性的数值极差判定。
+   - 已实施。
    - 在 `modelAgreement()` 中先计算所有可用模型的首年预测线极差。
-   - 若极差达到风险阈值，例如 `>= 6` 分，即使所有模型方向同为上涨或下降，也不应返回“一致”。
-   - 阈值应与趋势模型回测 MAE 联动观察。当前趋势模型总体 MAE 约 4.73 分，因此 5-6 分可作为首轮候选区间。
-   - UI 文案应说明“模型首年预测差距较大”，不要暗示某个模型必然正确。
+   - 若极差 `>= 6` 分，即使所有模型方向同为上涨或下降，也不返回“一致”。
+   - 极差 `>= 5` 分时展示预测区间；极差 `>= 6` 分时标记为“分歧大”。
+   - UI 文案说明“模型首年预测差距较大”，不暗示某个模型必然正确。
 
 2. 趋势远期预测衰减实验。
    - 当前 recent trend 将同一个 `weightedChange` 逐年延展到未来三年，虽然单年变化已经截尾，但连续上涨或下跌时仍可能累计过度外推。

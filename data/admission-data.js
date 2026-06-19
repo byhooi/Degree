@@ -2,7 +2,7 @@ window.ADMISSION_DATA = {
   "meta": {
     "title": "布吉街道义务教育录取分析",
     "scope": "布吉街道/布吉片区",
-    "generated_at": "2026-06-19T17:16:46",
+    "generated_at": "2026-06-19T18:03:28",
     "source_files": [
       "小一17-25.xlsx",
       "初一17-25.xlsx",

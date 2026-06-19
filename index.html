@@ -1436,6 +1436,8 @@
     const TREND_DECAY = 0.8;
     const TREND_MAX_YEARLY_CHANGE = 3;
     const COHORT_DELTA_OUTLIER_THRESHOLD = data.cohort_model?.delta_outlier_threshold || 10;
+    const MODEL_SPREAD_RANGE_THRESHOLD = 5;
+    const MODEL_SPREAD_RISK_THRESHOLD = 6;
     const admissionTypes = ["录取分数线", "民办直升"];
     const state = {
       stage: "全部",
@@ -1910,6 +1912,12 @@
       });
     }
 
+    function firstForecastsForModels(models) {
+      return models
+        .filter(model => model?.forecasts?.length)
+        .map(model => ({ method: model.method, forecast: model.forecasts[0] }));
+    }
+
     function modelAgreement(models) {
       const usable = models.filter(Boolean);
       if (!usable.length) {
@@ -1917,6 +1925,19 @@
       }
       if (usable.length < 2) {
         return { text: "单模型", tone: "watch", detail: "仅有一个预测模型可用" };
+      }
+      const firstForecasts = firstForecastsForModels(usable);
+      if (firstForecasts.length >= 2) {
+        const scores = firstForecasts.map(item => item.forecast.score);
+        const spread = roundDelta(Math.max(...scores) - Math.min(...scores));
+        if (spread >= MODEL_SPREAD_RISK_THRESHOLD) {
+          const year = firstForecasts[0].forecast.year;
+          return {
+            text: "分歧大",
+            tone: "risk",
+            detail: `${year} 年各模型首年预测差距 ${formatScore(spread)} 分，超过 ${MODEL_SPREAD_RISK_THRESHOLD} 分阈值`
+          };
+        }
       }
       const directions = usable.map(model => modelDirection(model.change));
       const counts = directions.reduce((map, direction) => {
@@ -1935,9 +1956,7 @@
     }
 
     function predictionRange(models) {
-      const firstForecasts = models
-        .filter(model => model?.forecasts?.length)
-        .map(model => ({ method: model.method, forecast: model.forecasts[0] }));
+      const firstForecasts = firstForecastsForModels(models);
       if (firstForecasts.length < 2) return null;
       const scores = firstForecasts.map(item => item.forecast.score);
       const minScore = Math.min(...scores);
@@ -1976,7 +1995,7 @@
       const auxiliary = candidates.find(model => model !== forecast) || null;
       const agreement = modelAgreement(candidates);
       const range = predictionRange(candidates);
-      const showRange = range && (agreement.tone === "risk" || range.spread >= 5);
+      const showRange = range && (agreement.tone === "risk" || range.spread >= MODEL_SPREAD_RANGE_THRESHOLD);
       return { target, latest, forecast, auxiliary, models: candidates, agreement, range, showRange, warnings };
     }
 
