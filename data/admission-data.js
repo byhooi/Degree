@@ -2,7 +2,7 @@ window.ADMISSION_DATA = {
   "meta": {
     "title": "布吉街道义务教育录取分析",
     "scope": "布吉街道/布吉片区",
-    "generated_at": "2026-06-17T15:23:46",
+    "generated_at": "2026-06-19T15:28:47",
     "source_files": [
       "小一19-25.xlsx",
       "初一19-25.xlsx",
@@ -137,8 +137,35 @@ window.ADMISSION_DATA = {
   "cohort_model": {
     "method": "同校同办学性质小一录取线滞后 6 年映射到初一录取线；下一届预测使用下一年小一录取线叠加已观测 cohort 差值。",
     "lag_years": 6,
+    "delta_outlier_threshold": 10,
     "common_school_count": 9,
     "pair_count": 8,
+    "school_pair_counts": {
+      "东升学校|民办": 1,
+      "承翰学校|民办": 1,
+      "智民实验学校|民办": 1,
+      "木棉湾实验|民办": 1,
+      "爱义学校|民办": 1,
+      "科城实验学校|民办": 1,
+      "贤义外国语学校|公办": 1,
+      "龙岭学校|民办": 1
+    },
+    "delta_stats": {
+      "count": 8,
+      "mean": 6.89,
+      "median": 1.73,
+      "stdev": 14.46,
+      "min": -2.6,
+      "max": 44.5,
+      "outlier_count": 1,
+      "outlier_schools": [
+        {
+          "school_key": "智民实验学校",
+          "school_type": "民办",
+          "cohort_delta": 44.5
+        }
+      ]
+    },
     "average_projected_change": -0.41,
     "pairs": [
       {
@@ -281,23 +308,584 @@ window.ADMISSION_DATA = {
   },
   "backtest": {
     "method": "近年趋势留一回测",
-    "description": "每个学校组合使用目标年前历史录取线预测下一年，年变化按 EWMA 加权并以 ±5 分截尾。",
+    "description": "每个学校组合使用目标年前历史录取线预测下一年，年变化按 EWMA 加权并以 ±3 分截尾。",
+    "large_error_threshold": 20,
     "overall": {
       "sample_count": 181,
-      "mae": 5.02,
+      "mae": 4.73,
       "max_abs_error": 48.85
     },
     "by_stage": {
       "初一": {
         "sample_count": 63,
-        "mae": 5.53,
+        "mae": 5.27,
         "max_abs_error": 48.85
       },
       "小一": {
         "sample_count": 118,
-        "mae": 4.74,
-        "max_abs_error": 47.3
+        "mae": 4.45,
+        "max_abs_error": 45.3
       }
+    },
+    "large_errors": [
+      {
+        "stage": "初一",
+        "school_key": "百合外国语学校",
+        "school_name": "布吉街道百合外国语学校",
+        "school_type": "民办",
+        "year": 2022,
+        "actual_score": 61.15,
+        "predicted_score": 110,
+        "abs_error": 48.85,
+        "latest_year": 2021,
+        "latest_score": 110.0,
+        "weighted_change": 3.0,
+        "history_years": [
+          2020,
+          2021
+        ],
+        "history_scores": [
+          106.8,
+          110.0
+        ]
+      },
+      {
+        "stage": "初一",
+        "school_key": "百合外国语学校",
+        "school_name": "布吉街道百合外国语学校",
+        "school_type": "民办",
+        "year": 2025,
+        "actual_score": 106.9,
+        "predicted_score": 58.75,
+        "abs_error": 48.15,
+        "latest_year": 2024,
+        "latest_score": 60.0,
+        "weighted_change": -1.25,
+        "history_years": [
+          2021,
+          2022,
+          2023,
+          2024
+        ],
+        "history_scores": [
+          110.0,
+          61.15,
+          61.05,
+          60.0
+        ]
+      },
+      {
+        "stage": "小一",
+        "school_key": "中兴小学",
+        "school_name": "布吉街道中兴小学（民办）",
+        "school_type": "民办",
+        "year": 2022,
+        "actual_score": 61.85,
+        "predicted_score": 107.15,
+        "abs_error": 45.3,
+        "latest_year": 2021,
+        "latest_score": 104.15,
+        "weighted_change": 3.0,
+        "history_years": [
+          2020,
+          2021
+        ],
+        "history_scores": [
+          91.0,
+          104.15
+        ]
+      },
+      {
+        "stage": "小一",
+        "school_key": "百外春蕾小学",
+        "school_name": "布吉街道百外春蕾小学（民办）",
+        "school_type": "民办",
+        "year": 2022,
+        "actual_score": 104.55,
+        "predicted_score": 62.12,
+        "abs_error": 42.43,
+        "latest_year": 2021,
+        "latest_score": 62.25,
+        "weighted_change": -0.13,
+        "history_years": [
+          2019,
+          2020,
+          2021
+        ],
+        "history_scores": [
+          62.65,
+          61.85,
+          62.25
+        ]
+      },
+      {
+        "stage": "初一",
+        "school_key": "智民实验学校",
+        "school_name": "布吉街道智民实验学校（民办）",
+        "school_type": "民办",
+        "year": 2021,
+        "actual_score": 101.7,
+        "predicted_score": 72.0,
+        "abs_error": 29.7,
+        "latest_year": 2020,
+        "latest_score": 75.0,
+        "weighted_change": -3.0,
+        "history_years": [
+          2019,
+          2020
+        ],
+        "history_scores": [
+          102.15,
+          75.0
+        ]
+      },
+      {
+        "stage": "小一",
+        "school_key": "华中师范大学龙岗附属中学木棉湾学校",
+        "school_name": "华中师范大学龙岗附属中学（集团）木棉湾学校（小学部）（公办）",
+        "school_type": "公办",
+        "year": 2023,
+        "actual_score": 75.0,
+        "predicted_score": 104.25,
+        "abs_error": 29.25,
+        "latest_year": 2022,
+        "latest_score": 102.6,
+        "weighted_change": 1.65,
+        "history_years": [
+          2019,
+          2020,
+          2021,
+          2022
+        ],
+        "history_scores": [
+          95.85,
+          100.5,
+          100.45,
+          102.6
+        ]
+      },
+      {
+        "stage": "初一",
+        "school_key": "承翰学校",
+        "school_name": "深圳实验布吉街道承翰学校（民办）",
+        "school_type": "民办",
+        "year": 2023,
+        "actual_score": 63.5,
+        "predicted_score": 85.83,
+        "abs_error": 22.33,
+        "latest_year": 2022,
+        "latest_score": 84.4,
+        "weighted_change": 1.43,
+        "history_years": [
+          2019,
+          2020,
+          2021,
+          2022
+        ],
+        "history_scores": [
+          86.2,
+          68.1,
+          75.0,
+          84.4
+        ]
+      }
+    ],
+    "parameter_scan": {
+      "method": "趋势模型参数网格扫描",
+      "decay_values": [
+        0.3,
+        0.35,
+        0.4,
+        0.45,
+        0.5,
+        0.55,
+        0.6,
+        0.65,
+        0.7,
+        0.75,
+        0.8,
+        0.85,
+        0.9
+      ],
+      "max_yearly_change_values": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "current": {
+        "decay": 0.8,
+        "max_yearly_change": 3
+      },
+      "best": {
+        "decay": 0.8,
+        "max_yearly_change": 3,
+        "overall": {
+          "sample_count": 181,
+          "mae": 4.73,
+          "max_abs_error": 48.85
+        },
+        "by_stage": {
+          "初一": {
+            "sample_count": 63,
+            "mae": 5.27,
+            "max_abs_error": 48.85
+          },
+          "小一": {
+            "sample_count": 118,
+            "mae": 4.45,
+            "max_abs_error": 45.3
+          }
+        },
+        "by_school_type": {
+          "公办": {
+            "sample_count": 85,
+            "mae": 4.53,
+            "max_abs_error": 29.25
+          },
+          "民办": {
+            "sample_count": 96,
+            "mae": 4.92,
+            "max_abs_error": 48.85
+          }
+        }
+      },
+      "top_results": [
+        {
+          "decay": 0.8,
+          "max_yearly_change": 3,
+          "overall": {
+            "sample_count": 181,
+            "mae": 4.73,
+            "max_abs_error": 48.85
+          },
+          "by_stage": {
+            "初一": {
+              "sample_count": 63,
+              "mae": 5.27,
+              "max_abs_error": 48.85
+            },
+            "小一": {
+              "sample_count": 118,
+              "mae": 4.45,
+              "max_abs_error": 45.3
+            }
+          },
+          "by_school_type": {
+            "公办": {
+              "sample_count": 85,
+              "mae": 4.53,
+              "max_abs_error": 29.25
+            },
+            "民办": {
+              "sample_count": 96,
+              "mae": 4.92,
+              "max_abs_error": 48.85
+            }
+          }
+        },
+        {
+          "decay": 0.85,
+          "max_yearly_change": 3,
+          "overall": {
+            "sample_count": 181,
+            "mae": 4.73,
+            "max_abs_error": 48.85
+          },
+          "by_stage": {
+            "初一": {
+              "sample_count": 63,
+              "mae": 5.27,
+              "max_abs_error": 48.85
+            },
+            "小一": {
+              "sample_count": 118,
+              "mae": 4.44,
+              "max_abs_error": 45.3
+            }
+          },
+          "by_school_type": {
+            "公办": {
+              "sample_count": 85,
+              "mae": 4.52,
+              "max_abs_error": 29.26
+            },
+            "民办": {
+              "sample_count": 96,
+              "mae": 4.92,
+              "max_abs_error": 48.85
+            }
+          }
+        },
+        {
+          "decay": 0.9,
+          "max_yearly_change": 3,
+          "overall": {
+            "sample_count": 181,
+            "mae": 4.73,
+            "max_abs_error": 48.85
+          },
+          "by_stage": {
+            "初一": {
+              "sample_count": 63,
+              "mae": 5.27,
+              "max_abs_error": 48.85
+            },
+            "小一": {
+              "sample_count": 118,
+              "mae": 4.44,
+              "max_abs_error": 45.3
+            }
+          },
+          "by_school_type": {
+            "公办": {
+              "sample_count": 85,
+              "mae": 4.51,
+              "max_abs_error": 29.27
+            },
+            "民办": {
+              "sample_count": 96,
+              "mae": 4.92,
+              "max_abs_error": 48.85
+            }
+          }
+        },
+        {
+          "decay": 0.75,
+          "max_yearly_change": 3,
+          "overall": {
+            "sample_count": 181,
+            "mae": 4.74,
+            "max_abs_error": 48.85
+          },
+          "by_stage": {
+            "初一": {
+              "sample_count": 63,
+              "mae": 5.27,
+              "max_abs_error": 48.85
+            },
+            "小一": {
+              "sample_count": 118,
+              "mae": 4.46,
+              "max_abs_error": 45.3
+            }
+          },
+          "by_school_type": {
+            "公办": {
+              "sample_count": 85,
+              "mae": 4.54,
+              "max_abs_error": 29.24
+            },
+            "民办": {
+              "sample_count": 96,
+              "mae": 4.92,
+              "max_abs_error": 48.85
+            }
+          }
+        },
+        {
+          "decay": 0.7,
+          "max_yearly_change": 3,
+          "overall": {
+            "sample_count": 181,
+            "mae": 4.75,
+            "max_abs_error": 48.85
+          },
+          "by_stage": {
+            "初一": {
+              "sample_count": 63,
+              "mae": 5.28,
+              "max_abs_error": 48.85
+            },
+            "小一": {
+              "sample_count": 118,
+              "mae": 4.46,
+              "max_abs_error": 45.3
+            }
+          },
+          "by_school_type": {
+            "公办": {
+              "sample_count": 85,
+              "mae": 4.55,
+              "max_abs_error": 29.24
+            },
+            "民办": {
+              "sample_count": 96,
+              "mae": 4.92,
+              "max_abs_error": 48.85
+            }
+          }
+        },
+        {
+          "decay": 0.65,
+          "max_yearly_change": 3,
+          "overall": {
+            "sample_count": 181,
+            "mae": 4.76,
+            "max_abs_error": 48.85
+          },
+          "by_stage": {
+            "初一": {
+              "sample_count": 63,
+              "mae": 5.29,
+              "max_abs_error": 48.85
+            },
+            "小一": {
+              "sample_count": 118,
+              "mae": 4.47,
+              "max_abs_error": 45.3
+            }
+          },
+          "by_school_type": {
+            "公办": {
+              "sample_count": 85,
+              "mae": 4.56,
+              "max_abs_error": 29.23
+            },
+            "民办": {
+              "sample_count": 96,
+              "mae": 4.93,
+              "max_abs_error": 48.85
+            }
+          }
+        },
+        {
+          "decay": 0.6,
+          "max_yearly_change": 3,
+          "overall": {
+            "sample_count": 181,
+            "mae": 4.77,
+            "max_abs_error": 48.85
+          },
+          "by_stage": {
+            "初一": {
+              "sample_count": 63,
+              "mae": 5.3,
+              "max_abs_error": 48.85
+            },
+            "小一": {
+              "sample_count": 118,
+              "mae": 4.48,
+              "max_abs_error": 45.3
+            }
+          },
+          "by_school_type": {
+            "公办": {
+              "sample_count": 85,
+              "mae": 4.58,
+              "max_abs_error": 29.23
+            },
+            "民办": {
+              "sample_count": 96,
+              "mae": 4.94,
+              "max_abs_error": 48.85
+            }
+          }
+        },
+        {
+          "decay": 0.55,
+          "max_yearly_change": 3,
+          "overall": {
+            "sample_count": 181,
+            "mae": 4.78,
+            "max_abs_error": 48.85
+          },
+          "by_stage": {
+            "初一": {
+              "sample_count": 63,
+              "mae": 5.31,
+              "max_abs_error": 48.85
+            },
+            "小一": {
+              "sample_count": 118,
+              "mae": 4.5,
+              "max_abs_error": 45.3
+            }
+          },
+          "by_school_type": {
+            "公办": {
+              "sample_count": 85,
+              "mae": 4.59,
+              "max_abs_error": 29.24
+            },
+            "民办": {
+              "sample_count": 96,
+              "mae": 4.95,
+              "max_abs_error": 48.85
+            }
+          }
+        },
+        {
+          "decay": 0.5,
+          "max_yearly_change": 3,
+          "overall": {
+            "sample_count": 181,
+            "mae": 4.8,
+            "max_abs_error": 48.85
+          },
+          "by_stage": {
+            "初一": {
+              "sample_count": 63,
+              "mae": 5.33,
+              "max_abs_error": 48.85
+            },
+            "小一": {
+              "sample_count": 118,
+              "mae": 4.51,
+              "max_abs_error": 45.3
+            }
+          },
+          "by_school_type": {
+            "公办": {
+              "sample_count": 85,
+              "mae": 4.61,
+              "max_abs_error": 29.24
+            },
+            "民办": {
+              "sample_count": 96,
+              "mae": 4.96,
+              "max_abs_error": 48.85
+            }
+          }
+        },
+        {
+          "decay": 0.45,
+          "max_yearly_change": 3,
+          "overall": {
+            "sample_count": 181,
+            "mae": 4.81,
+            "max_abs_error": 48.85
+          },
+          "by_stage": {
+            "初一": {
+              "sample_count": 63,
+              "mae": 5.34,
+              "max_abs_error": 48.85
+            },
+            "小一": {
+              "sample_count": 118,
+              "mae": 4.53,
+              "max_abs_error": 45.3
+            }
+          },
+          "by_school_type": {
+            "公办": {
+              "sample_count": 85,
+              "mae": 4.63,
+              "max_abs_error": 29.26
+            },
+            "民办": {
+              "sample_count": 96,
+              "mae": 4.98,
+              "max_abs_error": 48.85
+            }
+          }
+        }
+      ]
     }
   },
   "records": [

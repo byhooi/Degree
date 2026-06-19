@@ -21,8 +21,12 @@ from pypdf import PdfReader  # type: ignore
 
 TARGET_KEYWORDS = ("布吉街道", "布吉片区")
 MAX_ADMISSION_SCORE = 110
-TREND_DECAY = 0.65
-TREND_MAX_YEARLY_CHANGE = 5
+TREND_DECAY = 0.8
+TREND_MAX_YEARLY_CHANGE = 3
+COHORT_DELTA_OUTLIER_THRESHOLD = 10
+BACKTEST_LARGE_ERROR_THRESHOLD = 20
+TREND_DECAY_SCAN_VALUES = [round(value / 100, 2) for value in range(30, 91, 5)]
+TREND_MAX_CHANGE_SCAN_VALUES = list(range(3, 11))
 
 EXCEL_FILES = [
     ("小一", ROOT / "小一19-25.xlsx"),
@@ -404,23 +408,56 @@ def build_cohort_model(records: list[dict]) -> dict:
             )
 
     numeric_changes = [item["projected_change"] for item in pairs if item["projected_change"] is not None]
+    deltas = [item["cohort_delta"] for item in pairs]
+    outliers = [
+        item
+        for item in pairs
+        if abs(item["cohort_delta"]) > COHORT_DELTA_OUTLIER_THRESHOLD
+    ]
+    pair_counts: dict[str, int] = defaultdict(int)
+    for item in pairs:
+        pair_counts[f"{item['school_key']}|{item['school_type']}"] += 1
+
     return {
         "method": "同校同办学性质小一录取线滞后 6 年映射到初一录取线；下一届预测使用下一年小一录取线叠加已观测 cohort 差值。",
         "lag_years": lag_years,
+        "delta_outlier_threshold": COHORT_DELTA_OUTLIER_THRESHOLD,
         "common_school_count": len(common_keys),
         "pair_count": len(pairs),
+        "school_pair_counts": dict(sorted(pair_counts.items())),
+        "delta_stats": {
+            "count": len(deltas),
+            "mean": round(statistics.mean(deltas), 2) if deltas else None,
+            "median": round(statistics.median(deltas), 2) if deltas else None,
+            "stdev": round(statistics.pstdev(deltas), 2) if len(deltas) > 1 else 0,
+            "min": round(min(deltas), 2) if deltas else None,
+            "max": round(max(deltas), 2) if deltas else None,
+            "outlier_count": len(outliers),
+            "outlier_schools": [
+                {
+                    "school_key": item["school_key"],
+                    "school_type": item["school_type"],
+                    "cohort_delta": item["cohort_delta"],
+                }
+                for item in outliers
+            ],
+        },
         "average_projected_change": round(statistics.mean(numeric_changes), 2) if numeric_changes else None,
         "pairs": pairs,
     }
 
 
-def robust_trend_change(items: list[dict]) -> float | None:
+def robust_trend_change(
+    items: list[dict],
+    decay: float = TREND_DECAY,
+    max_yearly_change: float = TREND_MAX_YEARLY_CHANGE,
+) -> float | None:
     if len(items) < 2:
         return None
 
     recent = items[-4:]
     changes = [
-        clamp_trend_change(recent[index]["score_value"] - recent[index - 1]["score_value"])
+        max(-max_yearly_change, min(max_yearly_change, recent[index]["score_value"] - recent[index - 1]["score_value"]))
         for index in range(1, len(recent))
     ]
     if not changes:
@@ -430,7 +467,7 @@ def robust_trend_change(items: list[dict]) -> float | None:
     total_weight = 0.0
     for index, change in enumerate(changes):
         distance_from_latest = len(changes) - 1 - index
-        weight = TREND_DECAY ** distance_from_latest
+        weight = decay ** distance_from_latest
         weighted += change * weight
         total_weight += weight
     return weighted / total_weight if total_weight else None
@@ -446,7 +483,11 @@ def summarize_errors(errors: list[float]) -> dict:
     }
 
 
-def build_backtest(records: list[dict]) -> dict:
+def collect_trend_backtest_errors(
+    records: list[dict],
+    decay: float = TREND_DECAY,
+    max_yearly_change: float = TREND_MAX_YEARLY_CHANGE,
+) -> list[dict]:
     grouped: dict[tuple[str, str, str], list[dict]] = defaultdict(list)
     for record in records:
         if record["admission_type"] != "录取分数线":
@@ -455,8 +496,7 @@ def build_backtest(records: list[dict]) -> dict:
             continue
         grouped[(record["stage"], record["school_key"], record["school_type"])].append(record)
 
-    all_errors: list[float] = []
-    stage_errors: dict[str, list[float]] = defaultdict(list)
+    errors: list[dict] = []
     for items in grouped.values():
         items = sorted(items, key=lambda item: item["year"])
         for index in range(2, len(items)):
@@ -465,19 +505,102 @@ def build_backtest(records: list[dict]) -> dict:
             latest = prior[-1]
             if actual["year"] != latest["year"] + 1:
                 continue
-            change = robust_trend_change(prior)
+            change = robust_trend_change(prior, decay, max_yearly_change)
             if change is None:
                 continue
             predicted = cap_admission_score(latest["score_value"] + change)
-            error = abs(predicted - actual["score_value"])
-            all_errors.append(error)
-            stage_errors[actual["stage"]].append(error)
+            errors.append(
+                {
+                    "stage": actual["stage"],
+                    "school_key": actual["school_key"],
+                    "school_name": actual["school_name"],
+                    "school_type": actual["school_type"],
+                    "year": actual["year"],
+                    "actual_score": actual["score_value"],
+                    "predicted_score": predicted,
+                    "abs_error": round(abs(predicted - actual["score_value"]), 2),
+                    "latest_year": latest["year"],
+                    "latest_score": latest["score_value"],
+                    "weighted_change": round(change, 2),
+                    "history_years": [item["year"] for item in prior[-4:]],
+                    "history_scores": [item["score_value"] for item in prior[-4:]],
+                }
+            )
+    return errors
+
+
+def summarize_error_items(items: list[dict]) -> dict:
+    return summarize_errors([item["abs_error"] for item in items])
+
+
+def build_trend_parameter_scan(records: list[dict]) -> dict:
+    results: list[dict] = []
+    for decay in TREND_DECAY_SCAN_VALUES:
+        for max_change in TREND_MAX_CHANGE_SCAN_VALUES:
+            errors = collect_trend_backtest_errors(records, decay, max_change)
+            stage_errors: dict[str, list[dict]] = defaultdict(list)
+            type_errors: dict[str, list[dict]] = defaultdict(list)
+            for item in errors:
+                stage_errors[item["stage"]].append(item)
+                type_errors[item["school_type"]].append(item)
+            results.append(
+                {
+                    "decay": decay,
+                    "max_yearly_change": max_change,
+                    "overall": summarize_error_items(errors),
+                    "by_stage": {
+                        stage: summarize_error_items(group)
+                        for stage, group in sorted(stage_errors.items())
+                    },
+                    "by_school_type": {
+                        school_type: summarize_error_items(group)
+                        for school_type, group in sorted(type_errors.items())
+                    },
+                }
+            )
+
+    best = min(
+        (item for item in results if item["overall"]["mae"] is not None),
+        key=lambda item: (item["overall"]["mae"], item["overall"]["max_abs_error"]),
+        default=None,
+    )
+    top_results = sorted(
+        [item for item in results if item["overall"]["mae"] is not None],
+        key=lambda item: (item["overall"]["mae"], item["overall"]["max_abs_error"]),
+    )[:10]
+    return {
+        "method": "趋势模型参数网格扫描",
+        "decay_values": TREND_DECAY_SCAN_VALUES,
+        "max_yearly_change_values": TREND_MAX_CHANGE_SCAN_VALUES,
+        "current": {
+            "decay": TREND_DECAY,
+            "max_yearly_change": TREND_MAX_YEARLY_CHANGE,
+        },
+        "best": best,
+        "top_results": top_results,
+    }
+
+
+def build_backtest(records: list[dict]) -> dict:
+    errors = collect_trend_backtest_errors(records)
+    stage_errors: dict[str, list[dict]] = defaultdict(list)
+    for item in errors:
+        stage_errors[item["stage"]].append(item)
+
+    large_errors = sorted(
+        [item for item in errors if item["abs_error"] >= BACKTEST_LARGE_ERROR_THRESHOLD],
+        key=lambda item: item["abs_error"],
+        reverse=True,
+    )
 
     return {
         "method": "近年趋势留一回测",
-        "description": "每个学校组合使用目标年前历史录取线预测下一年，年变化按 EWMA 加权并以 ±5 分截尾。",
-        "overall": summarize_errors(all_errors),
-        "by_stage": {stage: summarize_errors(errors) for stage, errors in sorted(stage_errors.items())},
+        "description": f"每个学校组合使用目标年前历史录取线预测下一年，年变化按 EWMA 加权并以 ±{TREND_MAX_YEARLY_CHANGE} 分截尾。",
+        "large_error_threshold": BACKTEST_LARGE_ERROR_THRESHOLD,
+        "overall": summarize_error_items(errors),
+        "by_stage": {stage: summarize_error_items(items) for stage, items in sorted(stage_errors.items())},
+        "large_errors": large_errors,
+        "parameter_scan": build_trend_parameter_scan(records),
     }
 
 
