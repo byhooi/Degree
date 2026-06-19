@@ -130,6 +130,7 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 
 - 保留优先级模型作为主预测，但异常 direct cohort 必须自动降级。
 - 当模型方向分歧大，或首年预测线最大差值达到阈值时，展示所有模型预测区间。
+- 模型一致性不能只看方向。若多个模型首年预测方向一致，但预测线最大差值达到风险阈值，也应标记为“分歧大”或至少提升到风险提示，避免“同向但数值差距很大”的盲区。当前可先以 `>= 6` 分作为候选风险阈值，并结合趋势模型 MAE 继续校准。
 - 暂不做加权融合，因为 direct cohort 和 grouped cohort 还没有可靠 MAE。
 
 ## 五、优化优先级
@@ -141,6 +142,9 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 | P0 | direct cohort 异常 delta 自动降级 | `index.html` | 已实施 |
 | P1 | cohort 诊断统计输出 | `scripts/build_data.py` / `data/admission-data.json` | 已实施 |
 | P1 | 模型分歧时展示预测区间 | `index.html` | 已实施 |
+| P1 | 模型一致性加入首年预测极差判定 | `index.html` | 值得优先实施，避免同向大偏差被误判为一致 |
+| P2 | 趋势远期预测衰减 | `index.html` / `scripts/build_data.py` 离线校准 | 可作为保守展示优化，参数需回测 |
+| P2 | 预测参数配置随数据同步 | `scripts/build_data.py` / `data/admission-data.json` / `index.html` | 建议输出显式采用参数，不直接自动套用扫描 best |
 | P2 | grouped cohort 分档实验 | `scripts/build_data.py` | 先验证样本量，不直接上线 |
 | P2 | direct cohort 多对均值 | `index.html` | 等 2026 初一数据后才有实际收益 |
 | P3 | 趋势模型均值回归 | `scripts/build_data.py` 离线实验 | 参数较多，避免先上线 |
@@ -218,17 +222,35 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 
 目标：在有诊断和回测基础后，再引入更复杂模型。
 
-1. grouped cohort 分档实验。
+1. 模型一致性的数值极差判定。
+   - 在 `modelAgreement()` 中先计算所有可用模型的首年预测线极差。
+   - 若极差达到风险阈值，例如 `>= 6` 分，即使所有模型方向同为上涨或下降，也不应返回“一致”。
+   - 阈值应与趋势模型回测 MAE 联动观察。当前趋势模型总体 MAE 约 4.73 分，因此 5-6 分可作为首轮候选区间。
+   - UI 文案应说明“模型首年预测差距较大”，不要暗示某个模型必然正确。
+
+2. 趋势远期预测衰减实验。
+   - 当前 recent trend 将同一个 `weightedChange` 逐年延展到未来三年，虽然单年变化已经截尾，但连续上涨或下跌时仍可能累计过度外推。
+   - 可实验多步衰减：第 1 年使用完整加权变化，第 2 年、第 3 年分别乘以 `gamma`、`gamma^2`，例如先把 `gamma = 0.6` 作为候选值。
+   - 该机制只适合用于 recent trend 的远期展示，不应影响 direct cohort 或 grouped cohort，因为 cohort 使用的是对应年份的小一真实数据或均线。
+   - 上线前应扩展回测，至少比较 1 年、2 年、3 年预测误差；若没有足够远期回测样本，应在文案中定位为“保守收敛展示”，而不是“精度提升”。
+
+3. 预测参数配置随数据同步。
+   - `scripts/build_data.py` 已输出 `backtest.parameter_scan.best`，但前端仍保留本地硬编码常量，后续容易出现数据侧最优参数与前端实际参数不一致。
+   - 建议在 `data/admission-data.json` 的 `meta` 或独立 `prediction_config` 中输出“当前采用参数”，例如 `trend_decay`、`trend_max_yearly_change`、`trend_forecast_decay`、`model_spread_risk_threshold`。
+   - 前端优先读取“当前采用参数”，缺失时再回退到本地默认值。
+   - 不建议前端直接自动使用 `parameter_scan.best`，因为小样本年度更新可能导致参数过拟合和行为漂移；是否采用 best 应由生成脚本或人工评审明确决定。
+
+4. grouped cohort 分档实验。
    - 按高分段、中分段、低分段试算均线。
    - 先检查每年每档样本量，避免只剩 1-2 所学校。
    - 与未分档 grouped cohort、recent trend 做离线对比。
 
-2. 趋势模型均值回归实验。
+5. 趋势模型均值回归实验。
    - 将片区同类型均值作为回归锚点。
    - 扫描趋势权重、回归强度和回归周期。
    - 只在明显降低 MAE 且不增加解释成本时考虑上线。
 
-3. 加权融合实验。
+6. 加权融合实验。
    - 仅在 direct cohort、grouped cohort、recent trend 都有可比较回测 MAE 后考虑。
    - 不把融合结果包装成确定答案，仍需展示区间和风险提示。
 
