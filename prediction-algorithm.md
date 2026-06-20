@@ -303,31 +303,35 @@ node -e "const fs=require('fs'); const h=fs.readFileSync('index.html','utf8'); [
 每年新数据入库前，运行以下命令备份当年的模型预测：
 
 ```powershell
-node scripts/export_2026_predictions.js
+node scripts/export_2026_predictions.js --year 2026
 ```
 
-脚本会**完整复制** `index.html` 中的预测逻辑（cohort / grouped cohort / trend EWMA），对所有学校组合生成当年预测，输出到 `data/predictions-YYYY.json`。
+脚本会**完整复制** `index.html` 中的预测逻辑（cohort / grouped cohort / trend EWMA），对所有学校组合生成指定年份预测，输出到 `data/predictions-<year>.json` 和 `data/predictions-<year>.js`。未传 `--year` 时默认导出 2026 年。
 
 文件结构：
 - `meta` — 生成时间、数据快照、采用的预测常量
 - `summary` — 预测方法分布统计
-- `predictions[]` — 每个学校组合的预测，包含 `predicted_YYYY_score`、`primary_method`、**所有模型**的完整预测（含未来三年）和依据
+- `predictions[]` — 每个学校组合的预测，包含 `predicted_score`、`forecast_horizon`、`primary_method`、**所有模型**的完整预测（含未来三年）和依据
+
+`predictions-2026.html` 会读取 `data/predictions-2026.js`，用于展示 2026 年预测清单和分数分布。
 
 ### 9.2 实绩对比
 
 当年实际录取分数录入后（更新 Excel → `python scripts/build_data.py`），运行：
 
 ```powershell
-node scripts/compare_2026_predictions.js
+node scripts/compare_2026_predictions.js --year 2026
 ```
 
 脚本会：
 - 从 `admission-data.json` 提取当年实际录取线
-- 与 `predictions-YYYY.json` 逐校对比
+- 与 `predictions-<year>.json` 逐校对比
 - 输出终端摘要：总体 MAE/RMSE、误差分布、偏差方向、按学段/方法分组指标、各模型独立 MAE、最大误差 TOP 5
-- 输出 `data/comparison-YYYY.json` 完整对比数据（含每个模型在各校的独立误差）
+- 当实际数据已存在时输出 `data/comparison-<year>.json` 完整对比数据（含每个模型在各校的独立误差）
 
 此举是验证预测精度的唯一客观方式，也是后续参数调整的依据。
+
+若 `admission-data.json` 中尚无目标年份实际数据，对比脚本只给出提示，不生成占位 `comparison` 文件，避免把 `actual = null` 的文件误当作实绩验证结果。
 
 ### 9.3 年度流程
 
@@ -341,10 +345,10 @@ node scripts/compare_2026_predictions.js
 2. python scripts/build_data.py          ← 重新生成 admission-data.json
     │
     ▼
-3a. node scripts/compare_2026_predictions.js   ← 对比去年预测 vs 今年实际
+3a. node scripts/compare_2026_predictions.js --year 2026   ← 对比去年预测 vs 今年实际
     │
     ▼
-3b. node scripts/export_2027_predictions.js    ← 备份今年新预测
+3b. node scripts/export_2026_predictions.js --year 2027    ← 备份今年新预测
     │
     ▼
 4. 根据对比结果评估是否需要调整参数/模型

@@ -1,14 +1,46 @@
 /**
- * 导出 2026 年所有学校录取分数预测
+ * 导出目标年份所有学校录取分数预测
  *
- * 复制 index.html 中内嵌 JS 的预测逻辑，对每条学校记录生成 2026 年预测，
- * 输出到 data/predictions-2026.json，供 2026 年实际录取分数出炉后对比。
+ * 复制 index.html 中内嵌 JS 的预测逻辑，对每条学校记录生成目标年份预测，
+ * 输出到 data/predictions-<year>.json，供实际录取分数出炉后对比。
  *
- * 用法: node scripts/export_2026_predictions.js
+ * 用法: node scripts/export_2026_predictions.js --year 2026
  */
 
 const fs = require("fs");
 const path = require("path");
+
+const DEFAULT_TARGET_YEAR = 2026;
+
+function parseTargetYear(args) {
+  let candidate = null;
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    const inline = arg.match(/^--year=(\d{4})$/);
+    if (inline) {
+      candidate = inline[1];
+      break;
+    }
+    if (arg === "--year" || arg === "-y") {
+      candidate = args[index + 1];
+      break;
+    }
+    if (/^\d{4}$/.test(arg)) {
+      candidate = arg;
+      break;
+    }
+  }
+  const year = Number(candidate || DEFAULT_TARGET_YEAR);
+  if (!Number.isInteger(year) || year < 2000 || year > 2100) {
+    console.error(
+      `年份参数无效: ${candidate}. 用法: node scripts/export_2026_predictions.js --year 2026`
+    );
+    process.exit(1);
+  }
+  return year;
+}
+
+const TARGET_YEAR = parseTargetYear(process.argv.slice(2));
 
 const data = JSON.parse(
   fs.readFileSync(
@@ -377,24 +409,33 @@ function predictionForSchool(stage, schoolKey, schoolType, admissionType) {
   const forecast = candidates[0] || null;
   const auxiliary = candidates.find((model) => model !== forecast) || null;
 
-  // 提取 2026 年预测
-  const forecast2026 =
-    forecast?.forecasts?.find((f) => f.year === 2026) || null;
-  const auxiliary2026 =
-    auxiliary?.forecasts?.find((f) => f.year === 2026) || null;
+  // 提取目标年份预测
+  const targetForecast =
+    forecast?.forecasts?.find((f) => f.year === TARGET_YEAR) || null;
+  const auxiliaryTargetForecast =
+    auxiliary?.forecasts?.find((f) => f.year === TARGET_YEAR) || null;
 
   // 收集所有模型的首年预测
-  const allFirstForecasts = candidates
+  const allModelForecasts = candidates
     .filter((m) => m?.forecasts?.length)
-    .map((m) => ({
-      method: m.method,
-      year2026: m.forecasts.find((f) => f.year === 2026) || null,
-      allForecasts: m.forecasts,
-      basis: m.basis,
-      confidenceNote: m.confidenceNote || null,
-    }));
+    .map((m) => {
+      const modelTargetForecast =
+        m.forecasts.find((f) => f.year === TARGET_YEAR) || null;
+      return {
+        method: m.method,
+        target_year: TARGET_YEAR,
+        target_forecast: modelTargetForecast,
+        [`year${TARGET_YEAR}`]: modelTargetForecast,
+        allForecasts: m.forecasts,
+        basis: m.basis,
+        confidenceNote: m.confidenceNote || null,
+      };
+    });
+
+  const forecastHorizon = latest?.year ? TARGET_YEAR - latest.year : null;
 
   return {
+    target_year: TARGET_YEAR,
     stage,
     school_key: schoolKey,
     school_type: schoolType,
@@ -402,13 +443,19 @@ function predictionForSchool(stage, schoolKey, schoolType, admissionType) {
     school_name: latest?.school_name || null,
     latest_year: latest?.year || null,
     latest_score: latest?.score_value ?? null,
+    forecast_horizon: forecastHorizon,
     primary_method: forecast?.method || null,
-    predicted_2026_score: forecast2026?.score ?? null,
-    predicted_2026_change: forecast2026?.change ?? null,
-    predicted_2026_cumulative_change: forecast2026?.cumulativeChange ?? null,
-    all_models: allFirstForecasts,
+    predicted_score: targetForecast?.score ?? null,
+    predicted_change: targetForecast?.change ?? null,
+    predicted_cumulative_change: targetForecast?.cumulativeChange ?? null,
+    [`predicted_${TARGET_YEAR}_score`]: targetForecast?.score ?? null,
+    [`predicted_${TARGET_YEAR}_change`]: targetForecast?.change ?? null,
+    [`predicted_${TARGET_YEAR}_cumulative_change`]:
+      targetForecast?.cumulativeChange ?? null,
+    all_models: allModelForecasts,
     auxiliary_method: auxiliary?.method || null,
-    auxiliary_2026_score: auxiliary2026?.score ?? null,
+    auxiliary_score: auxiliaryTargetForecast?.score ?? null,
+    [`auxiliary_${TARGET_YEAR}_score`]: auxiliaryTargetForecast?.score ?? null,
     warnings: warnings.length ? warnings : null,
   };
 }
@@ -476,20 +523,21 @@ function runAllPredictions() {
 // ============================================================
 function summarize(predictions) {
   const withPrediction = predictions.filter(
-    (p) => p.predicted_2026_score !== null
+    (p) => p.predicted_score !== null
   );
   const withoutPrediction = predictions.filter(
-    (p) => p.predicted_2026_score === null
+    (p) => p.predicted_score === null
   );
   const byMethod = {};
   withPrediction.forEach((p) => {
     const m = p.primary_method || "未知";
     byMethod[m] = (byMethod[m] || 0) + 1;
   });
-  return {
+  const summary = {
+    target_year: TARGET_YEAR,
     total_schools: predictions.length,
-    with_2026_prediction: withPrediction.length,
-    without_2026_prediction: withoutPrediction.length,
+    with_prediction: withPrediction.length,
+    without_prediction: withoutPrediction.length,
     without_details: withoutPrediction.map((p) => ({
       school_key: p.school_key,
       school_name: p.school_name,
@@ -500,13 +548,20 @@ function summarize(predictions) {
     })),
     by_primary_method: byMethod,
   };
+  if (TARGET_YEAR === 2026) {
+    summary.with_2026_prediction = withPrediction.length;
+    summary.without_2026_prediction = withoutPrediction.length;
+  }
+  summary[`with_${TARGET_YEAR}_prediction`] = withPrediction.length;
+  summary[`without_${TARGET_YEAR}_prediction`] = withoutPrediction.length;
+  return summary;
 }
 
 // ============================================================
 // 主入口
 // ============================================================
 function main() {
-  console.log("正在生成 2026 年录取分数预测...");
+  console.log(`正在生成 ${TARGET_YEAR} 年录取分数预测...`);
   const predictions = runAllPredictions();
   const summary = summarize(predictions);
 
@@ -515,7 +570,7 @@ function main() {
       generated_at: new Date().toISOString(),
       generator: "scripts/export_2026_predictions.js",
       description:
-        "2026 年布吉街道小一/初一录取分数预测备份。用于与 2026 年实际录取分数对比。",
+        `${TARGET_YEAR} 年布吉街道小一/初一录取分数预测备份。用于与 ${TARGET_YEAR} 年实际录取分数对比。`,
       data_snapshot: {
         years: data.meta.years,
         record_count: data.meta.record_count,
@@ -523,6 +578,7 @@ function main() {
         data_generated_at: data.meta.generated_at,
       },
       prediction_constants: {
+        target_year: TARGET_YEAR,
         max_score: MAX_ADMISSION_SCORE,
         forecast_year_count: FORECAST_YEAR_COUNT,
         trend_decay: TREND_DECAY,
@@ -538,17 +594,30 @@ function main() {
     __dirname,
     "..",
     "data",
-    "predictions-2026.json"
+    `predictions-${TARGET_YEAR}.json`
+  );
+  const jsOutPath = path.join(
+    __dirname,
+    "..",
+    "data",
+    `predictions-${TARGET_YEAR}.js`
   );
   fs.writeFileSync(outPath, JSON.stringify(output, null, 2), "utf-8");
+  const jsPayload = [
+    "window.PREDICTIONS_DATA = window.PREDICTIONS_DATA || {};",
+    `window.PREDICTIONS_DATA[${TARGET_YEAR}] = ${JSON.stringify(output, null, 2)};`,
+    `window.PREDICTION_REPORT_DATA = window.PREDICTIONS_DATA[${TARGET_YEAR}];`,
+    "",
+  ].join("\n");
+  fs.writeFileSync(jsOutPath, jsPayload, "utf-8");
 
   console.log(`\n===== 预测摘要 =====`);
   console.log(`学校组合总数: ${summary.total_schools}`);
   console.log(
-    `有 2026 预测: ${summary.with_2026_prediction}`
+    `有 ${TARGET_YEAR} 预测: ${summary.with_prediction}`
   );
   console.log(
-    `无 2026 预测: ${summary.without_2026_prediction}`
+    `无 ${TARGET_YEAR} 预测: ${summary.without_prediction}`
   );
   console.log(`\n预测方法分布:`);
   Object.entries(summary.by_primary_method).forEach(([method, count]) => {
@@ -561,6 +630,7 @@ function main() {
     );
   });
   console.log(`\n输出文件: ${outPath}`);
+  console.log(`脚本数据: ${jsOutPath}`);
 }
 
 main();

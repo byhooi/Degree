@@ -18,14 +18,14 @@ python -m py_compile scripts/build_data.py
 # 内嵌 JS 语法检查
 node -e "const fs=require('fs'); const h=fs.readFileSync('index.html','utf8'); [...h.matchAll(/<script>([\s\S]*?)<\/script>/g)].forEach(m=>new Function(m[1])); console.log('ok')"
 
-# 导出 2026 年预测备份（数据更新后运行，用于后续对比）
-node scripts/export_2026_predictions.js
+# 导出目标年份预测备份（默认 2026，可用 --year 指定）
+node scripts/export_2026_predictions.js --year 2026
 
 # 对比 2026 年预测与实际录取分数（需先将 2026 数据录入 Excel 并运行 build_data.py）
-node scripts/compare_2026_predictions.js
+node scripts/compare_2026_predictions.js --year 2026
 ```
 
-`scripts/build_data.py` 依赖 `.codex_deps/` 中的 `openpyxl`、`xlrd`、`pypdf`。运行前需确认根目录存在 `小一19-25.xlsx`、`初一19-25.xlsx`、`2026小一录取规则.pdf`、`2026初一录取规则.pdf`（均在 `.gitignore` 中，不提交）。
+`scripts/build_data.py` 依赖 `.codex_deps/` 中的 `openpyxl`、`xlrd`、`pypdf`。运行前需确认根目录存在 `小一17-25.xlsx`、`初一17-25.xlsx`、`2026小一录取规则.pdf`、`2026初一录取规则.pdf`（均在 `.gitignore` 中，不提交）。
 
 ## 架构与数据流
 
@@ -54,7 +54,7 @@ data/admission-data.json  ──→  data/admission-data.js (window.ADMISSION_DA
 | 数据筛选 | `visibleRecords()`, `recordsForTable()` | 按 stage/年份/搜索词/录取类型过滤 |
 | 积分试算 | `calculateScore()`, `baseCategory()` | 按 2026 规则：匹配基础类别 → 逐项计算加分 → 合计封顶 10 分 → 总分封顶 110 分 |
 | 初一预测 | `predictionForTarget()` | 优先使用 cohort 模型（同校小一滞后 6 年映射），其次 grouped primary cohort，最后兜底趋势预测 |
-| 趋势预测 | `recentTrendPrediction()` | EWMA 加权年变化（衰减系数 0.65），年变化截尾 ±5 分 |
+| 趋势预测 | `recentTrendPrediction()` | EWMA 加权年变化（衰减系数 0.8），年变化截尾 ±3 分 |
 | Cohort 模型 | `cohortPrediction()`, `groupedPrimaryCohortPrediction()` | 小一-初一 6 年滞后映射；无映射表时公办/民办分离使用各自均线 |
 | SVG 图表 | `renderAverageChart()`, `renderRankChart()`, `renderSchoolSvg()` | 手写 SVG，无图表库依赖 |
 | UI 渲染 | `render()`, `renderFilters()`, `renderTable()`, `renderCalculator()` | 声明式 DOM 更新，直接操作 innerHTML |

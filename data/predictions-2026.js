@@ -1,4 +1,5 @@
-{
+window.PREDICTIONS_DATA = window.PREDICTIONS_DATA || {};
+window.PREDICTIONS_DATA[2026] = {
   "meta": {
     "generated_at": "2026-06-20T06:32:03.883Z",
     "generator": "scripts/export_2026_predictions.js",
@@ -4059,4 +4060,5 @@
       "warnings": null
     }
   ]
-}
+};
+window.PREDICTION_REPORT_DATA = window.PREDICTIONS_DATA[2026];

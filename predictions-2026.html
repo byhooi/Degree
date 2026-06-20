@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2026 录取分数预测</title>
+  <script src="data/predictions-2026.js"></script>
+  <style>
+    :root {
+      --ink: #1d2521;
+      --muted: #66716c;
+      --paper: #f6f8f5;
+      --surface: #ffffff;
+      --line: #d8dfd7;
+      --line-strong: #aab7ae;
+      --teal: #1f6f61;
+      --teal-soft: #dcebe6;
+      --amber: #b97718;
+      --amber-soft: #f3e3c8;
+      --coral: #b84d45;
+      --blue: #315f8f;
+      --shadow: 0 18px 50px rgba(37, 48, 42, 0.08);
+      --radius: 8px;
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(31, 111, 97, 0.05) 1px, transparent 1px) 0 0 / 42px 42px,
+        linear-gradient(0deg, rgba(31, 111, 97, 0.04) 1px, transparent 1px) 0 0 / 42px 42px,
+        var(--paper);
+      min-width: 320px;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .shell {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+
+    .masthead {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      padding: 18px 0 24px;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .kicker {
+      margin: 0 0 8px;
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 5vw, 68px);
+      line-height: 0.95;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    .masthead-note {
+      max-width: 360px;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 14px;
+      text-align: right;
+    }
+
+    .meta-line {
+      margin-top: 8px;
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .metric {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px 14px 12px;
+      box-shadow: var(--shadow);
+      min-height: 94px;
+    }
+
+    .metric-value {
+      display: block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: clamp(24px, 3vw, 34px);
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .metric-label {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .score-board {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .section-meta {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .score-track {
+      position: relative;
+      height: 82px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(184, 77, 69, 0.14), rgba(185, 119, 24, 0.16) 42%, rgba(31, 111, 97, 0.18) 74%, rgba(49, 95, 143, 0.15));
+    }
+
+    .score-track::before {
+      content: "";
+      position: absolute;
+      inset: 38px 0 auto;
+      height: 2px;
+      background: rgba(29, 37, 33, 0.42);
+    }
+
+    .score-marker {
+      position: absolute;
+      top: 18px;
+      width: 8px;
+      height: 38px;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      border: 1px solid rgba(29, 37, 33, 0.38);
+      background: var(--teal);
+      box-shadow: 0 2px 0 rgba(255, 255, 255, 0.75);
+    }
+
+    .score-marker.primary {
+      background: var(--blue);
+    }
+
+    .score-marker.private {
+      background: var(--amber);
+    }
+
+    .score-marker.cap {
+      background: var(--coral);
+      height: 46px;
+      top: 12px;
+    }
+
+    .axis {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      margin-top: 8px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .axis span:last-child {
+      text-align: right;
+    }
+
+    .band-row {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .band {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px;
+      min-height: 64px;
+      background: #fbfcfa;
+    }
+
+    .band strong {
+      display: block;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 20px;
+    }
+
+    .band span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto auto;
+      gap: 12px;
+      align-items: center;
+      margin: 16px 0;
+    }
+
+    .search {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink);
+      padding: 11px 12px;
+      outline: none;
+    }
+
+    .search:focus,
+    select:focus,
+    .segmented button:focus-visible {
+      outline: 3px solid rgba(31, 111, 97, 0.24);
+      outline-offset: 2px;
+    }
+
+    .segmented {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+
+    .segmented button {
+      min-height: 40px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink);
+      padding: 8px 12px;
+      font-weight: 700;
+    }
+
+    .segmented button.active {
+      background: var(--ink);
+      color: var(--surface);
+      border-color: var(--ink);
+    }
+
+    select {
+      min-height: 40px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink);
+      padding: 8px 10px;
+    }
+
+    .table-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .table-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .count-pill {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th,
+    td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      color: var(--muted);
+      background: #f9faf8;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    tbody tr:hover {
+      background: #fbfcfa;
+    }
+
+    .school-name {
+      font-weight: 850;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .sub {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .score-cell {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 22px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .delta {
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      white-space: nowrap;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .tag.trend {
+      background: var(--teal-soft);
+      color: var(--teal);
+    }
+
+    .tag.cohort {
+      background: var(--amber-soft);
+      color: #744909;
+    }
+
+    .tag.grouped {
+      background: #e4e9f2;
+      color: var(--blue);
+    }
+
+    .tag.warn {
+      background: #f5dddd;
+      color: var(--coral);
+      margin-top: 6px;
+      white-space: normal;
+    }
+
+    .bar {
+      display: grid;
+      grid-template-columns: minmax(86px, 1fr) 44px;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bar-track {
+      height: 8px;
+      border-radius: 999px;
+      background: #e5ebe5;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--amber), var(--teal));
+    }
+
+    .empty {
+      padding: 36px 18px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .footnote {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 920px) {
+      .masthead,
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .masthead-note {
+        max-width: none;
+        text-align: left;
+      }
+
+      .summary-grid,
+      .band-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .segmented {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        padding: 18px 12px 36px;
+      }
+
+      .score-track {
+        height: 72px;
+      }
+
+      .table-panel {
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .table-top {
+        padding: 14px 0;
+        border-bottom: 1px solid var(--line-strong);
+      }
+
+      table,
+      thead,
+      tbody,
+      tr,
+      th,
+      td {
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tbody tr {
+        margin-bottom: 10px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      td {
+        display: grid;
+        grid-template-columns: 88px minmax(0, 1fr);
+        gap: 12px;
+        padding: 10px 12px;
+      }
+
+      td::before {
+        content: attr(data-label);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .score-cell {
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .summary-grid,
+      .band-row {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <div>
+        <p class="kicker">布吉片区义务教育录取分析</p>
+        <h1>2026 录取分数预测</h1>
+      </div>
+      <div class="masthead-note">
+        <div>基于 2017-2025 年历史录取线生成。</div>
+        <div>预测仅供填报参考，不代表实际录取结果。</div>
+        <div class="meta-line" id="metaLine">数据加载中</div>
+      </div>
+    </header>
+
+    <section class="summary-grid" aria-label="预测摘要">
+      <div class="metric">
+        <span class="metric-value" id="metricTotal">0</span>
+        <span class="metric-label">预测学校组合</span>
+      </div>
+      <div class="metric">
+        <span class="metric-value" id="metricAverage">0</span>
+        <span class="metric-label">平均预测线</span>
+      </div>
+      <div class="metric">
+        <span class="metric-value" id="metricHigh">0</span>
+        <span class="metric-label">100 分及以上</span>
+      </div>
+      <div class="metric">
+        <span class="metric-value" id="metricCap">0</span>
+        <span class="metric-label">预测封顶 110</span>
+      </div>
+      <div class="metric">
+        <span class="metric-value" id="metricHorizon">0</span>
+        <span class="metric-label">非一年外推</span>
+      </div>
+    </section>
+
+    <section class="score-board" aria-label="预测分数分布">
+      <div class="section-head">
+        <h2 class="section-title">分数分布尺</h2>
+        <div class="section-meta" id="rangeLabel">55-110</div>
+      </div>
+      <div class="score-track" id="scoreTrack"></div>
+      <div class="axis" aria-hidden="true">
+        <span>55</span><span>66</span><span>77</span><span>88</span><span>99</span><span>110</span>
+      </div>
+      <div class="band-row" id="bandRow"></div>
+    </section>
+
+    <section class="controls" aria-label="筛选条件">
+      <input class="search" id="searchInput" type="search" placeholder="搜索学校名称">
+      <div class="segmented" id="stageButtons" aria-label="学段"></div>
+      <div class="segmented" id="typeButtons" aria-label="办学性质"></div>
+      <div class="segmented" id="admissionButtons" aria-label="录取类型"></div>
+      <select id="sortSelect" aria-label="排序">
+        <option value="scoreDesc">预测分数从高到低</option>
+        <option value="scoreAsc">预测分数从低到高</option>
+        <option value="school">学校名称</option>
+        <option value="method">预测方法</option>
+      </select>
+    </section>
+
+    <section class="table-panel">
+      <div class="table-top">
+        <h2 class="section-title">预测清单</h2>
+        <div class="count-pill" id="resultCount">0 条</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 28%;">学校</th>
+            <th style="width: 13%;">学段</th>
+            <th style="width: 13%;">最新线</th>
+            <th style="width: 14%;">2026 预测</th>
+            <th style="width: 12%;">变化</th>
+            <th style="width: 14%;">方法</th>
+            <th style="width: 6%;">期限</th>
+          </tr>
+        </thead>
+        <tbody id="predictionRows"></tbody>
+      </table>
+      <div class="empty" id="emptyState" hidden>没有匹配的预测记录</div>
+    </section>
+
+    <p class="footnote" id="footnote"></p>
+  </main>
+
+  <script>
+    const report = window.PREDICTION_REPORT_DATA;
+    const state = {
+      stage: "全部",
+      type: "全部",
+      admission: "全部",
+      query: "",
+      sort: "scoreDesc"
+    };
+
+    const bands = [
+      { label: "60 以下", min: 0, max: 59.999 },
+      { label: "60-69", min: 60, max: 69.999 },
+      { label: "70-79", min: 70, max: 79.999 },
+      { label: "80-89", min: 80, max: 89.999 },
+      { label: "90-99", min: 90, max: 99.999 },
+      { label: "100-110", min: 100, max: 110 }
+    ];
+
+    function scoreOf(item) {
+      return Number(item.predicted_score ?? item.predicted_2026_score ?? 0);
+    }
+
+    function formatScore(value) {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
+      return Number(value).toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+    }
+
+    function formatDelta(value) {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
+      const num = Number(value);
+      if (Math.abs(num) < 0.005) return "持平";
+      return `${num > 0 ? "+" : ""}${formatScore(num)}`;
+    }
+
+    function uniqueValues(key) {
+      return Array.from(new Set(report.predictions.map(item => item[key]).filter(Boolean)));
+    }
+
+    function methodClass(method) {
+      if (!method) return "trend";
+      if (method.includes("整体")) return "grouped";
+      if (method.includes("cohort")) return "cohort";
+      return "trend";
+    }
+
+    function renderSegment(containerId, values, current, onChange) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      values.forEach(value => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = value;
+        button.className = value === current ? "active" : "";
+        button.setAttribute("aria-pressed", value === current ? "true" : "false");
+        button.addEventListener("click", () => onChange(value));
+        container.appendChild(button);
+      });
+    }
+
+    function filteredRows() {
+      const query = state.query.trim().toLowerCase();
+      const rows = report.predictions.filter(item => {
+        const matchesStage = state.stage === "全部" || item.stage === state.stage;
+        const matchesType = state.type === "全部" || item.school_type === state.type;
+        const matchesAdmission = state.admission === "全部" || item.admission_type === state.admission;
+        const name = `${item.school_name || ""}${item.school_key || ""}`.toLowerCase();
+        return matchesStage && matchesType && matchesAdmission && (!query || name.includes(query));
+      });
+      rows.sort((a, b) => {
+        if (state.sort === "scoreAsc") return scoreOf(a) - scoreOf(b);
+        if (state.sort === "school") return (a.school_name || "").localeCompare(b.school_name || "", "zh-CN");
+        if (state.sort === "method") return (a.primary_method || "").localeCompare(b.primary_method || "", "zh-CN");
+        return scoreOf(b) - scoreOf(a);
+      });
+      return rows;
+    }
+
+    function renderSummary(rows) {
+      const scores = rows.map(scoreOf).filter(value => !Number.isNaN(value));
+      const avg = scores.length ? scores.reduce((sum, value) => sum + value, 0) / scores.length : 0;
+      document.getElementById("metricTotal").textContent = rows.length;
+      document.getElementById("metricAverage").textContent = formatScore(avg);
+      document.getElementById("metricHigh").textContent = rows.filter(item => scoreOf(item) >= 100).length;
+      document.getElementById("metricCap").textContent = rows.filter(item => scoreOf(item) >= 110).length;
+      document.getElementById("metricHorizon").textContent = rows.filter(item => Number(item.forecast_horizon) !== 1).length;
+    }
+
+    function renderScoreBoard(rows) {
+      const track = document.getElementById("scoreTrack");
+      track.innerHTML = "";
+      rows.forEach(item => {
+        const score = scoreOf(item);
+        const left = Math.max(0, Math.min(100, ((score - 55) / 55) * 100));
+        const marker = document.createElement("span");
+        marker.className = `score-marker ${item.school_type === "民办" ? "private" : "primary"} ${score >= 110 ? "cap" : ""}`;
+        marker.style.left = `${left}%`;
+        marker.title = `${item.school_name}：${formatScore(score)} 分`;
+        track.appendChild(marker);
+      });
+
+      const bandRow = document.getElementById("bandRow");
+      bandRow.innerHTML = bands.map(band => {
+        const count = rows.filter(item => {
+          const score = scoreOf(item);
+          return score >= band.min && score <= band.max;
+        }).length;
+        return `<div class="band"><strong>${count}</strong><span>${band.label}</span></div>`;
+      }).join("");
+
+      const scores = rows.map(scoreOf);
+      const min = scores.length ? Math.min(...scores) : 0;
+      const max = scores.length ? Math.max(...scores) : 0;
+      document.getElementById("rangeLabel").textContent = `${formatScore(min)}-${formatScore(max)} 分`;
+    }
+
+    function renderTable(rows) {
+      const tbody = document.getElementById("predictionRows");
+      const empty = document.getElementById("emptyState");
+      document.getElementById("resultCount").textContent = `${rows.length} 条`;
+      empty.hidden = rows.length !== 0;
+      tbody.innerHTML = rows.map(item => {
+        const score = scoreOf(item);
+        const method = item.primary_method || "未知";
+        const warning = item.warnings?.length ? `<span class="tag warn">${item.warnings[0]}</span>` : "";
+        return `
+          <tr>
+            <td data-label="学校">
+              <div class="school-name">${item.school_name || item.school_key}</div>
+              <div class="sub">${item.admission_type}</div>
+            </td>
+            <td data-label="学段">
+              <span class="tag">${item.stage} · ${item.school_type}</span>
+            </td>
+            <td data-label="最新线">
+              <div class="bar">
+                <div>
+                  <div>${item.latest_year || "-"} · ${formatScore(item.latest_score)}</div>
+                  <div class="bar-track"><div class="bar-fill" style="width:${Math.max(0, Math.min(100, (Number(item.latest_score || 0) / 110) * 100))}%"></div></div>
+                </div>
+                <span class="sub">分</span>
+              </div>
+            </td>
+            <td data-label="2026 预测"><span class="score-cell">${formatScore(score)}</span></td>
+            <td data-label="变化"><span class="delta">${formatDelta(item.predicted_change ?? item.predicted_2026_change)}</span></td>
+            <td data-label="方法">
+              <span class="tag ${methodClass(method)}">${method}</span>
+              ${warning}
+            </td>
+            <td data-label="期限">${item.forecast_horizon || "-"} 年</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function render() {
+      const rows = filteredRows();
+      renderSummary(rows);
+      renderScoreBoard(rows);
+      renderTable(rows);
+    }
+
+    function initialize() {
+      if (!report || !Array.isArray(report.predictions)) {
+        document.body.innerHTML = '<main class="shell"><div class="empty">预测数据未加载</div></main>';
+        return;
+      }
+      const meta = report.meta || {};
+      const years = meta.data_snapshot?.years || [];
+      document.getElementById("metaLine").textContent = [
+        `预测年 ${meta.prediction_constants?.target_year || 2026}`,
+        years.length ? `历史 ${years[0]}-${years[years.length - 1]}` : "",
+        meta.generated_at ? `生成 ${new Date(meta.generated_at).toLocaleDateString("zh-CN")}` : ""
+      ].filter(Boolean).join(" / ");
+      document.getElementById("footnote").textContent =
+        "同校 cohort、整体 cohort 和近年趋势会按可用性择优使用；预测线和积分试算口径均按 110 分封顶。";
+
+      document.getElementById("searchInput").addEventListener("input", event => {
+        state.query = event.target.value;
+        render();
+      });
+      document.getElementById("sortSelect").addEventListener("change", event => {
+        state.sort = event.target.value;
+        render();
+      });
+      renderControls();
+      render();
+    }
+
+    function renderControls() {
+      renderSegment("stageButtons", ["全部", ...uniqueValues("stage")], state.stage, value => {
+        state.stage = value;
+        renderControls();
+        render();
+      });
+      renderSegment("typeButtons", ["全部", ...uniqueValues("school_type")], state.type, value => {
+        state.type = value;
+        renderControls();
+        render();
+      });
+      renderSegment("admissionButtons", ["全部", ...uniqueValues("admission_type")], state.admission, value => {
+        state.admission = value;
+        renderControls();
+        render();
+      });
+    }
+
+    initialize();
+  </script>
+</body>
+</html>
