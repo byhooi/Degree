@@ -313,7 +313,7 @@ node scripts/export_2026_predictions.js --year 2026
 - `summary` — 预测方法分布统计
 - `predictions[]` — 每个学校组合的预测，包含 `predicted_score`、`forecast_horizon`、`primary_method`、**所有模型**的完整预测（含未来三年）和依据
 
-`predictions-2026.html` 会读取 `data/predictions-2026.js`，用于展示 2026 年预测清单和分数分布。
+`2026.html` 会读取 `data/predictions-2026.js`，用于展示 2026 年预测清单和分数分布。
 
 ### 9.2 实绩对比
 
