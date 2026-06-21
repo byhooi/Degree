@@ -20,6 +20,7 @@ from pypdf import PdfReader  # type: ignore
 
 
 TARGET_KEYWORDS = ("布吉街道", "布吉片区")
+MIN_ADMISSION_SCORE = 60
 MAX_ADMISSION_SCORE = 110
 TREND_DECAY = 0.8
 TREND_MAX_YEARLY_CHANGE = 3
@@ -168,7 +169,7 @@ def extract_note(score_text: str) -> str:
 
 
 def cap_admission_score(value: float) -> float:
-    return round(min(MAX_ADMISSION_SCORE, max(0, value)), 2)
+    return round(min(MAX_ADMISSION_SCORE, max(MIN_ADMISSION_SCORE, value)), 2)
 
 
 def clamp_trend_change(value: float) -> float:

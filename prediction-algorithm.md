@@ -6,10 +6,10 @@
 
 ## 一、当前算法概览
 
-系统目前有 3 类预测模型。小一只使用近年趋势模型；初一优先使用小一到初一的 cohort 信号，在 cohort 信号不可用时逐级降级。
+系统目前有 4 类预测模型。小一只使用近年趋势模型；初一优先使用小一到初一的 cohort 信号。对 100 分以上的高分民办初中，额外使用“高积分择校生源池”模型，避免把优质民办简单等同于普通民办生源。
 
 ```text
-初一预测：direct cohort -> grouped cohort -> recent trend
+初一预测：direct cohort -> high-score private cohort -> grouped cohort -> recent trend
 小一预测：recent trend
 ```
 
@@ -21,6 +21,8 @@
 | `TREND_DECAY` | 0.8 | `index.html` / `scripts/build_data.py` | 近年趋势 EWMA 衰减系数 |
 | `TREND_MAX_YEARLY_CHANGE` | 3 | `index.html` / `scripts/build_data.py` | 单年趋势变化截尾值 |
 | `COHORT_DELTA_WEIGHT_DECAY` | 0.75 | `scripts/build_data.py` | 多届 cohort delta 时间加权衰减系数 |
+| `HIGH_SCORE_PRIVATE_JUNIOR_THRESHOLD` | 100 | `index.html` / `scripts/export_2026_predictions.js` | 高分民办初中竞争池启用阈值 |
+| `HIGH_SCORE_PRIMARY_POOL_THRESHOLD` | 100 | `index.html` / `scripts/export_2026_predictions.js` | 小一高分生源池筛选阈值 |
 | `MODEL_SPREAD_RANGE_THRESHOLD` | 5 | `index.html` | 多模型首年预测线极差达到该值时展示预测区间 |
 | `MODEL_SPREAD_RISK_THRESHOLD` | 6 | `index.html` | 多模型首年预测线极差达到该值时标记为分歧大 |
 | `FORECAST_YEAR_COUNT` | 3 | `index.html` | 前端展示未来预测年数 |
@@ -65,9 +67,24 @@ cohort_delta = 初一(N+6) - 小一(N)
 
 当前判断：direct cohort 可继续作为初一普通录取线主模型；有多届有效 pair 时使用时间加权 delta，异常 delta 从加权中剔除，并保留样本置信提示。
 
-### 3.2 Grouped Primary Cohort
+### 3.2 高分民办竞争池 Cohort
 
-grouped cohort 是初一预测的第二优先级模型。它不区分具体小学，而是按办学性质计算布吉片区同类型小学均线：
+高分民办竞争池模型用于最新普通录取线达到 100 分以上的民办初中。它基于一个现实假设：优质民办初中录取的很多孩子本身是深户、有房、高积分家庭，具备读公办小学和公办初中的资格；选择民办更多是教育路径规划，而不是公办资格不足。
+
+因此，这类学校不应只参考普通民办小学均线，而应视为“高积分择校生源池”：
+
+```text
+高分民办 cohort_delta = 民办初中最新线 - 小一高分池滞后 6 年均线
+预测下一年高分民办初中 = 小一高分池下一年均线 + cohort_delta
+```
+
+当前小一高分池优先使用当年小一录取线 `>= 100` 的学校；若样本少于 3 所，则退回当年小一录取线前 25% 的高分段学校。该模型只作用于“初一 + 民办 + 普通录取线 + 最新线 >= 100”的组合，不影响民办直升和普通低分民办。
+
+当前判断：高分民办竞争池应排在 direct cohort 之后、普通 grouped cohort 之前。它不是断言高分民办一定下行，而是修正“民办学校 = 民办小学低分生源池”的错误假设。
+
+### 3.3 Grouped Primary Cohort
+
+grouped cohort 是初一预测的替代模型。它不区分具体小学，而是按办学性质计算布吉片区同类型小学均线：
 
 ```text
 cohort_delta = 目标初中最新线 - 同类型小学滞后 6 年均线
@@ -80,9 +97,9 @@ cohort_delta = 目标初中最新线 - 同类型小学滞后 6 年均线
 - 公办/民办分离是必要条件，但不是充分条件。
 - 当前同样没有可靠回测，不能证明它优于趋势模型。
 
-当前判断：grouped cohort 适合作为 direct cohort 不可用或异常时的替代参考，但分档优化应先离线验证样本量。
+当前判断：grouped cohort 适合作为 direct cohort 不可用或异常时的替代参考；但对 100 分以上高分民办初中，应先使用高分民办竞争池模型，再使用普通民办小学整体 cohort。
 
-### 3.3 Recent Trend
+### 3.4 Recent Trend
 
 recent trend 是小一唯一模型，也是初一 cohort 不可用时的兜底模型。它取最近最多 4 年逐年变化，按 EWMA 加权，并把单年变化截尾在 `±3` 分内：
 
@@ -124,6 +141,7 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 当前展示策略：
 
 - 保留优先级模型作为主预测，但异常 direct cohort 必须自动降级。
+- 对 100 分以上的民办初中，使用高分民办竞争池 cohort 作为 direct cohort 之后的优先模型。
 - 当模型方向分歧大，或首年预测线最大差值 `>= 5` 分时，展示所有模型预测区间。
 - 若多个模型首年预测方向一致，但预测线最大差值 `>= 6` 分，也标记为“分歧大”，避免“同向但数值差距很大”的盲区。
 - 暂不做跨模型加权融合，因为 grouped cohort 还没有可靠 MAE，direct cohort 回测样本也偏少。
@@ -150,6 +168,7 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 | P1 | direct cohort 多对加权均值 | `scripts/build_data.py` / `index.html` | 已实施 |
 | P1 | direct cohort 留一回测 | `scripts/build_data.py` / `data/admission-data.json` | 已实施 |
 | P1 | 模型一致性加入首年预测极差判定 | `index.html` | 已实施 |
+| P1 | 高分民办竞争池 cohort | `index.html` / `scripts/export_2026_predictions.js` | 已实施 |
 | P2 | 趋势远期预测衰减 | `index.html` / `scripts/build_data.py` 离线校准 | **下一步优先（精度收益明确）**；上线前须做 1/2/3 年分年回测，样本不足时仅作"保守收敛展示"，不宣称提精度 |
 | P2 | 预测参数配置随数据同步 | `scripts/build_data.py` / `data/admission-data.json` / `index.html` | **下一步优先（纯工程，零统计风险）**；当前 json 仅有 `parameter_scan.current/best`，无前端可读 `prediction_config`。输出显式采用参数，不直接自动套用扫描 best |
 | P2 | grouped cohort 分档实验 | `scripts/build_data.py` | 先验证样本量，不直接上线 |
@@ -203,6 +222,7 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 - 已在模型分歧大或首年预测差距达到阈值时展示预测区间。
 - 已在计算明细中展示所有可用模型的首年预测线和依据。
 - 已对 direct cohort 单 pair、多 pair 加权和异常 delta 增加提示。
+- 已对 100 分以上高分民办初中增加高积分择校生源池模型，避免只按普通民办小学均线估计。
 
 实现细节：
 
@@ -275,7 +295,7 @@ node -e "const fs=require('fs'); const h=fs.readFileSync('index.html','utf8'); [
 
 人工验证重点：
 
-- 试算积分和预测线仍按 110 分封顶。
+- 试算积分和预测线仍按 60-110 分区间处理。
 - 公办和民办 cohort 不混用。
 - 承翰学校、智民实验学校等异常 delta 学校会触发剔除、降级或明确提示。
 - 模型分歧时能看到预测区间。
@@ -306,7 +326,7 @@ node -e "const fs=require('fs'); const h=fs.readFileSync('index.html','utf8'); [
 node scripts/export_2026_predictions.js --year 2026
 ```
 
-脚本会**完整复制** `index.html` 中的预测逻辑（cohort / grouped cohort / trend EWMA），对所有学校组合生成指定年份预测，输出到 `data/predictions-<year>.json` 和 `data/predictions-<year>.js`。未传 `--year` 时默认导出 2026 年。
+脚本会**完整复制** `index.html` 中的预测逻辑（direct cohort / high-score private cohort / grouped cohort / trend EWMA），对所有学校组合生成指定年份预测，输出到 `data/predictions-<year>.json` 和 `data/predictions-<year>.js`。未传 `--year` 时默认导出 2026 年。
 
 文件结构：
 - `meta` — 生成时间、数据快照、采用的预测常量

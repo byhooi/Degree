@@ -1,7 +1,7 @@
 window.PREDICTIONS_DATA = window.PREDICTIONS_DATA || {};
 window.PREDICTIONS_DATA[2026] = {
   "meta": {
-    "generated_at": "2026-06-20T06:32:03.883Z",
+    "generated_at": "2026-06-21T06:49:03.263Z",
     "generator": "scripts/export_2026_predictions.js",
     "description": "2026 年布吉街道小一/初一录取分数预测备份。用于与 2026 年实际录取分数对比。",
     "data_snapshot": {
@@ -18,15 +18,18 @@ window.PREDICTIONS_DATA[2026] = {
       ],
       "record_count": 349,
       "school_count": 39,
-      "data_generated_at": "2026-06-19T18:03:28"
+      "data_generated_at": "2026-06-21T10:12:59"
     },
     "prediction_constants": {
       "target_year": 2026,
+      "min_score": 60,
       "max_score": 110,
       "forecast_year_count": 3,
       "trend_decay": 0.8,
       "trend_max_yearly_change": 3,
-      "cohort_delta_outlier_threshold": 10
+      "cohort_delta_outlier_threshold": 10,
+      "high_score_private_junior_threshold": 100,
+      "high_score_primary_pool_threshold": 100
     }
   },
   "summary": {
@@ -40,7 +43,8 @@ window.PREDICTIONS_DATA[2026] = {
       "公办小学整体 cohort": 5,
       "小一到初一 cohort 加权": 5,
       "小一到初一 cohort": 1,
-      "民办小学整体 cohort": 3
+      "高分民办竞争池 cohort": 2,
+      "民办小学整体 cohort": 1
     },
     "with_2026_prediction": 47,
     "without_2026_prediction": 0
@@ -299,9 +303,9 @@ window.PREDICTIONS_DATA[2026] = {
             },
             {
               "year": 2028,
-              "score": 59.7,
-              "change": -2.55,
-              "cumulativeChange": -7.65,
+              "score": 60,
+              "change": -2.25,
+              "cumulativeChange": -7.35,
               "source": "近年加权变化 -2.55"
             }
           ],
@@ -861,50 +865,50 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
-      "predicted_score": 58.88,
-      "predicted_change": -1.12,
-      "predicted_cumulative_change": -1.12,
-      "predicted_2026_score": 58.88,
-      "predicted_2026_change": -1.12,
-      "predicted_2026_cumulative_change": -1.12,
+      "predicted_score": 60,
+      "predicted_change": 0,
+      "predicted_cumulative_change": 0,
+      "predicted_2026_score": 60,
+      "predicted_2026_change": 0,
+      "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 58.88,
-            "change": -1.12,
-            "cumulativeChange": -1.12,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -1.12"
           },
           "year2026": {
             "year": 2026,
-            "score": 58.88,
-            "change": -1.12,
-            "cumulativeChange": -1.12,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -1.12"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 58.88,
-              "change": -1.12,
-              "cumulativeChange": -1.12,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.12"
             },
             {
               "year": 2027,
-              "score": 57.76,
-              "change": -1.12,
-              "cumulativeChange": -2.24,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.12"
             },
             {
               "year": 2028,
-              "score": 56.64,
-              "change": -1.12,
-              "cumulativeChange": -3.36,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.12"
             }
           ],
@@ -1062,50 +1066,50 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
-      "predicted_score": 59.27,
-      "predicted_change": -0.73,
-      "predicted_cumulative_change": -0.73,
-      "predicted_2026_score": 59.27,
-      "predicted_2026_change": -0.73,
-      "predicted_2026_cumulative_change": -0.73,
+      "predicted_score": 60,
+      "predicted_change": 0,
+      "predicted_cumulative_change": 0,
+      "predicted_2026_score": 60,
+      "predicted_2026_change": 0,
+      "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 59.27,
-            "change": -0.73,
-            "cumulativeChange": -0.73,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -0.73"
           },
           "year2026": {
             "year": 2026,
-            "score": 59.27,
-            "change": -0.73,
-            "cumulativeChange": -0.73,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -0.73"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 59.27,
-              "change": -0.73,
-              "cumulativeChange": -0.73,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.73"
             },
             {
               "year": 2027,
-              "score": 58.54,
-              "change": -0.73,
-              "cumulativeChange": -1.46,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.73"
             },
             {
               "year": 2028,
-              "score": 57.81,
-              "change": -0.73,
-              "cumulativeChange": -2.19,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.73"
             }
           ],
@@ -1263,50 +1267,50 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
-      "predicted_score": 59.25,
-      "predicted_change": -0.75,
-      "predicted_cumulative_change": -0.75,
-      "predicted_2026_score": 59.25,
-      "predicted_2026_change": -0.75,
-      "predicted_2026_cumulative_change": -0.75,
+      "predicted_score": 60,
+      "predicted_change": 0,
+      "predicted_cumulative_change": 0,
+      "predicted_2026_score": 60,
+      "predicted_2026_change": 0,
+      "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 59.25,
-            "change": -0.75,
-            "cumulativeChange": -0.75,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -0.75"
           },
           "year2026": {
             "year": 2026,
-            "score": 59.25,
-            "change": -0.75,
-            "cumulativeChange": -0.75,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -0.75"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 59.25,
-              "change": -0.75,
-              "cumulativeChange": -0.75,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.75"
             },
             {
               "year": 2027,
-              "score": 58.5,
-              "change": -0.75,
-              "cumulativeChange": -1.5,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.75"
             },
             {
               "year": 2028,
-              "score": 57.75,
-              "change": -0.75,
-              "cumulativeChange": -2.25,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.75"
             }
           ],
@@ -1330,50 +1334,50 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60.6,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
-      "predicted_score": 58.58,
-      "predicted_change": -2.02,
-      "predicted_cumulative_change": -2.02,
-      "predicted_2026_score": 58.58,
-      "predicted_2026_change": -2.02,
-      "predicted_2026_cumulative_change": -2.02,
+      "predicted_score": 60,
+      "predicted_change": -0.6,
+      "predicted_cumulative_change": -0.6,
+      "predicted_2026_score": 60,
+      "predicted_2026_change": -0.6,
+      "predicted_2026_cumulative_change": -0.6,
       "all_models": [
         {
           "method": "近年趋势",
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 58.58,
-            "change": -2.02,
-            "cumulativeChange": -2.02,
+            "score": 60,
+            "change": -0.6,
+            "cumulativeChange": -0.6,
             "source": "近年加权变化 -2.02"
           },
           "year2026": {
             "year": 2026,
-            "score": 58.58,
-            "change": -2.02,
-            "cumulativeChange": -2.02,
+            "score": 60,
+            "change": -0.6,
+            "cumulativeChange": -0.6,
             "source": "近年加权变化 -2.02"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 58.58,
-              "change": -2.02,
-              "cumulativeChange": -2.02,
+              "score": 60,
+              "change": -0.6,
+              "cumulativeChange": -0.6,
               "source": "近年加权变化 -2.02"
             },
             {
               "year": 2027,
-              "score": 56.56,
-              "change": -2.02,
-              "cumulativeChange": -4.04,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": -0.6,
               "source": "近年加权变化 -2.02"
             },
             {
               "year": 2028,
-              "score": 54.54,
-              "change": -2.02,
-              "cumulativeChange": -6.06,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": -0.6,
               "source": "近年加权变化 -2.02"
             }
           ],
@@ -1464,50 +1468,50 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
-      "predicted_score": 59.3,
-      "predicted_change": -0.7,
-      "predicted_cumulative_change": -0.7,
-      "predicted_2026_score": 59.3,
-      "predicted_2026_change": -0.7,
-      "predicted_2026_cumulative_change": -0.7,
+      "predicted_score": 60,
+      "predicted_change": 0,
+      "predicted_cumulative_change": 0,
+      "predicted_2026_score": 60,
+      "predicted_2026_change": 0,
+      "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 59.3,
-            "change": -0.7,
-            "cumulativeChange": -0.7,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -0.7"
           },
           "year2026": {
             "year": 2026,
-            "score": 59.3,
-            "change": -0.7,
-            "cumulativeChange": -0.7,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -0.7"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 59.3,
-              "change": -0.7,
-              "cumulativeChange": -0.7,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.7"
             },
             {
               "year": 2027,
-              "score": 58.6,
-              "change": -0.7,
-              "cumulativeChange": -1.4,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.7"
             },
             {
               "year": 2028,
-              "score": 57.9,
-              "change": -0.7,
-              "cumulativeChange": -2.1,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.7"
             }
           ],
@@ -1598,50 +1602,50 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
-      "predicted_score": 59.37,
-      "predicted_change": -0.63,
-      "predicted_cumulative_change": -0.63,
-      "predicted_2026_score": 59.37,
-      "predicted_2026_change": -0.63,
-      "predicted_2026_cumulative_change": -0.63,
+      "predicted_score": 60,
+      "predicted_change": 0,
+      "predicted_cumulative_change": 0,
+      "predicted_2026_score": 60,
+      "predicted_2026_change": 0,
+      "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 59.37,
-            "change": -0.63,
-            "cumulativeChange": -0.63,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -0.63"
           },
           "year2026": {
             "year": 2026,
-            "score": 59.37,
-            "change": -0.63,
-            "cumulativeChange": -0.63,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -0.63"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 59.37,
-              "change": -0.63,
-              "cumulativeChange": -0.63,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.63"
             },
             {
               "year": 2027,
-              "score": 58.74,
-              "change": -0.63,
-              "cumulativeChange": -1.26,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.63"
             },
             {
               "year": 2028,
-              "score": 58.11,
-              "change": -0.63,
-              "cumulativeChange": -1.89,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.63"
             }
           ],
@@ -2488,16 +2492,16 @@ window.PREDICTIONS_DATA[2026] = {
             },
             {
               "year": 2027,
-              "score": 59.76,
-              "change": -0.97,
-              "cumulativeChange": -1.94,
+              "score": 60,
+              "change": -0.73,
+              "cumulativeChange": -1.7,
               "source": "近年加权变化 -0.97"
             },
             {
               "year": 2028,
-              "score": 58.79,
-              "change": -0.97,
-              "cumulativeChange": -2.91,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": -1.7,
               "source": "近年加权变化 -0.97"
             }
           ],
@@ -2520,14 +2524,57 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_year": 2025,
       "latest_score": 106.9,
       "forecast_horizon": 1,
-      "primary_method": "民办小学整体 cohort",
-      "predicted_score": 110,
-      "predicted_change": 3.1,
-      "predicted_cumulative_change": 3.1,
-      "predicted_2026_score": 110,
-      "predicted_2026_change": 3.1,
-      "predicted_2026_cumulative_change": 3.1,
+      "primary_method": "高分民办竞争池 cohort",
+      "predicted_score": 105.82,
+      "predicted_change": -1.08,
+      "predicted_cumulative_change": -1.08,
+      "predicted_2026_score": 105.82,
+      "predicted_2026_change": -1.08,
+      "predicted_2026_cumulative_change": -1.08,
       "all_models": [
+        {
+          "method": "高分民办竞争池 cohort",
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 105.82,
+            "change": -1.08,
+            "cumulativeChange": -1.08,
+            "source": "布吉100分以上小学2020均线 102.72"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 105.82,
+            "change": -1.08,
+            "cumulativeChange": -1.08,
+            "source": "布吉100分以上小学2020均线 102.72"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 105.82,
+              "change": -1.08,
+              "cumulativeChange": -1.08,
+              "source": "布吉100分以上小学2020均线 102.72"
+            },
+            {
+              "year": 2027,
+              "score": 106.36,
+              "change": 0.54,
+              "cumulativeChange": -0.54,
+              "source": "布吉100分以上小学2021均线 103.26"
+            },
+            {
+              "year": 2028,
+              "score": 106.89,
+              "change": 0.53,
+              "cumulativeChange": -0.01,
+              "source": "布吉100分以上小学2022均线 103.79"
+            }
+          ],
+          "basis": "该校为 100 分以上民办初中，按高积分择校生源池处理；民办初中2025线 106.9 - 布吉100分以上小学2019均线 103.8（3 所）；3 年参考 布吉100分以上小学2020均线 102.72、布吉100分以上小学2021均线 103.26、布吉100分以上小学2022均线 103.79",
+          "confidenceNote": "高分民办可能吸引具备公办资格的深户、有房等高积分家庭，不能只按普通民办小学均线估计"
+        },
         {
           "method": "民办小学整体 cohort",
           "target_year": 2026,
@@ -2615,9 +2662,9 @@ window.PREDICTIONS_DATA[2026] = {
           "confidenceNote": "年变化超过 3 分时已截尾"
         }
       ],
-      "auxiliary_method": "近年趋势",
-      "auxiliary_score": 106.57,
-      "auxiliary_2026_score": 106.57,
+      "auxiliary_method": "民办小学整体 cohort",
+      "auxiliary_score": 110,
+      "auxiliary_2026_score": 110,
       "warnings": null
     },
     {
@@ -2715,9 +2762,9 @@ window.PREDICTIONS_DATA[2026] = {
             },
             {
               "year": 2028,
-              "score": 59.61,
-              "change": -1.08,
-              "cumulativeChange": -3.24,
+              "score": 60,
+              "change": -0.69,
+              "cumulativeChange": -2.85,
               "source": "近年加权变化 -1.08"
             }
           ],
@@ -3049,42 +3096,42 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 66.25,
       "forecast_horizon": 1,
       "primary_method": "小一到初一 cohort 加权",
-      "predicted_score": 59.52,
-      "predicted_change": -6.73,
-      "predicted_cumulative_change": -6.73,
-      "predicted_2026_score": 59.52,
-      "predicted_2026_change": -6.73,
-      "predicted_2026_cumulative_change": -6.73,
+      "predicted_score": 60,
+      "predicted_change": -6.25,
+      "predicted_cumulative_change": -6.25,
+      "predicted_2026_score": 60,
+      "predicted_2026_change": -6.25,
+      "predicted_2026_cumulative_change": -6.25,
       "all_models": [
         {
           "method": "小一到初一 cohort 加权",
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 59.52,
-            "change": -6.73,
-            "cumulativeChange": -6.73,
+            "score": 60,
+            "change": -6.25,
+            "cumulativeChange": -6.25,
             "source": "小一2020 60.8"
           },
           "year2026": {
             "year": 2026,
-            "score": 59.52,
-            "change": -6.73,
-            "cumulativeChange": -6.73,
+            "score": 60,
+            "change": -6.25,
+            "cumulativeChange": -6.25,
             "source": "小一2020 60.8"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 59.52,
-              "change": -6.73,
-              "cumulativeChange": -6.73,
+              "score": 60,
+              "change": -6.25,
+              "cumulativeChange": -6.25,
               "source": "小一2020 60.8"
             },
             {
               "year": 2027,
               "score": 61.32,
-              "change": 1.8,
+              "change": 1.32,
               "cumulativeChange": -4.93,
               "source": "小一2021 62.6"
             },
@@ -3329,9 +3376,9 @@ window.PREDICTIONS_DATA[2026] = {
             },
             {
               "year": 2028,
-              "score": 59.95,
-              "change": -1.3,
-              "cumulativeChange": -3.9,
+              "score": 60,
+              "change": -1.25,
+              "cumulativeChange": -3.85,
               "source": "近年加权变化 -1.3"
             }
           ],
@@ -3354,14 +3401,57 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_year": 2025,
       "latest_score": 107,
       "forecast_horizon": 1,
-      "primary_method": "民办小学整体 cohort",
-      "predicted_score": 110,
-      "predicted_change": 3,
-      "predicted_cumulative_change": 3,
-      "predicted_2026_score": 110,
-      "predicted_2026_change": 3,
-      "predicted_2026_cumulative_change": 3,
+      "primary_method": "高分民办竞争池 cohort",
+      "predicted_score": 105.92,
+      "predicted_change": -1.08,
+      "predicted_cumulative_change": -1.08,
+      "predicted_2026_score": 105.92,
+      "predicted_2026_change": -1.08,
+      "predicted_2026_cumulative_change": -1.08,
       "all_models": [
+        {
+          "method": "高分民办竞争池 cohort",
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 105.92,
+            "change": -1.08,
+            "cumulativeChange": -1.08,
+            "source": "布吉100分以上小学2020均线 102.72"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 105.92,
+            "change": -1.08,
+            "cumulativeChange": -1.08,
+            "source": "布吉100分以上小学2020均线 102.72"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 105.92,
+              "change": -1.08,
+              "cumulativeChange": -1.08,
+              "source": "布吉100分以上小学2020均线 102.72"
+            },
+            {
+              "year": 2027,
+              "score": 106.46,
+              "change": 0.54,
+              "cumulativeChange": -0.54,
+              "source": "布吉100分以上小学2021均线 103.26"
+            },
+            {
+              "year": 2028,
+              "score": 106.99,
+              "change": 0.53,
+              "cumulativeChange": -0.01,
+              "source": "布吉100分以上小学2022均线 103.79"
+            }
+          ],
+          "basis": "该校为 100 分以上民办初中，按高积分择校生源池处理；民办初中2025线 107 - 布吉100分以上小学2019均线 103.8（3 所）；3 年参考 布吉100分以上小学2020均线 102.72、布吉100分以上小学2021均线 103.26、布吉100分以上小学2022均线 103.79",
+          "confidenceNote": "高分民办可能吸引具备公办资格的深户、有房等高积分家庭，不能只按普通民办小学均线估计"
+        },
         {
           "method": "民办小学整体 cohort",
           "target_year": 2026,
@@ -3449,9 +3539,9 @@ window.PREDICTIONS_DATA[2026] = {
           "confidenceNote": null
         }
       ],
-      "auxiliary_method": "近年趋势",
-      "auxiliary_score": 108.3,
-      "auxiliary_2026_score": 108.3,
+      "auxiliary_method": "民办小学整体 cohort",
+      "auxiliary_score": 110,
+      "auxiliary_2026_score": 110,
       "warnings": [
         "cohort delta 异常，已自动降级"
       ]
@@ -3467,50 +3557,50 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
-      "predicted_score": 58.7,
-      "predicted_change": -1.3,
-      "predicted_cumulative_change": -1.3,
-      "predicted_2026_score": 58.7,
-      "predicted_2026_change": -1.3,
-      "predicted_2026_cumulative_change": -1.3,
+      "predicted_score": 60,
+      "predicted_change": 0,
+      "predicted_cumulative_change": 0,
+      "predicted_2026_score": 60,
+      "predicted_2026_change": 0,
+      "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 58.7,
-            "change": -1.3,
-            "cumulativeChange": -1.3,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -1.3"
           },
           "year2026": {
             "year": 2026,
-            "score": 58.7,
-            "change": -1.3,
-            "cumulativeChange": -1.3,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -1.3"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 58.7,
-              "change": -1.3,
-              "cumulativeChange": -1.3,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.3"
             },
             {
               "year": 2027,
-              "score": 57.4,
-              "change": -1.3,
-              "cumulativeChange": -2.6,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.3"
             },
             {
               "year": 2028,
-              "score": 56.1,
-              "change": -1.3,
-              "cumulativeChange": -3.9,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.3"
             }
           ],
@@ -3534,50 +3624,50 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 2,
       "primary_method": "近年趋势",
-      "predicted_score": 59.38,
-      "predicted_change": -0.31,
-      "predicted_cumulative_change": -0.62,
-      "predicted_2026_score": 59.38,
-      "predicted_2026_change": -0.31,
-      "predicted_2026_cumulative_change": -0.62,
+      "predicted_score": 60,
+      "predicted_change": 0,
+      "predicted_cumulative_change": 0,
+      "predicted_2026_score": 60,
+      "predicted_2026_change": 0,
+      "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 59.38,
-            "change": -0.31,
-            "cumulativeChange": -0.62,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -0.31"
           },
           "year2026": {
             "year": 2026,
-            "score": 59.38,
-            "change": -0.31,
-            "cumulativeChange": -0.62,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -0.31"
           },
           "allForecasts": [
             {
               "year": 2025,
-              "score": 59.69,
-              "change": -0.31,
-              "cumulativeChange": -0.31,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.31"
             },
             {
               "year": 2026,
-              "score": 59.38,
-              "change": -0.31,
-              "cumulativeChange": -0.62,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.31"
             },
             {
               "year": 2027,
-              "score": 59.07,
-              "change": -0.31,
-              "cumulativeChange": -0.93,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.31"
             }
           ],
@@ -3601,50 +3691,50 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
-      "predicted_score": 59.27,
-      "predicted_change": -0.73,
-      "predicted_cumulative_change": -0.73,
-      "predicted_2026_score": 59.27,
-      "predicted_2026_change": -0.73,
-      "predicted_2026_cumulative_change": -0.73,
+      "predicted_score": 60,
+      "predicted_change": 0,
+      "predicted_cumulative_change": 0,
+      "predicted_2026_score": 60,
+      "predicted_2026_change": 0,
+      "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 59.27,
-            "change": -0.73,
-            "cumulativeChange": -0.73,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -0.73"
           },
           "year2026": {
             "year": 2026,
-            "score": 59.27,
-            "change": -0.73,
-            "cumulativeChange": -0.73,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -0.73"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 59.27,
-              "change": -0.73,
-              "cumulativeChange": -0.73,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.73"
             },
             {
               "year": 2027,
-              "score": 58.54,
-              "change": -0.73,
-              "cumulativeChange": -1.46,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.73"
             },
             {
               "year": 2028,
-              "score": 57.81,
-              "change": -0.73,
-              "cumulativeChange": -2.19,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -0.73"
             }
           ],
@@ -3668,50 +3758,50 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
-      "predicted_score": 58.77,
-      "predicted_change": -1.23,
-      "predicted_cumulative_change": -1.23,
-      "predicted_2026_score": 58.77,
-      "predicted_2026_change": -1.23,
-      "predicted_2026_cumulative_change": -1.23,
+      "predicted_score": 60,
+      "predicted_change": 0,
+      "predicted_cumulative_change": 0,
+      "predicted_2026_score": 60,
+      "predicted_2026_change": 0,
+      "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 58.77,
-            "change": -1.23,
-            "cumulativeChange": -1.23,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -1.23"
           },
           "year2026": {
             "year": 2026,
-            "score": 58.77,
-            "change": -1.23,
-            "cumulativeChange": -1.23,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -1.23"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 58.77,
-              "change": -1.23,
-              "cumulativeChange": -1.23,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.23"
             },
             {
               "year": 2027,
-              "score": 57.54,
-              "change": -1.23,
-              "cumulativeChange": -2.46,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.23"
             },
             {
               "year": 2028,
-              "score": 56.31,
-              "change": -1.23,
-              "cumulativeChange": -3.69,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.23"
             }
           ],
@@ -3869,50 +3959,50 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
-      "predicted_score": 58.61,
-      "predicted_change": -1.39,
-      "predicted_cumulative_change": -1.39,
-      "predicted_2026_score": 58.61,
-      "predicted_2026_change": -1.39,
-      "predicted_2026_cumulative_change": -1.39,
+      "predicted_score": 60,
+      "predicted_change": 0,
+      "predicted_cumulative_change": 0,
+      "predicted_2026_score": 60,
+      "predicted_2026_change": 0,
+      "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 58.61,
-            "change": -1.39,
-            "cumulativeChange": -1.39,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -1.39"
           },
           "year2026": {
             "year": 2026,
-            "score": 58.61,
-            "change": -1.39,
-            "cumulativeChange": -1.39,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -1.39"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 58.61,
-              "change": -1.39,
-              "cumulativeChange": -1.39,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.39"
             },
             {
               "year": 2027,
-              "score": 57.22,
-              "change": -1.39,
-              "cumulativeChange": -2.78,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.39"
             },
             {
               "year": 2028,
-              "score": 55.83,
-              "change": -1.39,
-              "cumulativeChange": -4.17,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.39"
             }
           ],
@@ -3936,50 +4026,50 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
-      "predicted_score": 58.32,
-      "predicted_change": -1.68,
-      "predicted_cumulative_change": -1.68,
-      "predicted_2026_score": 58.32,
-      "predicted_2026_change": -1.68,
-      "predicted_2026_cumulative_change": -1.68,
+      "predicted_score": 60,
+      "predicted_change": 0,
+      "predicted_cumulative_change": 0,
+      "predicted_2026_score": 60,
+      "predicted_2026_change": 0,
+      "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 58.32,
-            "change": -1.68,
-            "cumulativeChange": -1.68,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -1.68"
           },
           "year2026": {
             "year": 2026,
-            "score": 58.32,
-            "change": -1.68,
-            "cumulativeChange": -1.68,
+            "score": 60,
+            "change": 0,
+            "cumulativeChange": 0,
             "source": "近年加权变化 -1.68"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 58.32,
-              "change": -1.68,
-              "cumulativeChange": -1.68,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.68"
             },
             {
               "year": 2027,
-              "score": 56.64,
-              "change": -1.68,
-              "cumulativeChange": -3.36,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.68"
             },
             {
               "year": 2028,
-              "score": 54.96,
-              "change": -1.68,
-              "cumulativeChange": -5.04,
+              "score": 60,
+              "change": 0,
+              "cumulativeChange": 0,
               "source": "近年加权变化 -1.68"
             }
           ],

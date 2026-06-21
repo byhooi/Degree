@@ -392,6 +392,11 @@
       color: var(--blue);
     }
 
+    .tag.choice {
+      background: #e8e1f3;
+      color: #5f4c99;
+    }
+
     .tag.warn {
       background: #f5dddd;
       color: var(--coral);
@@ -566,11 +571,11 @@
     <section class="score-board" aria-label="预测分数分布">
       <div class="section-head">
         <h2 class="section-title">分数分布尺</h2>
-        <div class="section-meta" id="rangeLabel">55-110</div>
+        <div class="section-meta" id="rangeLabel">60-110</div>
       </div>
       <div class="score-track" id="scoreTrack"></div>
       <div class="axis" aria-hidden="true">
-        <span>55</span><span>66</span><span>77</span><span>88</span><span>99</span><span>110</span>
+        <span>60</span><span>70</span><span>80</span><span>90</span><span>100</span><span>110</span>
       </div>
       <div class="band-row" id="bandRow"></div>
     </section>
@@ -624,7 +629,6 @@
     };
 
     const bands = [
-      { label: "60 以下", min: 0, max: 59.999 },
       { label: "60-69", min: 60, max: 69.999 },
       { label: "70-79", min: 70, max: 79.999 },
       { label: "80-89", min: 80, max: 89.999 },
@@ -654,6 +658,7 @@
 
     function methodClass(method) {
       if (!method) return "trend";
+      if (method.includes("高分民办")) return "choice";
       if (method.includes("整体")) return "grouped";
       if (method.includes("cohort")) return "cohort";
       return "trend";
@@ -706,7 +711,7 @@
       track.innerHTML = "";
       rows.forEach(item => {
         const score = scoreOf(item);
-        const left = Math.max(0, Math.min(100, ((score - 55) / 55) * 100));
+        const left = Math.max(0, Math.min(100, ((score - 60) / 50) * 100));
         const marker = document.createElement("span");
         marker.className = `score-marker ${item.school_type === "民办" ? "private" : "primary"} ${score >= 110 ? "cap" : ""}`;
         marker.style.left = `${left}%`;
@@ -788,7 +793,7 @@
         meta.generated_at ? `生成 ${new Date(meta.generated_at).toLocaleDateString("zh-CN")}` : ""
       ].filter(Boolean).join(" / ");
       document.getElementById("footnote").textContent =
-        "同校 cohort、整体 cohort 和近年趋势会按可用性择优使用；预测线和积分试算口径均按 110 分封顶。";
+        "同校 cohort、高分民办竞争池、整体 cohort 和近年趋势会按可用性择优使用；预测线和积分试算口径按 60-110 分区间处理。";
 
       document.getElementById("searchInput").addEventListener("input", event => {
         state.query = event.target.value;

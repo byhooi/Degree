@@ -2,7 +2,7 @@ window.ADMISSION_DATA = {
   "meta": {
     "title": "布吉街道义务教育录取分析",
     "scope": "布吉街道/布吉片区",
-    "generated_at": "2026-06-19T18:03:28",
+    "generated_at": "2026-06-21T10:12:59",
     "source_files": [
       "小一17-25.xlsx",
       "初一17-25.xlsx",
@@ -379,12 +379,12 @@ window.ADMISSION_DATA = {
         }
       ]
     },
-    "average_projected_change": -1.28,
+    "average_projected_change": -1.23,
     "direct_backtest": {
       "method": "direct cohort 逐年留一回测；使用目标年前已观测同校同办学性质 delta 的时间加权均值预测目标年初一线。",
       "overall": {
         "sample_count": 9,
-        "mae": 3.81,
+        "mae": 3.77,
         "max_abs_error": 9.2
       },
       "by_school_type": {
@@ -395,7 +395,7 @@ window.ADMISSION_DATA = {
         },
         "民办": {
           "sample_count": 7,
-          "mae": 4.13,
+          "mae": 4.08,
           "max_abs_error": 9.2
         }
       },
@@ -488,8 +488,8 @@ window.ADMISSION_DATA = {
           "primary_year": 2019,
           "primary_score": 62.5,
           "actual_score": 65.6,
-          "predicted_score": 59.65,
-          "abs_error": 5.95,
+          "predicted_score": 60,
+          "abs_error": 5.6,
           "weighted_delta": -2.85,
           "used_pair_count": 1,
           "history_years": [
@@ -731,8 +731,8 @@ window.ADMISSION_DATA = {
         "next_primary_year": 2019,
         "next_primary_score": 63.4,
         "projected_next_junior_year": 2025,
-        "projected_next_junior_score": 59.4,
-        "projected_change": -4.3,
+        "projected_next_junior_score": 60,
+        "projected_change": -3.7,
         "confidence": "同校同办学性质样本"
       },
       {
@@ -782,8 +782,8 @@ window.ADMISSION_DATA = {
         "next_primary_year": 2019,
         "next_primary_score": 62.5,
         "projected_next_junior_year": 2025,
-        "projected_next_junior_score": 59.65,
-        "projected_change": -5.3,
+        "projected_next_junior_score": 60,
+        "projected_change": -4.95,
         "confidence": "同校同办学性质样本"
       },
       {
@@ -913,7 +913,7 @@ window.ADMISSION_DATA = {
     "large_error_threshold": 20,
     "overall": {
       "sample_count": 216,
-      "mae": 4.54,
+      "mae": 4.5,
       "max_abs_error": 44.19
     },
     "by_stage": {
@@ -924,7 +924,7 @@ window.ADMISSION_DATA = {
       },
       "小一": {
         "sample_count": 148,
-        "mae": 4.6,
+        "mae": 4.54,
         "max_abs_error": 44.19
       }
     },
@@ -1131,7 +1131,7 @@ window.ADMISSION_DATA = {
         "max_yearly_change": 3,
         "overall": {
           "sample_count": 216,
-          "mae": 4.54,
+          "mae": 4.5,
           "max_abs_error": 44.03
         },
         "by_stage": {
@@ -1142,7 +1142,7 @@ window.ADMISSION_DATA = {
           },
           "小一": {
             "sample_count": 148,
-            "mae": 4.59,
+            "mae": 4.53,
             "max_abs_error": 44.03
           }
         },
@@ -1154,7 +1154,7 @@ window.ADMISSION_DATA = {
           },
           "民办": {
             "sample_count": 108,
-            "mae": 4.93,
+            "mae": 4.85,
             "max_abs_error": 44.03
           }
         }
@@ -1165,7 +1165,7 @@ window.ADMISSION_DATA = {
           "max_yearly_change": 3,
           "overall": {
             "sample_count": 216,
-            "mae": 4.54,
+            "mae": 4.5,
             "max_abs_error": 44.03
           },
           "by_stage": {
@@ -1176,7 +1176,7 @@ window.ADMISSION_DATA = {
             },
             "小一": {
               "sample_count": 148,
-              "mae": 4.59,
+              "mae": 4.53,
               "max_abs_error": 44.03
             }
           },
@@ -1188,7 +1188,7 @@ window.ADMISSION_DATA = {
             },
             "民办": {
               "sample_count": 108,
-              "mae": 4.93,
+              "mae": 4.85,
               "max_abs_error": 44.03
             }
           }
@@ -1198,7 +1198,7 @@ window.ADMISSION_DATA = {
           "max_yearly_change": 3,
           "overall": {
             "sample_count": 216,
-            "mae": 4.54,
+            "mae": 4.5,
             "max_abs_error": 44.11
           },
           "by_stage": {
@@ -1209,7 +1209,7 @@ window.ADMISSION_DATA = {
             },
             "小一": {
               "sample_count": 148,
-              "mae": 4.59,
+              "mae": 4.53,
               "max_abs_error": 44.11
             }
           },
@@ -1221,7 +1221,7 @@ window.ADMISSION_DATA = {
             },
             "民办": {
               "sample_count": 108,
-              "mae": 4.92,
+              "mae": 4.84,
               "max_abs_error": 44.11
             }
           }
@@ -1231,7 +1231,7 @@ window.ADMISSION_DATA = {
           "max_yearly_change": 3,
           "overall": {
             "sample_count": 216,
-            "mae": 4.54,
+            "mae": 4.5,
             "max_abs_error": 44.19
           },
           "by_stage": {
@@ -1242,7 +1242,7 @@ window.ADMISSION_DATA = {
             },
             "小一": {
               "sample_count": 148,
-              "mae": 4.6,
+              "mae": 4.54,
               "max_abs_error": 44.19
             }
           },
@@ -1254,7 +1254,7 @@ window.ADMISSION_DATA = {
             },
             "民办": {
               "sample_count": 108,
-              "mae": 4.92,
+              "mae": 4.84,
               "max_abs_error": 44.19
             }
           }
@@ -1264,7 +1264,7 @@ window.ADMISSION_DATA = {
           "max_yearly_change": 3,
           "overall": {
             "sample_count": 216,
-            "mae": 4.54,
+            "mae": 4.5,
             "max_abs_error": 44.27
           },
           "by_stage": {
@@ -1275,7 +1275,7 @@ window.ADMISSION_DATA = {
             },
             "小一": {
               "sample_count": 148,
-              "mae": 4.6,
+              "mae": 4.54,
               "max_abs_error": 44.27
             }
           },
@@ -1287,7 +1287,7 @@ window.ADMISSION_DATA = {
             },
             "民办": {
               "sample_count": 108,
-              "mae": 4.92,
+              "mae": 4.84,
               "max_abs_error": 44.27
             }
           }
@@ -1297,7 +1297,7 @@ window.ADMISSION_DATA = {
           "max_yearly_change": 3,
           "overall": {
             "sample_count": 216,
-            "mae": 4.55,
+            "mae": 4.5,
             "max_abs_error": 44.35
           },
           "by_stage": {
@@ -1308,7 +1308,7 @@ window.ADMISSION_DATA = {
             },
             "小一": {
               "sample_count": 148,
-              "mae": 4.61,
+              "mae": 4.54,
               "max_abs_error": 44.35
             }
           },
@@ -1320,7 +1320,7 @@ window.ADMISSION_DATA = {
             },
             "民办": {
               "sample_count": 108,
-              "mae": 4.92,
+              "mae": 4.84,
               "max_abs_error": 44.35
             }
           }
@@ -1330,7 +1330,7 @@ window.ADMISSION_DATA = {
           "max_yearly_change": 3,
           "overall": {
             "sample_count": 216,
-            "mae": 4.55,
+            "mae": 4.51,
             "max_abs_error": 44.43
           },
           "by_stage": {
@@ -1341,7 +1341,7 @@ window.ADMISSION_DATA = {
             },
             "小一": {
               "sample_count": 148,
-              "mae": 4.61,
+              "mae": 4.55,
               "max_abs_error": 44.43
             }
           },
@@ -1353,7 +1353,7 @@ window.ADMISSION_DATA = {
             },
             "民办": {
               "sample_count": 108,
-              "mae": 4.93,
+              "mae": 4.84,
               "max_abs_error": 44.43
             }
           }
@@ -1363,7 +1363,7 @@ window.ADMISSION_DATA = {
           "max_yearly_change": 3,
           "overall": {
             "sample_count": 216,
-            "mae": 4.56,
+            "mae": 4.51,
             "max_abs_error": 44.52
           },
           "by_stage": {
@@ -1374,7 +1374,7 @@ window.ADMISSION_DATA = {
             },
             "小一": {
               "sample_count": 148,
-              "mae": 4.62,
+              "mae": 4.56,
               "max_abs_error": 44.52
             }
           },
@@ -1386,7 +1386,7 @@ window.ADMISSION_DATA = {
             },
             "民办": {
               "sample_count": 108,
-              "mae": 4.93,
+              "mae": 4.85,
               "max_abs_error": 44.52
             }
           }
@@ -1396,7 +1396,7 @@ window.ADMISSION_DATA = {
           "max_yearly_change": 3,
           "overall": {
             "sample_count": 216,
-            "mae": 4.57,
+            "mae": 4.52,
             "max_abs_error": 44.61
           },
           "by_stage": {
@@ -1407,7 +1407,7 @@ window.ADMISSION_DATA = {
             },
             "小一": {
               "sample_count": 148,
-              "mae": 4.64,
+              "mae": 4.57,
               "max_abs_error": 44.61
             }
           },
@@ -1419,7 +1419,7 @@ window.ADMISSION_DATA = {
             },
             "民办": {
               "sample_count": 108,
-              "mae": 4.94,
+              "mae": 4.85,
               "max_abs_error": 44.61
             }
           }
@@ -1429,7 +1429,7 @@ window.ADMISSION_DATA = {
           "max_yearly_change": 3,
           "overall": {
             "sample_count": 216,
-            "mae": 4.58,
+            "mae": 4.53,
             "max_abs_error": 44.69
           },
           "by_stage": {
@@ -1440,7 +1440,7 @@ window.ADMISSION_DATA = {
             },
             "小一": {
               "sample_count": 148,
-              "mae": 4.65,
+              "mae": 4.58,
               "max_abs_error": 44.69
             }
           },
@@ -1452,7 +1452,7 @@ window.ADMISSION_DATA = {
             },
             "民办": {
               "sample_count": 108,
-              "mae": 4.95,
+              "mae": 4.86,
               "max_abs_error": 44.69
             }
           }
@@ -1462,7 +1462,7 @@ window.ADMISSION_DATA = {
           "max_yearly_change": 3,
           "overall": {
             "sample_count": 216,
-            "mae": 4.6,
+            "mae": 4.55,
             "max_abs_error": 44.78
           },
           "by_stage": {
@@ -1473,7 +1473,7 @@ window.ADMISSION_DATA = {
             },
             "小一": {
               "sample_count": 148,
-              "mae": 4.67,
+              "mae": 4.6,
               "max_abs_error": 44.78
             }
           },
@@ -1485,7 +1485,7 @@ window.ADMISSION_DATA = {
             },
             "民办": {
               "sample_count": 108,
-              "mae": 4.96,
+              "mae": 4.87,
               "max_abs_error": 44.78
             }
           }

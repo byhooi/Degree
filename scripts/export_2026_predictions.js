@@ -52,12 +52,15 @@ const data = JSON.parse(
 // ============================================================
 // 常量（与 index.html 保持一致）
 // ============================================================
+const MIN_ADMISSION_SCORE = 60;
 const MAX_ADMISSION_SCORE = 110;
 const FORECAST_YEAR_COUNT = 3;
 const TREND_DECAY = 0.8;
 const TREND_MAX_YEARLY_CHANGE = 3;
 const COHORT_DELTA_OUTLIER_THRESHOLD =
   data.cohort_model?.delta_outlier_threshold || 10;
+const HIGH_SCORE_PRIVATE_JUNIOR_THRESHOLD = 100;
+const HIGH_SCORE_PRIMARY_POOL_THRESHOLD = 100;
 
 // ============================================================
 // 工具函数（与 index.html 保持一致）
@@ -65,8 +68,10 @@ const COHORT_DELTA_OUTLIER_THRESHOLD =
 function capScore(value) {
   if (value === null || value === undefined || Number.isNaN(value)) return null;
   return (
-    Math.round(Math.min(MAX_ADMISSION_SCORE, Math.max(0, Number(value))) * 100) /
-    100
+    Math.round(
+      Math.min(MAX_ADMISSION_SCORE, Math.max(MIN_ADMISSION_SCORE, Number(value))) *
+        100
+    ) / 100
   );
 }
 
@@ -353,6 +358,89 @@ function groupedPrimaryCohortPrediction(stage, schoolKey, schoolType, admissionT
   });
 }
 
+function highScorePrimaryPool(year) {
+  const records = data.records.filter(
+    (record) =>
+      record.stage === "小一" &&
+      record.admission_type === "录取分数线" &&
+      record.year === year &&
+      record.score_value !== null
+  );
+  if (!records.length) return null;
+  const highScore = records.filter(
+    (record) => record.score_value >= HIGH_SCORE_PRIMARY_POOL_THRESHOLD
+  );
+  const pool =
+    highScore.length >= 3
+      ? highScore
+      : records
+          .slice()
+          .sort((a, b) => b.score_value - a.score_value)
+          .slice(0, Math.max(3, Math.ceil(records.length * 0.25)));
+  const avg = average(pool.map((record) => record.score_value));
+  if (avg === null) return null;
+  return {
+    avg,
+    count: pool.length,
+    label:
+      highScore.length >= 3
+        ? `${HIGH_SCORE_PRIMARY_POOL_THRESHOLD}分以上小学`
+        : "小一高分段",
+  };
+}
+
+function highScorePrivateCohortPrediction(
+  stage,
+  schoolKey,
+  schoolType,
+  admissionType
+) {
+  if (!admissionType) admissionType = "录取分数线";
+  if (
+    stage !== "初一" ||
+    schoolType !== "民办" ||
+    admissionType !== "录取分数线"
+  )
+    return null;
+  const latest = latestRecordForSchool(
+    stage,
+    schoolKey,
+    schoolType,
+    admissionType
+  );
+  if (
+    !latest ||
+    latest.score_value === null ||
+    latest.score_value < HIGH_SCORE_PRIVATE_JUNIOR_THRESHOLD
+  )
+    return null;
+  const lagYears = data.cohort_model?.lag_years || 6;
+  const primaryYear = latest.year - lagYears;
+  const primaryPool = highScorePrimaryPool(primaryYear);
+  if (!primaryPool) return null;
+  const cohortDelta = latest.score_value - primaryPool.avg;
+  const futureScores = [];
+  for (let step = 1; step <= FORECAST_YEAR_COUNT; step += 1) {
+    const futurePrimaryYear = primaryYear + step;
+    const futurePool = highScorePrimaryPool(futurePrimaryYear);
+    if (!futurePool) break;
+    futureScores.push({
+      year: latest.year + step,
+      score: futurePool.avg + cohortDelta,
+      source: `布吉${futurePool.label}${futurePrimaryYear}均线 ${formatScore(futurePool.avg)}`,
+    });
+  }
+  return forecastResult({
+    method: "高分民办竞争池 cohort",
+    latestYear: latest.year,
+    forecasts: forecastItemsFromScores(latest.score_value, futureScores),
+    basis: `该校为 ${HIGH_SCORE_PRIVATE_JUNIOR_THRESHOLD} 分以上民办初中，按高积分择校生源池处理；民办初中${latest.year}线 ${formatScore(latest.score_value)} - 布吉${primaryPool.label}${primaryYear}均线 ${formatScore(primaryPool.avg)}（${primaryPool.count} 所）；${futureScores.length} 年参考 ${futureScores.map((item) => item.source).join("、")}`,
+    cohortDelta: Math.round(cohortDelta * 100) / 100,
+    confidenceNote:
+      "高分民办可能吸引具备公办资格的深户、有房等高积分家庭，不能只按普通民办小学均线估计",
+  });
+}
+
 // ============================================================
 // 主预测函数（与 index.html 保持一致）
 // ============================================================
@@ -384,6 +472,16 @@ function predictionForSchool(stage, schoolKey, schoolType, admissionType) {
       ? cohortPrediction(stage, schoolKey, schoolType)
       : null;
 
+  const highScorePrivate =
+    stage === "初一"
+      ? highScorePrivateCohortPrediction(
+          stage,
+          schoolKey,
+          schoolType,
+          admissionType
+        )
+      : null;
+
   const grouped =
     stage === "初一"
       ? groupedPrimaryCohortPrediction(
@@ -403,7 +501,7 @@ function predictionForSchool(stage, schoolKey, schoolType, admissionType) {
 
   const candidates =
     stage === "初一" && admissionType === "录取分数线"
-      ? [direct, grouped, trend].filter(Boolean)
+      ? [direct, highScorePrivate, grouped, trend].filter(Boolean)
       : [trend].filter(Boolean);
 
   const forecast = candidates[0] || null;
@@ -579,11 +677,15 @@ function main() {
       },
       prediction_constants: {
         target_year: TARGET_YEAR,
+        min_score: MIN_ADMISSION_SCORE,
         max_score: MAX_ADMISSION_SCORE,
         forecast_year_count: FORECAST_YEAR_COUNT,
         trend_decay: TREND_DECAY,
         trend_max_yearly_change: TREND_MAX_YEARLY_CHANGE,
         cohort_delta_outlier_threshold: COHORT_DELTA_OUTLIER_THRESHOLD,
+        high_score_private_junior_threshold:
+          HIGH_SCORE_PRIVATE_JUNIOR_THRESHOLD,
+        high_score_primary_pool_threshold: HIGH_SCORE_PRIMARY_POOL_THRESHOLD,
       },
     },
     summary,

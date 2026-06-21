@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>录取预测算法简明说明</title>
+  <style>
+    :root {
+      --paper: #f5f7f3;
+      --ink: #17231e;
+      --muted: #60706a;
+      --surface: #ffffff;
+      --surface-soft: #edf3f0;
+      --line: #d6ddd8;
+      --green: #0f6f59;
+      --blue: #2e638c;
+      --amber: #b87519;
+      --red: #b94d43;
+      --violet: #6554a8;
+      --shadow: 0 14px 34px rgba(22, 34, 29, .08);
+      --radius: 8px;
+      font-family: "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, rgba(15, 111, 89, .08), transparent 310px),
+        var(--paper);
+      letter-spacing: 0;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .wrap {
+      width: min(1120px, calc(100vw - 32px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      padding: 28px 0 26px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 34px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .nav a {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .72);
+      padding: 6px 10px;
+      text-decoration: none;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+      gap: 30px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 680px;
+      font-size: 48px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 18px 0 0;
+      max-width: 700px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.75;
+    }
+
+    .hero-note {
+      border-left: 5px solid var(--green);
+      background: rgba(255, 255, 255, .78);
+      padding: 18px 18px 18px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-note strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .hero-note p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .quick {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      padding: 18px 0 28px;
+    }
+
+    .fact {
+      min-height: 116px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 15px;
+      box-shadow: var(--shadow);
+    }
+
+    .fact b {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .fact span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .section {
+      padding: 34px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .section.alt {
+      background: rgba(255, 255, 255, .46);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+      margin-bottom: 22px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 25px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .step {
+      position: relative;
+      min-height: 150px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .step::before {
+      content: attr(data-step);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      margin-bottom: 18px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--surface);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .step h3,
+    .model h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .step p,
+    .model p,
+    .model li {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .step p,
+    .model p {
+      margin: 0;
+    }
+
+    .model ul {
+      margin: 14px 0 0;
+      padding-left: 20px;
+    }
+
+    .model li {
+      margin: 7px 0;
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .model {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .model .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      margin-bottom: 14px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .tag.cohort {
+      background: var(--green);
+    }
+
+    .tag.grouped {
+      background: var(--blue);
+    }
+
+    .tag.choice {
+      background: var(--violet);
+    }
+
+    .tag.trend {
+      background: var(--amber);
+    }
+
+    .formula {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-soft);
+      padding: 12px;
+      color: var(--ink);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .rule-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .rule {
+      display: grid;
+      grid-template-columns: 12px minmax(0, 1fr);
+      gap: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 15px;
+      box-shadow: var(--shadow);
+    }
+
+    .rule::before {
+      content: "";
+      width: 12px;
+      height: 100%;
+      min-height: 52px;
+      border-radius: 999px;
+      background: var(--green);
+    }
+
+    .rule.warn::before {
+      background: var(--amber);
+    }
+
+    .rule.risk::before {
+      background: var(--red);
+    }
+
+    .rule.info::before {
+      background: var(--violet);
+    }
+
+    .rule h3 {
+      margin: 0 0 6px;
+      font-size: 17px;
+    }
+
+    .rule p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    code {
+      border-radius: 4px;
+      background: rgba(15, 111, 89, .1);
+      padding: 2px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .92em;
+    }
+
+    .footer {
+      padding: 26px 0 36px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .section-head {
+        grid-template-columns: 1fr;
+      }
+
+      .quick,
+      .flow,
+      .model-grid,
+      .rule-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      h1 {
+        font-size: 38px;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .wrap {
+        width: min(100vw - 24px, 1120px);
+      }
+
+      .hero {
+        padding-top: 18px;
+      }
+
+      .nav {
+        display: block;
+      }
+
+      .nav-links {
+        justify-content: flex-start;
+        margin-top: 12px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .lead {
+        font-size: 16px;
+      }
+
+      .quick,
+      .flow,
+      .model-grid,
+      .rule-grid {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <nav class="nav" aria-label="页面导航">
+        <span>更新：2026-06-21</span>
+        <div class="nav-links">
+          <a href="#choose">选择路径</a>
+          <a href="#models">模型说明</a>
+          <a href="#risk">降级规则</a>
+          <a href="prediction-algorithm.md">原始 Markdown</a>
+        </div>
+      </nav>
+
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">算法说明精简版</p>
+          <h1>预测先选模型，再给分数。</h1>
+          <p class="lead">
+            本页只解释两个问题：系统有哪些预测模型，以及遇到不同学校时怎么选择模型。预测值只用于填报参考，不代表保证录取。
+          </p>
+        </div>
+        <aside class="hero-note">
+          <strong>核心选择顺序</strong>
+          <p>初一：同校 cohort 优先；高分民办再看高积分择校生源池；其余学校看同类小学 cohort；最后用近年趋势。小一只用近年趋势。</p>
+        </aside>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap quick" aria-label="关键事实">
+      <div class="fact">
+        <b>先分学段</b>
+        <span>小一和初一使用不同模型入口。</span>
+      </div>
+      <div class="fact">
+        <b>初一优先 cohort</b>
+        <span>能找到小一到初一映射，就优先使用。</span>
+      </div>
+      <div class="fact">
+        <b>高分民办单独看</b>
+        <span>100 分以上民办初中不只按普通民办小学估计。</span>
+      </div>
+      <div class="fact">
+        <b>没有样本再降级</b>
+        <span>没有可靠 cohort 时才看同类均线或趋势。</span>
+      </div>
+    </div>
+
+    <section class="section alt" id="choose">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>模型怎么选</h2>
+          <p>选择逻辑不是把多个模型平均，而是按证据强弱排队。越接近真实升学路径的证据，优先级越高。</p>
+        </div>
+
+        <div class="flow">
+          <article class="step" data-step="1">
+            <h3>先分学段</h3>
+            <p>小一没有“小一升初一”映射，只使用近年趋势。初一才进入 cohort 判断。</p>
+          </article>
+          <article class="step" data-step="2">
+            <h3>优先同校 cohort</h3>
+            <p>如果同一学校、同一办学性质有小一和 6 年后初一配对，就用它作为主模型。</p>
+          </article>
+          <article class="step" data-step="3">
+            <h3>高分民办先修正</h3>
+            <p>民办初中最新普通录取线达到 100 分以上时，使用高积分择校生源池，不直接套普通民办小学均线。</p>
+          </article>
+          <article class="step" data-step="4">
+            <h3>再逐级降级</h3>
+            <p>没有可靠同校或高分民办模型时，用同类小学 cohort；仍不可用时，用近年趋势兜底。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="models">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>四个模型</h2>
+          <p>四个模型分别对应四种证据：同校升学链条、高积分择校生源池、同类小学整体变化、学校自身历史惯性。</p>
+        </div>
+
+        <div class="model-grid">
+          <article class="model">
+            <span class="tag cohort">最优先</span>
+            <h3>同校 cohort</h3>
+            <p>用于初一预测。它最接近真实升学路径，所以优先级最高。</p>
+            <div class="formula">初一预测 = 下一届小一线 + 历史初一线与小一线差值</div>
+            <ul>
+              <li>要求同一学校、同一办学性质。</li>
+              <li>小一和初一相隔 6 年配对。</li>
+              <li>差值异常时会剔除或降级。</li>
+            </ul>
+          </article>
+
+          <article class="model">
+            <span class="tag choice">高分民办</span>
+            <h3>高分民办竞争池 cohort</h3>
+            <p>用于 100 分以上民办初中。它把这类学校视为高积分家庭择校，而不是普通民办生源。</p>
+            <div class="formula">高分民办预测 = 小一高分池均线 + 该校历史差值</div>
+            <ul>
+              <li>只用于初一民办普通录取线。</li>
+              <li>启用条件是最新线达到 100 分以上。</li>
+              <li>小一高分池代表深户、有房等具备公办资格的高积分家庭。</li>
+            </ul>
+          </article>
+
+          <article class="model">
+            <span class="tag grouped">替代参考</span>
+            <h3>同类小学 cohort</h3>
+            <p>用于初一预测。没有可靠同校 cohort 时，用同类小学均线替代。</p>
+            <div class="formula">公办初中看公办小学均线<br>民办初中看民办小学均线</div>
+            <ul>
+              <li>公办和民办分开计算。</li>
+              <li>适合没有同校小学映射的初中。</li>
+              <li>它比同校 cohort 弱，因为均线会抹平学校差异。</li>
+            </ul>
+          </article>
+
+          <article class="model">
+            <span class="tag trend">兜底模型</span>
+            <h3>近年趋势</h3>
+            <p>用于小一预测，也用于初一 cohort 不可用时兜底。</p>
+            <div class="formula">单年变化最多按 ±3 分计入<br>避免被极端年份带偏</div>
+            <ul>
+              <li>最多看最近 4 年变化。</li>
+              <li>越新的年份权重越高。</li>
+              <li>适合看惯性，不适合判断新校分流、学区调整等突变。</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="risk">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>什么时候换模型</h2>
+          <p>系统会优先使用高优先级模型，但不会硬用不可靠样本。样本少、异常差值、模型分歧都会影响展示方式。</p>
+        </div>
+
+        <div class="rule-grid">
+          <article class="rule warn">
+            <div>
+              <h3>同校 cohort 样本少</h3>
+              <p>只有 1 届有效配对时仍可参考，但页面会保留置信提示。</p>
+            </div>
+          </article>
+          <article class="rule risk">
+            <div>
+              <h3>异常差值</h3>
+              <p>cohort 差值超过 10 分时，不进入加权；如果没有其他有效配对，就降级到下一个模型。</p>
+            </div>
+          </article>
+          <article class="rule info">
+            <div>
+              <h3>高分民办</h3>
+              <p>100 分以上民办初中会先进入高积分择校生源池，再与普通民办小学整体 cohort 和趋势模型对比。</p>
+            </div>
+          </article>
+          <article class="rule">
+            <div>
+              <h3>小一没有 cohort</h3>
+              <p>小一不存在升初一滞后映射，所以直接使用近年趋势模型。</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      预测线和试算积分按 60-110 分区间处理。预测只作填报参考，不保证录取；政策、学区、招生计划和新校分流仍需人工判断。
+    </div>
+  </footer>
+</body>
+</html>
