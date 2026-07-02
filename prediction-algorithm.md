@@ -1,6 +1,6 @@
 # 录取预测算法说明与优化计划
 
-> 更新日期：2026-06-19  
+> 更新日期：2026-07-02  
 > 适用范围：`index.html` 前端预测逻辑、`scripts/build_data.py` 数据生成与回测逻辑、`data/admission-data.json` 结构化数据  
 > 文档来源：整合 `prediction-algorithm-review.md` 与 `prediction-algorithm-feasibility.md`
 
@@ -8,8 +8,11 @@
 
 系统目前有 4 类预测模型。小一只使用近年趋势模型；初一优先使用小一到初一的 cohort 信号。对 100 分以上的高分民办初中，额外使用“高积分择校生源池”模型，避免把优质民办简单等同于普通民办生源。
 
+自 2026-07 起，初一主模型不再按固定优先级链选取，而是**按各模型留一回测 MAE 升序选择**（优先取同办学性质分段 MAE，样本不足 2 个时退回总体；均不足时按下方启发式顺序兜底）。当前数据下的实际效果：有同校 cohort 对的学校走 direct cohort（公办 MAE 2.67），高分民办走竞争池 cohort（MAE 4.18），其余多为 recent trend；grouped cohort 因回测最差（民办 MAE 6.17）退为辅助参考。
+
 ```text
-初一预测：direct cohort -> high-score private cohort -> grouped cohort -> recent trend
+初一预测（实际选择）：按模型留一回测 MAE 升序
+初一预测（启发式兜底顺序）：direct cohort -> high-score private cohort -> grouped cohort -> recent trend
 小一预测：recent trend
 ```
 
@@ -25,6 +28,11 @@
 | `HIGH_SCORE_PRIMARY_POOL_THRESHOLD` | 100 | `index.html` / `scripts/export_2026_predictions.js` | 小一高分生源池筛选阈值 |
 | `MODEL_SPREAD_RANGE_THRESHOLD` | 5 | `index.html` | 多模型首年预测线极差达到该值时展示预测区间 |
 | `MODEL_SPREAD_RISK_THRESHOLD` | 6 | `index.html` | 多模型首年预测线极差达到该值时标记为分歧大 |
+| `TREND_STRUCTURAL_BREAK_THRESHOLD` | 20 | `index.html` / `scripts/build_data.py` | 相邻年份跳变超过该值视为结构性断点，趋势模型只用断点后历史 |
+| `COHORT_CONSISTENT_OUTLIER_MIN_PAIRS` | 2 | `scripts/build_data.py` | 全部 delta 超阈值但方向一致时启用自身中位数所需的最少届数 |
+| `HIGH_SCORE_POOL_MIN_COUNT` | 3 | `index.html` / `scripts/build_data.py` | 高分池阈值口径的最少学校数，不足时退回基准年前 25% |
+| `MODEL_BACKTEST_MIN_SAMPLES` | 2 | `index.html` / `scripts/export_2026_predictions.js` | 模型回测 MAE 参与主模型排序所需的最少样本数 |
+| `PREDICTION_INTERVAL_MAE_MULTIPLIER` | 1.5 | `index.html` / `scripts/export_2026_predictions.js` | 首年置信区间 = 预测值 ± 主模型回测 MAE × 该系数 |
 | `FORECAST_YEAR_COUNT` | 3 | `index.html` | 前端展示未来预测年数 |
 | `cohort lag_years` | 6 | `scripts/build_data.py` | 小一到初一 cohort 滞后年数 |
 
@@ -62,10 +70,10 @@ cohort_delta = 初一(N+6) - 小一(N)
 
 - 单点脆弱已缓解，但仍存在：部分学校仍只有 1 个 pair，异常年份仍可能影响主预测。
 - delta 稳定性仍需观察：虽然已有三届映射，但同校样本仍偏少，不能假设 delta 长期稳定。
-- 承翰学校 `-21.45`、智民实验学校 `+36.75`、`+19.45`、`+35.40` 是异常值，若直接用于主预测会明显误导用户。
-- direct cohort 已有初步留一回测，但样本仍只有 9 个，不足以支撑模型加权融合。
+- 承翰学校 `-21.45` 是单届异常值，仍按剔除处理；智民实验学校 `+36.75`、`+19.45`、`+35.40` 三届同向且量级相近，属于该校系统性生源差异（高分民办），2026-07 起改用**该校自身 delta 中位数**参与预测，不再整体弃用（`delta_mode = consistent_outlier`）。
+- direct cohort 留一回测样本 10 个（MAE 4.12，公办 2.67 / 民办 4.48），仍不足以支撑模型加权融合。
 
-当前判断：direct cohort 可继续作为初一普通录取线主模型；有多届有效 pair 时使用时间加权 delta，异常 delta 从加权中剔除，并保留样本置信提示。
+当前判断：direct cohort 仍是初一普通录取线的核心模型；有多届有效 pair 时使用时间加权 delta，单届异常 delta 从加权中剔除；全部 delta 超阈值但方向一致（≥2 届）的学校用自身中位数，并保留样本置信提示。
 
 ### 3.2 高分民办竞争池 Cohort
 
@@ -74,37 +82,42 @@ cohort_delta = 初一(N+6) - 小一(N)
 因此，这类学校不应只参考普通民办小学均线，而应视为“高积分择校生源池”：
 
 ```text
-高分民办 cohort_delta = 民办初中最新线 - 小一高分池滞后 6 年均线
-预测下一年高分民办初中 = 小一高分池下一年均线 + cohort_delta
+预测 初一(Y+step) = 民办初中最新线(Y) + 高分池配对均线变化(基准年P -> P+step)
+其中 P = Y - 6，池成员由基准年 P 确定，变化只统计两年都有分数的池内学校
 ```
 
-当前小一高分池优先使用当年小一录取线 `>= 100` 的学校；若样本少于 3 所，则退回当年小一录取线前 25% 的高分段学校。该模型只作用于“初一 + 民办 + 普通录取线 + 最新线 >= 100”的组合，不影响民办直升和普通低分民办。
+小一高分池口径**完全由基准年决定**：优先使用基准年小一录取线 `>= 100` 的学校；不足 3 所时退回基准年前 25% 的高分段学校（至少 3 所）。目标年只取池成员交集，两年口径一致，避免不同年份在“阈值口径”和“前 25% 口径”之间切换造成的失真。该模型只作用于“初一 + 民办 + 普通录取线 + 最新线 >= 100”的组合，不影响民办直升和普通低分民办。
 
-当前判断：高分民办竞争池应排在 direct cohort 之后、普通 grouped cohort 之前。它不是断言高分民办一定下行，而是修正“民办学校 = 民办小学低分生源池”的错误假设。
+留一回测：样本 2 个，MAE 4.18（样本极少，仅作弱排序参考）。
+
+当前判断：高分民办竞争池修正了“民办学校 = 民办小学低分生源池”的错误假设；在按 MAE 排序下，当前它是高分民办的首选模型（4.18 < direct 民办 4.48 < trend 民办 4.86 < grouped 民办 6.17）。
 
 ### 3.3 Grouped Primary Cohort
 
-grouped cohort 是初一预测的替代模型。它不区分具体小学，而是按办学性质计算布吉片区同类型小学均线：
+grouped cohort 是初一预测的替代模型。它不区分具体小学，而是按办学性质计算布吉片区同类型小学的**配对均线变化**：
 
 ```text
-cohort_delta = 目标初中最新线 - 同类型小学滞后 6 年均线
-预测下一年初一 = 同类型小学下一年均线 + cohort_delta
+预测 初一(Y+step) = 目标初中最新线(Y) + 同类型小学配对均线变化(基准年P -> P+step)
+其中 P = Y - 6，变化只统计两年都有分数的学校
 ```
+
+2026-07 前该模型使用“当年全部同类型小学均线”，学校集合逐年进出（新校、缺数）导致均线年际变化混入成分变化；现已改为配对口径。
+
+留一回测：样本 24 个，MAE 5.30（公办 4.43 / 民办 6.17）。**数据显示 grouped cohort 并不优于趋势模型**（trend 公办 4.13 / 民办 4.86），此前“grouped 优于 trend”的假设不成立。
 
 主要问题：
 
 - 同办学性质内学校差异仍然很大，均值会抹平高分校、低分校和九年一贯制学校差异。
 - 公办/民办分离是必要条件，但不是充分条件。
-- 当前同样没有可靠回测，不能证明它优于趋势模型。
 
-当前判断：grouped cohort 适合作为 direct cohort 不可用或异常时的替代参考；但对 100 分以上高分民办初中，应先使用高分民办竞争池模型，再使用普通民办小学整体 cohort。
+当前判断：在按 MAE 排序下，grouped cohort 通常不会被选为主模型，保留用于模型一致性交叉验证和分歧区间展示。
 
 ### 3.4 Recent Trend
 
-recent trend 是小一唯一模型，也是初一 cohort 不可用时的兜底模型。它取最近最多 4 年逐年变化，按 EWMA 加权，并把单年变化截尾在 `±3` 分内：
+recent trend 是小一唯一模型，也是初一 cohort 不可用时的兜底模型。它取最近最多 4 年逐年变化，按 EWMA 加权，并把单年变化截尾在 `±3` 分内。2026-07 起增加**结构性断点截断**：历史序列中相邻年份跳变超过 20 分（如民办摇号政策导致的暴涨暴跌）时，只用断点后的历史计算趋势，并在 UI 标注低置信度；断点后不足 2 年数据时按持平延展。
 
 ```text
-weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
+weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)   （只用断点后历史）
 预测(year+1) = latest_score + weighted_change
 ```
 
@@ -112,18 +125,18 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 
 | 范围 | 样本数 | MAE | 最大绝对误差 |
 |------|--------|-----|--------------|
-| 全部 | 216 | 4.54 | 44.19 |
-| 初一 | 68 | 4.42 | 30.15 |
-| 小一 | 148 | 4.60 | 44.19 |
+| 全部 | 216 | 4.50 | 45.30 |
+| 初一 | 68 | 4.43 | 30.15 |
+| 小一 | 148 | 4.53 | 45.30 |
 
 主要问题：
 
-- MAE 约 5 分，在积分录取场景中偏高。
-- 最大绝对误差仍达到 44 分以上，说明存在数据异常、学校变更、政策突变或模型完全失效样本。
-- 参数扫描已将 `TREND_DECAY` 调整为 `0.8`，`TREND_MAX_YEARLY_CHANGE` 调整为 `3`，但仍需持续观察新数据表现。
+- MAE 约 4.5 分，在积分录取场景中偏高。
+- 最大绝对误差仍达 45 分：全部 7 个 20 分以上大误差样本均来自民办学校 2020-2023 年政策跳变年（如中兴小学、百外春蕾），断点发生在目标年当年时任何趋势模型都无法预测，截断只能改善断点后年份的预测。
+- 参数扫描已饱和：`TREND_DECAY = 0.8` 与网格最优 `0.9` 的 MAE 均为 4.5，继续调参无收益。
 - 线性外推缺少均值回归，连续上涨或下跌后不会自然收敛。
 
-当前判断：recent trend 是目前唯一有足够样本可量化优化的模型，应优先做参数扫描和异常样本诊断。
+当前判断：recent trend 的剩余误差主要来自政策跳变而非参数选择；改进方向是断点标注与不确定度展示，不是继续调参。
 
 ## 四、模型融合与展示现状
 
@@ -140,11 +153,12 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 
 当前展示策略：
 
-- 保留优先级模型作为主预测，但异常 direct cohort 必须自动降级。
-- 对 100 分以上的民办初中，使用高分民办竞争池 cohort 作为 direct cohort 之后的优先模型。
-- 当模型方向分歧大，或首年预测线最大差值 `>= 5` 分时，展示所有模型预测区间。
+- 主预测模型按各模型留一回测 MAE 升序选择（`model_backtests`），异常 direct cohort 仍会自动降级或改用自身中位数。
+- 主模型有可用回测时，展示**首年置信区间 = 预测值 ± MAE × 1.5**，并注明回测样本数；这是对用户最直接的不确定度表达。
+- 当模型方向分歧大，或首年预测线最大差值 `>= 5` 分时，展示所有模型的分歧区间。
 - 若多个模型首年预测方向一致，但预测线最大差值 `>= 6` 分，也标记为“分歧大”，避免“同向但数值差距很大”的盲区。
-- 暂不做跨模型加权融合，因为 grouped cohort 还没有可靠 MAE，direct cohort 回测样本也偏少。
+- 计算明细中每个模型标注回测 MAE 和样本数。
+- 暂不做跨模型加权融合：虽然四个模型都有回测 MAE，但 direct/high-score 样本仍只有个位数，融合权重会过拟合。
 
 ### 实现层面待改进项（代码评审发现）
 
@@ -153,8 +167,8 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 1. **`modelAgreement()` 让小一永远拿不到 `safe`**（`index.html:1926-1928`）。`usable.length < 2` 直接返回 `单模型/watch`，而小一只有 `recentTrendPrediction` 一个模型，导致小一预测永远显示 watch 色。"单模型"只是无法交叉验证，不等于"需警惕"。建议给单模型一个中性 tone（如 `info`），或在文案上区分"无法交叉验证"与"模型分歧"。
 2. **分歧判定只看首年**（`firstForecastsForModels()`，`index.html:1915`）。只取 `forecasts[0]` 算极差，但 cohort 用对应年份真实小一数据、trend 用线性外推，第 2、3 年发散往往远大于首年，远期完全不进入 `modelAgreement`/`showRange` 判定。建议远期年份也算一次极差，或对 `forecast[1]`/`forecast[2]` 标注"远期不确定性放大"。
 3. **阈值 5/6 与 agreement 不完全自洽**。`MODEL_SPREAD_RANGE_THRESHOLD=5` 触发显示区间、`MODEL_SPREAD_RISK_THRESHOLD=6` 触发标红；spread ∈ [5,6) 且方向一致时会"显示区间但 agreement 仍为 safe"。两常量仅差 1 分、区分意义不大且易混。建议合并为单阈值，或让 agreement 在 `spread >= RANGE_THRESHOLD` 时也降到 `watch`。
-4. **`groupedPrimaryCohortPrediction` 的 delta 是单年单点**（`index.html:1887`，`cohortDelta = latest.score_value - primaryAvg`）。direct cohort 已上多届时间加权，grouped 这个最脆弱的兜底模型却用了最不稳的单点 delta。可低成本改成最近 2-3 届均线 delta 的加权，但**前提是先输出 grouped 回测 MAE**，否则只是"看起来更稳"，无法证明确实更准。
-5. **异常 delta 用绝对阈值 10，未考虑分数量级**（`build_data.py:357`，`cohort_pair_usable`）。对高分校 10 分可能是噪声、对低分校可能是真实波动。样本充足时可考虑相对阈值或 MAD/中位数偏离；**当前 9 个回测样本下不要改**，否则会过拟合。
+4. ~~**`groupedPrimaryCohortPrediction` 的 delta 是单年单点**~~ **已于 2026-07 处理**：grouped cohort 改为配对均线变化口径（不再依赖单点 delta 与漂移均线），并已输出留一回测 MAE（24 样本，5.30）。
+5. ~~**异常 delta 用绝对阈值 10，未考虑分数量级**~~ **已于 2026-07 部分处理**：全部 delta 超阈值但方向一致（≥2 届）的学校改用自身中位数（`consistent_outlier`），解决了智民实验学校类系统性偏移被误杀的问题；MAD/相对阈值仍等样本量增长后再评估。
 
 ## 五、优化优先级
 
@@ -169,6 +183,12 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 | P1 | direct cohort 留一回测 | `scripts/build_data.py` / `data/admission-data.json` | 已实施 |
 | P1 | 模型一致性加入首年预测极差判定 | `index.html` | 已实施 |
 | P1 | 高分民办竞争池 cohort | `index.html` / `scripts/export_2026_predictions.js` | 已实施 |
+| P1 | grouped / 高分池模型留一回测（`model_backtests`） | `scripts/build_data.py` / `data/admission-data.json` | 已实施（2026-07） |
+| P1 | 主模型按回测 MAE 数据驱动选择 | `index.html` / `scripts/export_2026_predictions.js` | 已实施（2026-07） |
+| P1 | 首年置信区间（± MAE × 1.5） | `index.html` / `scripts/export_2026_predictions.js` | 已实施（2026-07） |
+| P1 | 同向大差值学校用自身 delta 中位数 | `scripts/build_data.py` / `index.html` | 已实施（2026-07） |
+| P1 | grouped / 高分池均线改配对口径 | `scripts/build_data.py` / `index.html` / `scripts/export_2026_predictions.js` | 已实施（2026-07） |
+| P1 | 趋势模型结构性断点截断 | `scripts/build_data.py` / `index.html` | 已实施（2026-07） |
 | P2 | 趋势远期预测衰减 | `index.html` / `scripts/build_data.py` 离线校准 | **下一步优先（精度收益明确）**；上线前须做 1/2/3 年分年回测，样本不足时仅作"保守收敛展示"，不宣称提精度 |
 | P2 | 预测参数配置随数据同步 | `scripts/build_data.py` / `data/admission-data.json` / `index.html` | **下一步优先（纯工程，零统计风险）**；当前 json 仅有 `parameter_scan.current/best`，无前端可读 `prediction_config`。输出显式采用参数，不直接自动套用扫描 best |
 | P2 | grouped cohort 分档实验 | `scripts/build_data.py` | 先验证样本量，不直接上线 |
@@ -243,10 +263,31 @@ weighted_change = sum(clamp(change_i) * weight_i) / sum(weight_i)
 - 已形成 19 个 direct cohort pair，覆盖 9 个同校同办学性质组合。
 - 已对有两届以上有效 pair 的学校启用时间加权 delta，当前 `COHORT_DELTA_WEIGHT_DECAY = 0.75`。
 - 已将 `abs(cohort_delta) > 10` 的 pair 从加权 delta 中剔除。
-- 已增加 direct cohort 逐年留一回测，当前样本数 9，MAE 3.81，最大绝对误差 9.20。
-- 暂不做 MAE 反比加权融合，因为 grouped cohort 仍缺少可比较回测，direct cohort 回测样本也偏少。
+- 已增加 direct cohort 逐年留一回测（含同向大差值中位数路径后样本数 10，MAE 4.12，最大绝对误差 9.20）。
+- 暂不做 MAE 反比加权融合，direct cohort 与高分池回测样本仍是个位数。
 
-### 第四阶段：候选模型实验
+### 第四阶段：2026-07 算法修订（已实施）
+
+目标：用数据驱动的模型选择取代固定优先级，修复已知统计缺陷，并给用户直接的不确定度表达。
+
+实施内容与回测结果：
+
+1. **四个模型全部纳入留一回测**，结果写入 `cohort_model.model_backtests`：
+
+   | 模型 | 样本数 | MAE | 分段 MAE |
+   |------|--------|-----|----------|
+   | direct cohort | 10 | 4.12 | 公办 2.67 / 民办 4.48 |
+   | 高分民办竞争池 | 2 | 4.18 | 民办 4.18 |
+   | grouped cohort | 24 | 5.30 | 公办 4.43 / 民办 6.17 |
+   | recent trend | 216 | 4.50 | 公办 4.13 / 民办 4.86 |
+
+2. **主模型按 MAE 升序选择**（优先同办学性质分段，样本 `>= 2` 才参与），取代固定优先级链。数据显示 grouped cohort 是最差模型，已自然退为辅助参考。
+3. **同向大差值学校改用自身中位数**：智民实验学校三届 delta（+36.75/+19.45/+35.40）同向且量级相近，属系统性生源差异，不再整体弃用（新增 `delta_mode = consistent_outlier`）。承翰学校单届异常仍剔除。
+4. **grouped / 高分池均线改配对口径**：只统计两年共有学校的均值变化，池成员由基准年固定，消除学校集合逐年进出造成的成分漂移。
+5. **趋势模型结构性断点截断**：相邻年跳变超过 20 分只用断点后历史并标注低置信度；大误差样本确认全部来自民办政策跳变年。
+6. **首年置信区间**：预测值 ± 主模型 MAE × 1.5，随回测数据自动加宽/收窄；导出脚本同步输出 `predicted_interval`。
+
+### 第五阶段：候选模型实验
 
 目标：在有诊断和回测基础后，再引入更复杂模型。
 
@@ -331,7 +372,7 @@ node scripts/export_2026_predictions.js --year 2026
 文件结构：
 - `meta` — 生成时间、数据快照、采用的预测常量
 - `summary` — 预测方法分布统计
-- `predictions[]` — 每个学校组合的预测，包含 `predicted_score`、`forecast_horizon`、`primary_method`、**所有模型**的完整预测（含未来三年）和依据
+- `predictions[]` — 每个学校组合的预测，包含 `predicted_score`、`predicted_interval`（按主模型回测 MAE × 1.5）、`forecast_horizon`、`primary_method`、`primary_model_key`、`primary_backtest_mae`、**所有模型**的完整预测（含未来三年、各自回测 MAE）和依据
 
 `2026.html` 会读取 `data/predictions-2026.js`，用于展示 2026 年预测清单和分数分布。
 

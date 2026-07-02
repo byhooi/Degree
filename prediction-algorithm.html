@@ -435,7 +435,7 @@
   <header class="hero">
     <div class="wrap">
       <nav class="nav" aria-label="页面导航">
-        <span>更新：2026-06-21</span>
+        <span>更新：2026-07-02</span>
         <div class="nav-links">
           <a href="#choose">选择路径</a>
           <a href="#models">模型说明</a>
@@ -453,8 +453,8 @@
           </p>
         </div>
         <aside class="hero-note">
-          <strong>核心选择顺序</strong>
-          <p>初一：同校 cohort 优先；高分民办再看高积分择校生源池；其余学校看同类小学 cohort；最后用近年趋势。小一只用近年趋势。</p>
+          <strong>核心选择逻辑</strong>
+          <p>初一：四个候选模型全部试算，按各模型历史回测误差（MAE）择优选主模型；误差数据不足时按同校 cohort → 高分民办池 → 同类配对 cohort → 趋势的顺序兜底。小一只用近年趋势。主预测附带按回测误差计算的置信区间。</p>
         </aside>
       </div>
     </div>
@@ -467,16 +467,16 @@
         <span>小一和初一使用不同模型入口。</span>
       </div>
       <div class="fact">
-        <b>初一优先 cohort</b>
-        <span>能找到小一到初一映射，就优先使用。</span>
+        <b>按回测误差选模型</b>
+        <span>初一主模型由各模型的历史回测 MAE 决定，不是固定排队。</span>
       </div>
       <div class="fact">
         <b>高分民办单独看</b>
         <span>100 分以上民办初中不只按普通民办小学估计。</span>
       </div>
       <div class="fact">
-        <b>没有样本再降级</b>
-        <span>没有可靠 cohort 时才看同类均线或趋势。</span>
+        <b>预测带置信区间</b>
+        <span>主模型有回测数据时给出 ± MAE × 1.5 的首年区间。</span>
       </div>
     </div>
 
@@ -484,25 +484,25 @@
       <div class="wrap">
         <div class="section-head">
           <h2>模型怎么选</h2>
-          <p>选择逻辑不是把多个模型平均，而是按证据强弱排队。越接近真实升学路径的证据，优先级越高。</p>
+          <p>选择逻辑不是把多个模型平均，也不是按固定顺序排队，而是让历史回测误差说话：每个模型都做过“用过去预测过去”的留一回测，误差小的当主模型。</p>
         </div>
 
         <div class="flow">
           <article class="step" data-step="1">
             <h3>先分学段</h3>
-            <p>小一没有“小一升初一”映射，只使用近年趋势。初一才进入 cohort 判断。</p>
+            <p>小一没有“小一升初一”映射，只使用近年趋势。初一才进入多模型比较。</p>
           </article>
           <article class="step" data-step="2">
-            <h3>优先同校 cohort</h3>
-            <p>如果同一学校、同一办学性质有小一和 6 年后初一配对，就用它作为主模型。</p>
+            <h3>列出候选模型</h3>
+            <p>同校 cohort、高分民办竞争池、同类小学配对 cohort、近年趋势，能算出结果的都参与比较。</p>
           </article>
           <article class="step" data-step="3">
-            <h3>高分民办先修正</h3>
-            <p>民办初中最新普通录取线达到 100 分以上时，使用高积分择校生源池，不直接套普通民办小学均线。</p>
+            <h3>按回测误差择优</h3>
+            <p>每个模型带着自己的留一回测 MAE（优先看同办学性质分段），误差最小的当主模型；没有足够回测样本时按证据强弱兜底排序。</p>
           </article>
           <article class="step" data-step="4">
-            <h3>再逐级降级</h3>
-            <p>没有可靠同校或高分民办模型时，用同类小学 cohort；仍不可用时，用近年趋势兜底。</p>
+            <h3>异常保护与区间</h3>
+            <p>异常差值剔除或改用该校自身中位数；历史跳变超过 20 分只用断点后数据；主预测附 ± MAE × 1.5 置信区间。</p>
           </article>
         </div>
       </div>
@@ -517,14 +517,14 @@
 
         <div class="model-grid">
           <article class="model">
-            <span class="tag cohort">最优先</span>
+            <span class="tag cohort">同校证据</span>
             <h3>同校 cohort</h3>
-            <p>用于初一预测。它最接近真实升学路径，所以优先级最高。</p>
+            <p>用于初一预测。它最接近真实升学路径，回测误差也最小（公办 MAE 2.67）。</p>
             <div class="formula">初一预测 = 下一届小一线 + 历史初一线与小一线差值</div>
             <ul>
               <li>要求同一学校、同一办学性质。</li>
               <li>小一和初一相隔 6 年配对。</li>
-              <li>差值异常时会剔除或降级。</li>
+              <li>单届异常差值会剔除；各届差值都大但方向一致时，改用该校自身中位数。</li>
             </ul>
           </article>
 
@@ -532,34 +532,34 @@
             <span class="tag choice">高分民办</span>
             <h3>高分民办竞争池 cohort</h3>
             <p>用于 100 分以上民办初中。它把这类学校视为高积分家庭择校，而不是普通民办生源。</p>
-            <div class="formula">高分民办预测 = 小一高分池均线 + 该校历史差值</div>
+            <div class="formula">高分民办预测 = 民办初中最新线 + 高分池配对均线变化</div>
             <ul>
-              <li>只用于初一民办普通录取线。</li>
-              <li>启用条件是最新线达到 100 分以上。</li>
+              <li>只用于初一民办普通录取线，启用条件是最新线达到 100 分以上。</li>
+              <li>高分池成员由基准年固定，两年只比较共有学校，口径不漂移。</li>
               <li>小一高分池代表深户、有房等具备公办资格的高积分家庭。</li>
             </ul>
           </article>
 
           <article class="model">
-            <span class="tag grouped">替代参考</span>
-            <h3>同类小学 cohort</h3>
-            <p>用于初一预测。没有可靠同校 cohort 时，用同类小学均线替代。</p>
-            <div class="formula">公办初中看公办小学均线<br>民办初中看民办小学均线</div>
+            <span class="tag grouped">辅助参考</span>
+            <h3>同类小学配对 cohort</h3>
+            <p>用于初一预测。按办学性质取同类小学的配对均线变化，只统计两年都有分数的学校。</p>
+            <div class="formula">初一预测 = 初中最新线 + 同类小学配对均线变化</div>
             <ul>
-              <li>公办和民办分开计算。</li>
-              <li>适合没有同校小学映射的初中。</li>
-              <li>它比同校 cohort 弱，因为均线会抹平学校差异。</li>
+              <li>公办和民办分开计算，不混用。</li>
+              <li>配对口径避免了学校逐年进出造成的均线失真。</li>
+              <li>回测显示它误差最大（民办 MAE 6.17），通常只作交叉参考，不当主模型。</li>
             </ul>
           </article>
 
           <article class="model">
             <span class="tag trend">兜底模型</span>
             <h3>近年趋势</h3>
-            <p>用于小一预测，也用于初一 cohort 不可用时兜底。</p>
-            <div class="formula">单年变化最多按 ±3 分计入<br>避免被极端年份带偏</div>
+            <p>用于小一预测，也用于初一其他模型不可用时兜底。</p>
+            <div class="formula">单年变化最多按 ±3 分计入<br>跳变超 20 分只看断点后历史</div>
             <ul>
-              <li>最多看最近 4 年变化。</li>
-              <li>越新的年份权重越高。</li>
+              <li>最多看最近 4 年变化，越新的年份权重越高。</li>
+              <li>相邻年跳变超过 20 分视为结构性断点（如民办摇号政策年），只用断点后数据。</li>
               <li>适合看惯性，不适合判断新校分流、学区调整等突变。</li>
             </ul>
           </article>
@@ -571,7 +571,7 @@
       <div class="wrap">
         <div class="section-head">
           <h2>什么时候换模型</h2>
-          <p>系统会优先使用高优先级模型，但不会硬用不可靠样本。样本少、异常差值、模型分歧都会影响展示方式。</p>
+          <p>主模型由回测误差决定，但系统不会硬用不可靠样本。样本少、异常差值、结构性断点和模型分歧都会影响选择与展示。</p>
         </div>
 
         <div class="rule-grid">
@@ -584,13 +584,25 @@
           <article class="rule risk">
             <div>
               <h3>异常差值</h3>
-              <p>cohort 差值超过 10 分时，不进入加权；如果没有其他有效配对，就降级到下一个模型。</p>
+              <p>单届 cohort 差值超过 10 分时剔除、不进入加权；若该校各届差值都超过 10 分但方向一致（至少 2 届），视为该校系统性生源差异，改用自身中位数而不是弃用。</p>
+            </div>
+          </article>
+          <article class="rule risk">
+            <div>
+              <h3>结构性断点</h3>
+              <p>相邻年份录取线跳变超过 20 分（如民办摇号政策年）时，趋势模型只用断点后历史，并标注低置信度。</p>
             </div>
           </article>
           <article class="rule info">
             <div>
               <h3>高分民办</h3>
-              <p>100 分以上民办初中会先进入高积分择校生源池，再与普通民办小学整体 cohort 和趋势模型对比。</p>
+              <p>100 分以上民办初中会先进入高积分择校生源池模型，再与同校 cohort、同类配对 cohort 和趋势模型按回测误差比较。</p>
+            </div>
+          </article>
+          <article class="rule">
+            <div>
+              <h3>置信区间</h3>
+              <p>主模型有回测数据时，展示预测值 ± 回测 MAE × 1.5 的首年区间；区间宽窄直接反映该模型的历史准确度。</p>
             </div>
           </article>
           <article class="rule">

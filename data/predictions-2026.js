@@ -1,7 +1,7 @@
 window.PREDICTIONS_DATA = window.PREDICTIONS_DATA || {};
 window.PREDICTIONS_DATA[2026] = {
   "meta": {
-    "generated_at": "2026-06-21T06:49:03.263Z",
+    "generated_at": "2026-07-02T05:50:10.663Z",
     "generator": "scripts/export_2026_predictions.js",
     "description": "2026 年布吉街道小一/初一录取分数预测备份。用于与 2026 年实际录取分数对比。",
     "data_snapshot": {
@@ -18,7 +18,7 @@ window.PREDICTIONS_DATA[2026] = {
       ],
       "record_count": 349,
       "school_count": 39,
-      "data_generated_at": "2026-06-21T10:12:59"
+      "data_generated_at": "2026-07-02T13:22:19"
     },
     "prediction_constants": {
       "target_year": 2026,
@@ -39,12 +39,10 @@ window.PREDICTIONS_DATA[2026] = {
     "without_prediction": 0,
     "without_details": [],
     "by_primary_method": {
-      "近年趋势": 33,
-      "公办小学整体 cohort": 5,
+      "近年趋势": 39,
       "小一到初一 cohort 加权": 5,
       "小一到初一 cohort": 1,
-      "高分民办竞争池 cohort": 2,
-      "民办小学整体 cohort": 1
+      "高分民办竞争池 cohort": 2
     },
     "with_2026_prediction": 47,
     "without_2026_prediction": 0
@@ -61,15 +59,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 105.95,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
       "predicted_score": 105.35,
       "predicted_change": -0.6,
       "predicted_cumulative_change": -0.6,
+      "predicted_interval": {
+        "low": 99.16,
+        "high": 110,
+        "mae": 4.13,
+        "sample_count": 108
+      },
       "predicted_2026_score": 105.35,
       "predicted_2026_change": -0.6,
       "predicted_2026_cumulative_change": -0.6,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -128,15 +137,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 66.35,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
       "predicted_score": 64.92,
       "predicted_change": -1.43,
       "predicted_cumulative_change": -1.43,
+      "predicted_interval": {
+        "low": 60,
+        "high": 71.12,
+        "mae": 4.13,
+        "sample_count": 108
+      },
       "predicted_2026_score": 64.92,
       "predicted_2026_change": -1.43,
       "predicted_2026_cumulative_change": -1.43,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -195,55 +215,66 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 91.2,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
-      "predicted_score": 92.63,
-      "predicted_change": 1.43,
-      "predicted_cumulative_change": 1.43,
-      "predicted_2026_score": 92.63,
-      "predicted_2026_change": 1.43,
-      "predicted_2026_cumulative_change": 1.43,
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
+      "predicted_score": 94.2,
+      "predicted_change": 3,
+      "predicted_cumulative_change": 3,
+      "predicted_interval": {
+        "low": 88.01,
+        "high": 100.4,
+        "mae": 4.13,
+        "sample_count": 108
+      },
+      "predicted_2026_score": 94.2,
+      "predicted_2026_change": 3,
+      "predicted_2026_cumulative_change": 3,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 92.63,
-            "change": 1.43,
-            "cumulativeChange": 1.43,
-            "source": "近年加权变化 +1.43"
+            "score": 94.2,
+            "change": 3,
+            "cumulativeChange": 3,
+            "source": "近年加权变化 +3"
           },
           "year2026": {
             "year": 2026,
-            "score": 92.63,
-            "change": 1.43,
-            "cumulativeChange": 1.43,
-            "source": "近年加权变化 +1.43"
+            "score": 94.2,
+            "change": 3,
+            "cumulativeChange": 3,
+            "source": "近年加权变化 +3"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 92.63,
-              "change": 1.43,
-              "cumulativeChange": 1.43,
-              "source": "近年加权变化 +1.43"
+              "score": 94.2,
+              "change": 3,
+              "cumulativeChange": 3,
+              "source": "近年加权变化 +3"
             },
             {
               "year": 2027,
-              "score": 94.06,
-              "change": 1.43,
-              "cumulativeChange": 2.86,
-              "source": "近年加权变化 +1.43"
+              "score": 97.2,
+              "change": 3,
+              "cumulativeChange": 6,
+              "source": "近年加权变化 +3"
             },
             {
               "year": 2028,
-              "score": 95.49,
-              "change": 1.43,
-              "cumulativeChange": 4.29,
-              "source": "近年加权变化 +1.43"
+              "score": 100.2,
+              "change": 3,
+              "cumulativeChange": 9,
+              "source": "近年加权变化 +3"
             }
           ],
-          "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 +1.43 逐年延展；年变化超过 3 分时已截尾",
-          "confidenceNote": "年变化超过 3 分时已截尾"
+          "basis": "2023-2025 同校录取线变化，按 EWMA 加权变化 +3 逐年延展；2023 年录取线跳变超过 20 分（结构性断点），仅用断点后历史；年变化超过 3 分时已截尾",
+          "confidenceNote": "2023 年录取线跳变超过 20 分（结构性断点），仅用断点后历史；年变化超过 3 分时已截尾"
         }
       ],
       "auxiliary_method": null,
@@ -262,15 +293,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 67.35,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
       "predicted_score": 64.8,
       "predicted_change": -2.55,
       "predicted_cumulative_change": -2.55,
+      "predicted_interval": {
+        "low": 60,
+        "high": 71,
+        "mae": 4.13,
+        "sample_count": 108
+      },
       "predicted_2026_score": 64.8,
       "predicted_2026_change": -2.55,
       "predicted_2026_cumulative_change": -2.55,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -329,15 +371,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 70,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
       "predicted_score": 69.56,
       "predicted_change": -0.44,
       "predicted_cumulative_change": -0.44,
+      "predicted_interval": {
+        "low": 63.37,
+        "high": 75.76,
+        "mae": 4.13,
+        "sample_count": 108
+      },
       "predicted_2026_score": 69.56,
       "predicted_2026_change": -0.44,
       "predicted_2026_cumulative_change": -0.44,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -396,15 +449,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 97.7,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
       "predicted_score": 98.22,
       "predicted_change": 0.52,
       "predicted_cumulative_change": 0.52,
+      "predicted_interval": {
+        "low": 92.03,
+        "high": 104.42,
+        "mae": 4.13,
+        "sample_count": 108
+      },
       "predicted_2026_score": 98.22,
       "predicted_2026_change": 0.52,
       "predicted_2026_cumulative_change": 0.52,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -443,8 +507,8 @@ window.PREDICTIONS_DATA[2026] = {
               "source": "近年加权变化 +0.52"
             }
           ],
-          "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 +0.52 逐年延展；年变化超过 3 分时已截尾",
-          "confidenceNote": "年变化超过 3 分时已截尾"
+          "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 +0.52 逐年延展；2018 年录取线跳变超过 20 分（结构性断点），仅用断点后历史；年变化超过 3 分时已截尾",
+          "confidenceNote": "2018 年录取线跳变超过 20 分（结构性断点），仅用断点后历史；年变化超过 3 分时已截尾"
         }
       ],
       "auxiliary_method": null,
@@ -463,15 +527,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 75.65,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
       "predicted_score": 74.22,
       "predicted_change": -1.43,
       "predicted_cumulative_change": -1.43,
+      "predicted_interval": {
+        "low": 68.03,
+        "high": 80.41,
+        "mae": 4.13,
+        "sample_count": 108
+      },
       "predicted_2026_score": 74.22,
       "predicted_2026_change": -1.43,
       "predicted_2026_cumulative_change": -1.43,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -530,15 +605,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 103.4,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
       "predicted_score": 103.54,
       "predicted_change": 0.14,
       "predicted_cumulative_change": 0.14,
+      "predicted_interval": {
+        "low": 97.35,
+        "high": 109.74,
+        "mae": 4.13,
+        "sample_count": 108
+      },
       "predicted_2026_score": 103.54,
       "predicted_2026_change": 0.14,
       "predicted_2026_cumulative_change": 0.14,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -597,15 +683,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 90.35,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
       "predicted_score": 93.24,
       "predicted_change": 2.89,
       "predicted_cumulative_change": 2.89,
+      "predicted_interval": {
+        "low": 87.04,
+        "high": 99.44,
+        "mae": 4.13,
+        "sample_count": 108
+      },
       "predicted_2026_score": 93.24,
       "predicted_2026_change": 2.89,
       "predicted_2026_cumulative_change": 2.89,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -664,15 +761,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 105.1,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
       "predicted_score": 105.24,
       "predicted_change": 0.14,
       "predicted_cumulative_change": 0.14,
+      "predicted_interval": {
+        "low": 99.04,
+        "high": 110,
+        "mae": 4.13,
+        "sample_count": 108
+      },
       "predicted_2026_score": 105.24,
       "predicted_2026_change": 0.14,
       "predicted_2026_cumulative_change": 0.14,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -731,15 +839,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 96,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
       "predicted_score": 95.32,
       "predicted_change": -0.68,
       "predicted_cumulative_change": -0.68,
+      "predicted_interval": {
+        "low": 89.13,
+        "high": 101.51,
+        "mae": 4.13,
+        "sample_count": 108
+      },
       "predicted_2026_score": 95.32,
       "predicted_2026_change": -0.68,
       "predicted_2026_cumulative_change": -0.68,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -778,8 +897,8 @@ window.PREDICTIONS_DATA[2026] = {
               "source": "近年加权变化 -0.68"
             }
           ],
-          "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 -0.68 逐年延展；年变化超过 3 分时已截尾",
-          "confidenceNote": "年变化超过 3 分时已截尾"
+          "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 -0.68 逐年延展；2018 年录取线跳变超过 20 分（结构性断点），仅用断点后历史；年变化超过 3 分时已截尾",
+          "confidenceNote": "2018 年录取线跳变超过 20 分（结构性断点），仅用断点后历史；年变化超过 3 分时已截尾"
         }
       ],
       "auxiliary_method": null,
@@ -798,15 +917,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 70,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
       "predicted_score": 69.8,
       "predicted_change": -0.2,
       "predicted_cumulative_change": -0.2,
+      "predicted_interval": {
+        "low": 63.61,
+        "high": 76,
+        "mae": 4.13,
+        "sample_count": 108
+      },
       "predicted_2026_score": 69.8,
       "predicted_2026_change": -0.2,
       "predicted_2026_cumulative_change": -0.2,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -865,15 +995,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 60,
       "predicted_change": 0,
       "predicted_cumulative_change": 0,
+      "predicted_interval": {
+        "low": 60,
+        "high": 67.29,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 60,
       "predicted_2026_change": 0,
       "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -932,15 +1073,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 105.3,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 105.5,
       "predicted_change": 0.2,
       "predicted_cumulative_change": 0.2,
+      "predicted_interval": {
+        "low": 98.21,
+        "high": 110,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 105.5,
       "predicted_2026_change": 0.2,
       "predicted_2026_cumulative_change": 0.2,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -979,8 +1131,8 @@ window.PREDICTIONS_DATA[2026] = {
               "source": "近年加权变化 +0.2"
             }
           ],
-          "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 +0.2 逐年延展",
-          "confidenceNote": null
+          "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 +0.2 逐年延展；2022 年录取线跳变超过 20 分（结构性断点），仅用断点后历史",
+          "confidenceNote": "2022 年录取线跳变超过 20 分（结构性断点），仅用断点后历史"
         }
       ],
       "auxiliary_method": null,
@@ -999,15 +1151,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 103.8,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 103.7,
       "predicted_change": -0.1,
       "predicted_cumulative_change": -0.1,
+      "predicted_interval": {
+        "low": 96.41,
+        "high": 110,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 103.7,
       "predicted_2026_change": -0.1,
       "predicted_2026_cumulative_change": -0.1,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -1066,15 +1229,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 60,
       "predicted_change": 0,
       "predicted_cumulative_change": 0,
+      "predicted_interval": {
+        "low": 60,
+        "high": 67.29,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 60,
       "predicted_2026_change": 0,
       "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -1133,15 +1307,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 63.7,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 63.89,
       "predicted_change": 0.19,
       "predicted_cumulative_change": 0.19,
+      "predicted_interval": {
+        "low": 60,
+        "high": 71.18,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 63.89,
       "predicted_2026_change": 0.19,
       "predicted_2026_cumulative_change": 0.19,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -1200,15 +1385,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 64.15,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 63.49,
       "predicted_change": -0.66,
       "predicted_cumulative_change": -0.66,
+      "predicted_interval": {
+        "low": 60,
+        "high": 70.78,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 63.49,
       "predicted_2026_change": -0.66,
       "predicted_2026_cumulative_change": -0.66,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -1267,15 +1463,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 60,
       "predicted_change": 0,
       "predicted_cumulative_change": 0,
+      "predicted_interval": {
+        "low": 60,
+        "high": 67.29,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 60,
       "predicted_2026_change": 0,
       "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -1334,15 +1541,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60.6,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 60,
       "predicted_change": -0.6,
       "predicted_cumulative_change": -0.6,
+      "predicted_interval": {
+        "low": 60,
+        "high": 67.29,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 60,
       "predicted_2026_change": -0.6,
       "predicted_2026_cumulative_change": -0.6,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -1401,15 +1619,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 63.75,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 64.06,
       "predicted_change": 0.31,
       "predicted_cumulative_change": 0.31,
+      "predicted_interval": {
+        "low": 60,
+        "high": 71.35,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 64.06,
       "predicted_2026_change": 0.31,
       "predicted_2026_cumulative_change": 0.31,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -1468,15 +1697,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 60,
       "predicted_change": 0,
       "predicted_cumulative_change": 0,
+      "predicted_interval": {
+        "low": 60,
+        "high": 67.29,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 60,
       "predicted_2026_change": 0,
       "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -1535,15 +1775,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 94.85,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 96.93,
       "predicted_change": 2.08,
       "predicted_cumulative_change": 2.08,
+      "predicted_interval": {
+        "low": 89.64,
+        "high": 104.22,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 96.93,
       "predicted_2026_change": 2.08,
       "predicted_2026_cumulative_change": 2.08,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -1602,15 +1853,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 60,
       "predicted_change": 0,
       "predicted_cumulative_change": 0,
+      "predicted_interval": {
+        "low": 60,
+        "high": 67.29,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 60,
       "predicted_2026_change": 0,
       "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -1649,8 +1911,8 @@ window.PREDICTIONS_DATA[2026] = {
               "source": "近年加权变化 -0.63"
             }
           ],
-          "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 -0.63 逐年延展",
-          "confidenceNote": null
+          "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 -0.63 逐年延展；2022 年录取线跳变超过 20 分（结构性断点），仅用断点后历史",
+          "confidenceNote": "2022 年录取线跳变超过 20 分（结构性断点），仅用断点后历史"
         }
       ],
       "auxiliary_method": null,
@@ -1668,59 +1930,27 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_year": 2025,
       "latest_score": 67.5,
       "forecast_horizon": 1,
-      "primary_method": "公办小学整体 cohort",
-      "predicted_score": 68.47,
-      "predicted_change": 0.97,
-      "predicted_cumulative_change": 0.97,
-      "predicted_2026_score": 68.47,
-      "predicted_2026_change": 0.97,
-      "predicted_2026_cumulative_change": 0.97,
+      "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
+      "predicted_score": 67.7,
+      "predicted_change": 0.2,
+      "predicted_cumulative_change": 0.2,
+      "predicted_interval": {
+        "low": 61.51,
+        "high": 73.9,
+        "mae": 4.13,
+        "sample_count": 108
+      },
+      "predicted_2026_score": 67.7,
+      "predicted_2026_change": 0.2,
+      "predicted_2026_cumulative_change": 0.2,
       "all_models": [
         {
-          "method": "公办小学整体 cohort",
-          "target_year": 2026,
-          "target_forecast": {
-            "year": 2026,
-            "score": 68.47,
-            "change": 0.97,
-            "cumulativeChange": 0.97,
-            "source": "布吉公办小学2020均线 91.05"
-          },
-          "year2026": {
-            "year": 2026,
-            "score": 68.47,
-            "change": 0.97,
-            "cumulativeChange": 0.97,
-            "source": "布吉公办小学2020均线 91.05"
-          },
-          "allForecasts": [
-            {
-              "year": 2026,
-              "score": 68.47,
-              "change": 0.97,
-              "cumulativeChange": 0.97,
-              "source": "布吉公办小学2020均线 91.05"
-            },
-            {
-              "year": 2027,
-              "score": 71.09,
-              "change": 2.62,
-              "cumulativeChange": 3.59,
-              "source": "布吉公办小学2021均线 93.67"
-            },
-            {
-              "year": 2028,
-              "score": 69.18,
-              "change": -1.91,
-              "cumulativeChange": 1.68,
-              "source": "布吉公办小学2022均线 91.76"
-            }
-          ],
-          "basis": "公办初中2025线 67.5 - 布吉公办小学2019均线 90.08；3 年参考 布吉公办小学2020均线 91.05、布吉公办小学2021均线 93.67、布吉公办小学2022均线 91.76",
-          "confidenceNote": null
-        },
-        {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -1761,11 +1991,57 @@ window.PREDICTIONS_DATA[2026] = {
           ],
           "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 +0.2 逐年延展",
           "confidenceNote": null
+        },
+        {
+          "method": "公办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 4.43,
+          "backtest_sample_count": 12,
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 67.48,
+            "change": -0.02,
+            "cumulativeChange": -0.02,
+            "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 67.48,
+            "change": -0.02,
+            "cumulativeChange": -0.02,
+            "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 67.48,
+              "change": -0.02,
+              "cumulativeChange": -0.02,
+              "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+            },
+            {
+              "year": 2027,
+              "score": 69.89,
+              "change": 2.41,
+              "cumulativeChange": 2.39,
+              "source": "布吉公办小学2019→2021配对均线变化 +2.39（10 所）"
+            },
+            {
+              "year": 2028,
+              "score": 67.62,
+              "change": -2.27,
+              "cumulativeChange": 0.12,
+              "source": "布吉公办小学2019→2022配对均线变化 +0.12（10 所）"
+            }
+          ],
+          "basis": "公办初中2025线 67.5 叠加布吉公办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉公办小学2019→2020配对均线变化 -0.02（10 所）、布吉公办小学2019→2021配对均线变化 +2.39（10 所）、布吉公办小学2019→2022配对均线变化 +0.12（10 所）",
+          "confidenceNote": null
         }
       ],
-      "auxiliary_method": "近年趋势",
-      "auxiliary_score": 67.7,
-      "auxiliary_2026_score": 67.7,
+      "auxiliary_method": "公办小学整体 cohort",
+      "auxiliary_score": 67.48,
+      "auxiliary_2026_score": 67.48,
       "warnings": null
     },
     {
@@ -1778,59 +2054,27 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_year": 2025,
       "latest_score": 103.55,
       "forecast_horizon": 1,
-      "primary_method": "公办小学整体 cohort",
-      "predicted_score": 104.52,
-      "predicted_change": 0.97,
-      "predicted_cumulative_change": 0.97,
-      "predicted_2026_score": 104.52,
-      "predicted_2026_change": 0.97,
-      "predicted_2026_cumulative_change": 0.97,
+      "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
+      "predicted_score": 104.38,
+      "predicted_change": 0.83,
+      "predicted_cumulative_change": 0.83,
+      "predicted_interval": {
+        "low": 98.19,
+        "high": 110,
+        "mae": 4.13,
+        "sample_count": 108
+      },
+      "predicted_2026_score": 104.38,
+      "predicted_2026_change": 0.83,
+      "predicted_2026_cumulative_change": 0.83,
       "all_models": [
         {
-          "method": "公办小学整体 cohort",
-          "target_year": 2026,
-          "target_forecast": {
-            "year": 2026,
-            "score": 104.52,
-            "change": 0.97,
-            "cumulativeChange": 0.97,
-            "source": "布吉公办小学2020均线 91.05"
-          },
-          "year2026": {
-            "year": 2026,
-            "score": 104.52,
-            "change": 0.97,
-            "cumulativeChange": 0.97,
-            "source": "布吉公办小学2020均线 91.05"
-          },
-          "allForecasts": [
-            {
-              "year": 2026,
-              "score": 104.52,
-              "change": 0.97,
-              "cumulativeChange": 0.97,
-              "source": "布吉公办小学2020均线 91.05"
-            },
-            {
-              "year": 2027,
-              "score": 107.14,
-              "change": 2.62,
-              "cumulativeChange": 3.59,
-              "source": "布吉公办小学2021均线 93.67"
-            },
-            {
-              "year": 2028,
-              "score": 105.23,
-              "change": -1.91,
-              "cumulativeChange": 1.68,
-              "source": "布吉公办小学2022均线 91.76"
-            }
-          ],
-          "basis": "公办初中2025线 103.55 - 布吉公办小学2019均线 90.08；3 年参考 布吉公办小学2020均线 91.05、布吉公办小学2021均线 93.67、布吉公办小学2022均线 91.76",
-          "confidenceNote": null
-        },
-        {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -1871,11 +2115,57 @@ window.PREDICTIONS_DATA[2026] = {
           ],
           "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 +0.83 逐年延展；年变化超过 3 分时已截尾",
           "confidenceNote": "年变化超过 3 分时已截尾"
+        },
+        {
+          "method": "公办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 4.43,
+          "backtest_sample_count": 12,
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 103.53,
+            "change": -0.02,
+            "cumulativeChange": -0.02,
+            "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 103.53,
+            "change": -0.02,
+            "cumulativeChange": -0.02,
+            "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 103.53,
+              "change": -0.02,
+              "cumulativeChange": -0.02,
+              "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+            },
+            {
+              "year": 2027,
+              "score": 105.94,
+              "change": 2.41,
+              "cumulativeChange": 2.39,
+              "source": "布吉公办小学2019→2021配对均线变化 +2.39（10 所）"
+            },
+            {
+              "year": 2028,
+              "score": 103.67,
+              "change": -2.27,
+              "cumulativeChange": 0.12,
+              "source": "布吉公办小学2019→2022配对均线变化 +0.12（10 所）"
+            }
+          ],
+          "basis": "公办初中2025线 103.55 叠加布吉公办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉公办小学2019→2020配对均线变化 -0.02（10 所）、布吉公办小学2019→2021配对均线变化 +2.39（10 所）、布吉公办小学2019→2022配对均线变化 +0.12（10 所）",
+          "confidenceNote": null
         }
       ],
-      "auxiliary_method": "近年趋势",
-      "auxiliary_score": 104.38,
-      "auxiliary_2026_score": 104.38,
+      "auxiliary_method": "公办小学整体 cohort",
+      "auxiliary_score": 103.53,
+      "auxiliary_2026_score": 103.53,
       "warnings": null
     },
     {
@@ -1888,59 +2178,27 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_year": 2025,
       "latest_score": 109.35,
       "forecast_horizon": 1,
-      "primary_method": "公办小学整体 cohort",
+      "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
       "predicted_score": 110,
       "predicted_change": 0.65,
       "predicted_cumulative_change": 0.65,
+      "predicted_interval": {
+        "low": 103.81,
+        "high": 110,
+        "mae": 4.13,
+        "sample_count": 108
+      },
       "predicted_2026_score": 110,
       "predicted_2026_change": 0.65,
       "predicted_2026_cumulative_change": 0.65,
       "all_models": [
         {
-          "method": "公办小学整体 cohort",
-          "target_year": 2026,
-          "target_forecast": {
-            "year": 2026,
-            "score": 110,
-            "change": 0.65,
-            "cumulativeChange": 0.65,
-            "source": "布吉公办小学2020均线 91.05"
-          },
-          "year2026": {
-            "year": 2026,
-            "score": 110,
-            "change": 0.65,
-            "cumulativeChange": 0.65,
-            "source": "布吉公办小学2020均线 91.05"
-          },
-          "allForecasts": [
-            {
-              "year": 2026,
-              "score": 110,
-              "change": 0.65,
-              "cumulativeChange": 0.65,
-              "source": "布吉公办小学2020均线 91.05"
-            },
-            {
-              "year": 2027,
-              "score": 110,
-              "change": 0,
-              "cumulativeChange": 0.65,
-              "source": "布吉公办小学2021均线 93.67"
-            },
-            {
-              "year": 2028,
-              "score": 110,
-              "change": 0,
-              "cumulativeChange": 0.65,
-              "source": "布吉公办小学2022均线 91.76"
-            }
-          ],
-          "basis": "公办初中2025线 109.35 - 布吉公办小学2019均线 90.08；3 年参考 布吉公办小学2020均线 91.05、布吉公办小学2021均线 93.67、布吉公办小学2022均线 91.76",
-          "confidenceNote": null
-        },
-        {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -1981,11 +2239,57 @@ window.PREDICTIONS_DATA[2026] = {
           ],
           "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 +0.68 逐年延展",
           "confidenceNote": null
+        },
+        {
+          "method": "公办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 4.43,
+          "backtest_sample_count": 12,
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 109.33,
+            "change": -0.02,
+            "cumulativeChange": -0.02,
+            "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 109.33,
+            "change": -0.02,
+            "cumulativeChange": -0.02,
+            "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 109.33,
+              "change": -0.02,
+              "cumulativeChange": -0.02,
+              "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+            },
+            {
+              "year": 2027,
+              "score": 110,
+              "change": 0.67,
+              "cumulativeChange": 0.65,
+              "source": "布吉公办小学2019→2021配对均线变化 +2.39（10 所）"
+            },
+            {
+              "year": 2028,
+              "score": 109.47,
+              "change": -0.53,
+              "cumulativeChange": 0.12,
+              "source": "布吉公办小学2019→2022配对均线变化 +0.12（10 所）"
+            }
+          ],
+          "basis": "公办初中2025线 109.35 叠加布吉公办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉公办小学2019→2020配对均线变化 -0.02（10 所）、布吉公办小学2019→2021配对均线变化 +2.39（10 所）、布吉公办小学2019→2022配对均线变化 +0.12（10 所）",
+          "confidenceNote": null
         }
       ],
-      "auxiliary_method": "近年趋势",
-      "auxiliary_score": 110,
-      "auxiliary_2026_score": 110,
+      "auxiliary_method": "公办小学整体 cohort",
+      "auxiliary_score": 109.33,
+      "auxiliary_2026_score": 109.33,
       "warnings": null
     },
     {
@@ -1998,59 +2302,27 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_year": 2025,
       "latest_score": 95,
       "forecast_horizon": 1,
-      "primary_method": "公办小学整体 cohort",
-      "predicted_score": 95.97,
-      "predicted_change": 0.97,
-      "predicted_cumulative_change": 0.97,
-      "predicted_2026_score": 95.97,
-      "predicted_2026_change": 0.97,
-      "predicted_2026_cumulative_change": 0.97,
+      "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
+      "predicted_score": 95.89,
+      "predicted_change": 0.89,
+      "predicted_cumulative_change": 0.89,
+      "predicted_interval": {
+        "low": 89.7,
+        "high": 102.09,
+        "mae": 4.13,
+        "sample_count": 108
+      },
+      "predicted_2026_score": 95.89,
+      "predicted_2026_change": 0.89,
+      "predicted_2026_cumulative_change": 0.89,
       "all_models": [
         {
-          "method": "公办小学整体 cohort",
-          "target_year": 2026,
-          "target_forecast": {
-            "year": 2026,
-            "score": 95.97,
-            "change": 0.97,
-            "cumulativeChange": 0.97,
-            "source": "布吉公办小学2020均线 91.05"
-          },
-          "year2026": {
-            "year": 2026,
-            "score": 95.97,
-            "change": 0.97,
-            "cumulativeChange": 0.97,
-            "source": "布吉公办小学2020均线 91.05"
-          },
-          "allForecasts": [
-            {
-              "year": 2026,
-              "score": 95.97,
-              "change": 0.97,
-              "cumulativeChange": 0.97,
-              "source": "布吉公办小学2020均线 91.05"
-            },
-            {
-              "year": 2027,
-              "score": 98.59,
-              "change": 2.62,
-              "cumulativeChange": 3.59,
-              "source": "布吉公办小学2021均线 93.67"
-            },
-            {
-              "year": 2028,
-              "score": 96.68,
-              "change": -1.91,
-              "cumulativeChange": 1.68,
-              "source": "布吉公办小学2022均线 91.76"
-            }
-          ],
-          "basis": "公办初中2025线 95 - 布吉公办小学2019均线 90.08；3 年参考 布吉公办小学2020均线 91.05、布吉公办小学2021均线 93.67、布吉公办小学2022均线 91.76",
-          "confidenceNote": null
-        },
-        {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -2091,11 +2363,57 @@ window.PREDICTIONS_DATA[2026] = {
           ],
           "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 +0.89 逐年延展；年变化超过 3 分时已截尾",
           "confidenceNote": "年变化超过 3 分时已截尾"
+        },
+        {
+          "method": "公办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 4.43,
+          "backtest_sample_count": 12,
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 94.98,
+            "change": -0.02,
+            "cumulativeChange": -0.02,
+            "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 94.98,
+            "change": -0.02,
+            "cumulativeChange": -0.02,
+            "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 94.98,
+              "change": -0.02,
+              "cumulativeChange": -0.02,
+              "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+            },
+            {
+              "year": 2027,
+              "score": 97.39,
+              "change": 2.41,
+              "cumulativeChange": 2.39,
+              "source": "布吉公办小学2019→2021配对均线变化 +2.39（10 所）"
+            },
+            {
+              "year": 2028,
+              "score": 95.12,
+              "change": -2.27,
+              "cumulativeChange": 0.12,
+              "source": "布吉公办小学2019→2022配对均线变化 +0.12（10 所）"
+            }
+          ],
+          "basis": "公办初中2025线 95 叠加布吉公办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉公办小学2019→2020配对均线变化 -0.02（10 所）、布吉公办小学2019→2021配对均线变化 +2.39（10 所）、布吉公办小学2019→2022配对均线变化 +0.12（10 所）",
+          "confidenceNote": null
         }
       ],
-      "auxiliary_method": "近年趋势",
-      "auxiliary_score": 95.89,
-      "auxiliary_2026_score": 95.89,
+      "auxiliary_method": "公办小学整体 cohort",
+      "auxiliary_score": 94.98,
+      "auxiliary_2026_score": 94.98,
       "warnings": null
     },
     {
@@ -2108,59 +2426,27 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_year": 2025,
       "latest_score": 94.1,
       "forecast_horizon": 1,
-      "primary_method": "公办小学整体 cohort",
-      "predicted_score": 95.07,
-      "predicted_change": 0.97,
-      "predicted_cumulative_change": 0.97,
-      "predicted_2026_score": 95.07,
-      "predicted_2026_change": 0.97,
-      "predicted_2026_cumulative_change": 0.97,
+      "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.13,
+      "predicted_score": 95.46,
+      "predicted_change": 1.36,
+      "predicted_cumulative_change": 1.36,
+      "predicted_interval": {
+        "low": 89.26,
+        "high": 101.66,
+        "mae": 4.13,
+        "sample_count": 108
+      },
+      "predicted_2026_score": 95.46,
+      "predicted_2026_change": 1.36,
+      "predicted_2026_cumulative_change": 1.36,
       "all_models": [
         {
-          "method": "公办小学整体 cohort",
-          "target_year": 2026,
-          "target_forecast": {
-            "year": 2026,
-            "score": 95.07,
-            "change": 0.97,
-            "cumulativeChange": 0.97,
-            "source": "布吉公办小学2020均线 91.05"
-          },
-          "year2026": {
-            "year": 2026,
-            "score": 95.07,
-            "change": 0.97,
-            "cumulativeChange": 0.97,
-            "source": "布吉公办小学2020均线 91.05"
-          },
-          "allForecasts": [
-            {
-              "year": 2026,
-              "score": 95.07,
-              "change": 0.97,
-              "cumulativeChange": 0.97,
-              "source": "布吉公办小学2020均线 91.05"
-            },
-            {
-              "year": 2027,
-              "score": 97.69,
-              "change": 2.62,
-              "cumulativeChange": 3.59,
-              "source": "布吉公办小学2021均线 93.67"
-            },
-            {
-              "year": 2028,
-              "score": 95.78,
-              "change": -1.91,
-              "cumulativeChange": 1.68,
-              "source": "布吉公办小学2022均线 91.76"
-            }
-          ],
-          "basis": "公办初中2025线 94.1 - 布吉公办小学2019均线 90.08；3 年参考 布吉公办小学2020均线 91.05、布吉公办小学2021均线 93.67、布吉公办小学2022均线 91.76",
-          "confidenceNote": null
-        },
-        {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -2201,11 +2487,57 @@ window.PREDICTIONS_DATA[2026] = {
           ],
           "basis": "2023-2025 同校录取线变化，按 EWMA 加权变化 +1.36 逐年延展；年变化超过 3 分时已截尾",
           "confidenceNote": "年变化超过 3 分时已截尾"
+        },
+        {
+          "method": "公办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 4.43,
+          "backtest_sample_count": 12,
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 94.08,
+            "change": -0.02,
+            "cumulativeChange": -0.02,
+            "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 94.08,
+            "change": -0.02,
+            "cumulativeChange": -0.02,
+            "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 94.08,
+              "change": -0.02,
+              "cumulativeChange": -0.02,
+              "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+            },
+            {
+              "year": 2027,
+              "score": 96.49,
+              "change": 2.41,
+              "cumulativeChange": 2.39,
+              "source": "布吉公办小学2019→2021配对均线变化 +2.39（10 所）"
+            },
+            {
+              "year": 2028,
+              "score": 94.22,
+              "change": -2.27,
+              "cumulativeChange": 0.12,
+              "source": "布吉公办小学2019→2022配对均线变化 +0.12（10 所）"
+            }
+          ],
+          "basis": "公办初中2025线 94.1 叠加布吉公办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉公办小学2019→2020配对均线变化 -0.02（10 所）、布吉公办小学2019→2021配对均线变化 +2.39（10 所）、布吉公办小学2019→2022配对均线变化 +0.12（10 所）",
+          "confidenceNote": null
         }
       ],
-      "auxiliary_method": "近年趋势",
-      "auxiliary_score": 95.46,
-      "auxiliary_2026_score": 95.46,
+      "auxiliary_method": "公办小学整体 cohort",
+      "auxiliary_score": 94.08,
+      "auxiliary_2026_score": 94.08,
       "warnings": null
     },
     {
@@ -2219,15 +2551,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 106.55,
       "forecast_horizon": 1,
       "primary_method": "小一到初一 cohort 加权",
+      "primary_model_key": "direct_cohort",
+      "primary_backtest_mae": 2.67,
       "predicted_score": 104.9,
       "predicted_change": -1.65,
       "predicted_cumulative_change": -1.65,
+      "predicted_interval": {
+        "low": 100.9,
+        "high": 108.91,
+        "mae": 2.67,
+        "sample_count": 2
+      },
       "predicted_2026_score": 104.9,
       "predicted_2026_change": -1.65,
       "predicted_2026_cumulative_change": -1.65,
       "all_models": [
         {
           "method": "小一到初一 cohort 加权",
+          "model_key": "direct_cohort",
+          "backtest_mae": 2.67,
+          "backtest_sample_count": 2,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -2270,50 +2613,10 @@ window.PREDICTIONS_DATA[2026] = {
           "confidenceNote": "3 届有效 cohort 样本"
         },
         {
-          "method": "公办小学整体 cohort",
-          "target_year": 2026,
-          "target_forecast": {
-            "year": 2026,
-            "score": 107.52,
-            "change": 0.97,
-            "cumulativeChange": 0.97,
-            "source": "布吉公办小学2020均线 91.05"
-          },
-          "year2026": {
-            "year": 2026,
-            "score": 107.52,
-            "change": 0.97,
-            "cumulativeChange": 0.97,
-            "source": "布吉公办小学2020均线 91.05"
-          },
-          "allForecasts": [
-            {
-              "year": 2026,
-              "score": 107.52,
-              "change": 0.97,
-              "cumulativeChange": 0.97,
-              "source": "布吉公办小学2020均线 91.05"
-            },
-            {
-              "year": 2027,
-              "score": 110,
-              "change": 2.48,
-              "cumulativeChange": 3.45,
-              "source": "布吉公办小学2021均线 93.67"
-            },
-            {
-              "year": 2028,
-              "score": 108.23,
-              "change": -1.77,
-              "cumulativeChange": 1.68,
-              "source": "布吉公办小学2022均线 91.76"
-            }
-          ],
-          "basis": "公办初中2025线 106.55 - 布吉公办小学2019均线 90.08；3 年参考 布吉公办小学2020均线 91.05、布吉公办小学2021均线 93.67、布吉公办小学2022均线 91.76",
-          "confidenceNote": null
-        },
-        {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.13,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -2354,11 +2657,57 @@ window.PREDICTIONS_DATA[2026] = {
           ],
           "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 +0.41 逐年延展",
           "confidenceNote": null
+        },
+        {
+          "method": "公办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 4.43,
+          "backtest_sample_count": 12,
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 106.53,
+            "change": -0.02,
+            "cumulativeChange": -0.02,
+            "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 106.53,
+            "change": -0.02,
+            "cumulativeChange": -0.02,
+            "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 106.53,
+              "change": -0.02,
+              "cumulativeChange": -0.02,
+              "source": "布吉公办小学2019→2020配对均线变化 -0.02（10 所）"
+            },
+            {
+              "year": 2027,
+              "score": 108.94,
+              "change": 2.41,
+              "cumulativeChange": 2.39,
+              "source": "布吉公办小学2019→2021配对均线变化 +2.39（10 所）"
+            },
+            {
+              "year": 2028,
+              "score": 106.67,
+              "change": -2.27,
+              "cumulativeChange": 0.12,
+              "source": "布吉公办小学2019→2022配对均线变化 +0.12（10 所）"
+            }
+          ],
+          "basis": "公办初中2025线 106.55 叠加布吉公办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉公办小学2019→2020配对均线变化 -0.02（10 所）、布吉公办小学2019→2021配对均线变化 +2.39（10 所）、布吉公办小学2019→2022配对均线变化 +0.12（10 所）",
+          "confidenceNote": null
         }
       ],
-      "auxiliary_method": "公办小学整体 cohort",
-      "auxiliary_score": 107.52,
-      "auxiliary_2026_score": 107.52,
+      "auxiliary_method": "近年趋势",
+      "auxiliary_score": 106.96,
+      "auxiliary_2026_score": 106.96,
       "warnings": null
     },
     {
@@ -2372,15 +2721,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 61.7,
       "forecast_horizon": 1,
       "primary_method": "小一到初一 cohort",
+      "primary_model_key": "direct_cohort",
+      "primary_backtest_mae": 4.48,
       "predicted_score": 64,
       "predicted_change": 2.3,
       "predicted_cumulative_change": 2.3,
+      "predicted_interval": {
+        "low": 60,
+        "high": 70.72,
+        "mae": 4.48,
+        "sample_count": 8
+      },
       "predicted_2026_score": 64,
       "predicted_2026_change": 2.3,
       "predicted_2026_cumulative_change": 2.3,
       "all_models": [
         {
           "method": "小一到初一 cohort",
+          "model_key": "direct_cohort",
+          "backtest_mae": 4.48,
+          "backtest_sample_count": 8,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -2423,50 +2783,10 @@ window.PREDICTIONS_DATA[2026] = {
           "confidenceNote": "仅 1 届有效 cohort 样本"
         },
         {
-          "method": "民办小学整体 cohort",
-          "target_year": 2026,
-          "target_forecast": {
-            "year": 2026,
-            "score": 66.35,
-            "change": 4.65,
-            "cumulativeChange": 4.65,
-            "source": "布吉民办小学2020均线 69.04"
-          },
-          "year2026": {
-            "year": 2026,
-            "score": 66.35,
-            "change": 4.65,
-            "cumulativeChange": 4.65,
-            "source": "布吉民办小学2020均线 69.04"
-          },
-          "allForecasts": [
-            {
-              "year": 2026,
-              "score": 66.35,
-              "change": 4.65,
-              "cumulativeChange": 4.65,
-              "source": "布吉民办小学2020均线 69.04"
-            },
-            {
-              "year": 2027,
-              "score": 68.21,
-              "change": 1.86,
-              "cumulativeChange": 6.51,
-              "source": "布吉民办小学2021均线 70.9"
-            },
-            {
-              "year": 2028,
-              "score": 68.1,
-              "change": -0.11,
-              "cumulativeChange": 6.4,
-              "source": "布吉民办小学2022均线 70.8"
-            }
-          ],
-          "basis": "民办初中2025线 61.7 - 布吉民办小学2019均线 64.39；3 年参考 布吉民办小学2020均线 69.04、布吉民办小学2021均线 70.9、布吉民办小学2022均线 70.8",
-          "confidenceNote": null
-        },
-        {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -2507,11 +2827,57 @@ window.PREDICTIONS_DATA[2026] = {
           ],
           "basis": "2021-2025 同校录取线变化，按 EWMA 加权变化 -0.97 逐年延展",
           "confidenceNote": null
+        },
+        {
+          "method": "民办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 6.17,
+          "backtest_sample_count": 12,
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 63.92,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 63.92,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 63.92,
+              "change": 2.22,
+              "cumulativeChange": 2.22,
+              "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+            },
+            {
+              "year": 2027,
+              "score": 66.16,
+              "change": 2.24,
+              "cumulativeChange": 4.46,
+              "source": "布吉民办小学2019→2021配对均线变化 +4.46（9 所）"
+            },
+            {
+              "year": 2028,
+              "score": 61.65,
+              "change": -4.51,
+              "cumulativeChange": -0.05,
+              "source": "布吉民办小学2019→2022配对均线变化 -0.05（9 所）"
+            }
+          ],
+          "basis": "民办初中2025线 61.7 叠加布吉民办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉民办小学2019→2020配对均线变化 +2.22（9 所）、布吉民办小学2019→2021配对均线变化 +4.46（9 所）、布吉民办小学2019→2022配对均线变化 -0.05（9 所）",
+          "confidenceNote": null
         }
       ],
-      "auxiliary_method": "民办小学整体 cohort",
-      "auxiliary_score": 66.35,
-      "auxiliary_2026_score": 66.35,
+      "auxiliary_method": "近年趋势",
+      "auxiliary_score": 60.73,
+      "auxiliary_2026_score": 60.73,
       "warnings": null
     },
     {
@@ -2525,101 +2891,72 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 106.9,
       "forecast_horizon": 1,
       "primary_method": "高分民办竞争池 cohort",
-      "predicted_score": 105.82,
-      "predicted_change": -1.08,
-      "predicted_cumulative_change": -1.08,
-      "predicted_2026_score": 105.82,
-      "predicted_2026_change": -1.08,
-      "predicted_2026_cumulative_change": -1.08,
+      "primary_model_key": "high_score_cohort",
+      "primary_backtest_mae": 4.18,
+      "predicted_score": 104.52,
+      "predicted_change": -2.38,
+      "predicted_cumulative_change": -2.38,
+      "predicted_interval": {
+        "low": 98.25,
+        "high": 110,
+        "mae": 4.18,
+        "sample_count": 2
+      },
+      "predicted_2026_score": 104.52,
+      "predicted_2026_change": -2.38,
+      "predicted_2026_cumulative_change": -2.38,
       "all_models": [
         {
           "method": "高分民办竞争池 cohort",
+          "model_key": "high_score_cohort",
+          "backtest_mae": 4.18,
+          "backtest_sample_count": 2,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 105.82,
-            "change": -1.08,
-            "cumulativeChange": -1.08,
-            "source": "布吉100分以上小学2020均线 102.72"
+            "score": 104.52,
+            "change": -2.38,
+            "cumulativeChange": -2.38,
+            "source": "布吉100分以上小学2019→2020配对均线变化 -2.38（3 所）"
           },
           "year2026": {
             "year": 2026,
-            "score": 105.82,
-            "change": -1.08,
-            "cumulativeChange": -1.08,
-            "source": "布吉100分以上小学2020均线 102.72"
+            "score": 104.52,
+            "change": -2.38,
+            "cumulativeChange": -2.38,
+            "source": "布吉100分以上小学2019→2020配对均线变化 -2.38（3 所）"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 105.82,
-              "change": -1.08,
-              "cumulativeChange": -1.08,
-              "source": "布吉100分以上小学2020均线 102.72"
+              "score": 104.52,
+              "change": -2.38,
+              "cumulativeChange": -2.38,
+              "source": "布吉100分以上小学2019→2020配对均线变化 -2.38（3 所）"
             },
             {
               "year": 2027,
-              "score": 106.36,
-              "change": 0.54,
-              "cumulativeChange": -0.54,
-              "source": "布吉100分以上小学2021均线 103.26"
+              "score": 104.17,
+              "change": -0.35,
+              "cumulativeChange": -2.73,
+              "source": "布吉100分以上小学2019→2021配对均线变化 -2.73（3 所）"
             },
             {
               "year": 2028,
-              "score": 106.89,
-              "change": 0.53,
-              "cumulativeChange": -0.01,
-              "source": "布吉100分以上小学2022均线 103.79"
+              "score": 105.83,
+              "change": 1.66,
+              "cumulativeChange": -1.07,
+              "source": "布吉100分以上小学2019→2022配对均线变化 -1.07（3 所）"
             }
           ],
-          "basis": "该校为 100 分以上民办初中，按高积分择校生源池处理；民办初中2025线 106.9 - 布吉100分以上小学2019均线 103.8（3 所）；3 年参考 布吉100分以上小学2020均线 102.72、布吉100分以上小学2021均线 103.26、布吉100分以上小学2022均线 103.79",
+          "basis": "该校为 100 分以上民办初中，按高积分择校生源池处理；民办初中2025线 106.9 叠加100分以上小学配对均线变化（池成员由基准年固定）；3 年参考 布吉100分以上小学2019→2020配对均线变化 -2.38（3 所）、布吉100分以上小学2019→2021配对均线变化 -2.73（3 所）、布吉100分以上小学2019→2022配对均线变化 -1.07（3 所）",
           "confidenceNote": "高分民办可能吸引具备公办资格的深户、有房等高积分家庭，不能只按普通民办小学均线估计"
         },
         {
-          "method": "民办小学整体 cohort",
-          "target_year": 2026,
-          "target_forecast": {
-            "year": 2026,
-            "score": 110,
-            "change": 3.1,
-            "cumulativeChange": 3.1,
-            "source": "布吉民办小学2020均线 69.04"
-          },
-          "year2026": {
-            "year": 2026,
-            "score": 110,
-            "change": 3.1,
-            "cumulativeChange": 3.1,
-            "source": "布吉民办小学2020均线 69.04"
-          },
-          "allForecasts": [
-            {
-              "year": 2026,
-              "score": 110,
-              "change": 3.1,
-              "cumulativeChange": 3.1,
-              "source": "布吉民办小学2020均线 69.04"
-            },
-            {
-              "year": 2027,
-              "score": 110,
-              "change": 0,
-              "cumulativeChange": 3.1,
-              "source": "布吉民办小学2021均线 70.9"
-            },
-            {
-              "year": 2028,
-              "score": 110,
-              "change": 0,
-              "cumulativeChange": 3.1,
-              "source": "布吉民办小学2022均线 70.8"
-            }
-          ],
-          "basis": "民办初中2025线 106.9 - 布吉民办小学2019均线 64.39；3 年参考 布吉民办小学2020均线 69.04、布吉民办小学2021均线 70.9、布吉民办小学2022均线 70.8",
-          "confidenceNote": null
-        },
-        {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -2660,11 +2997,57 @@ window.PREDICTIONS_DATA[2026] = {
           ],
           "basis": "2020-2025 同校录取线变化，按 EWMA 加权变化 -0.33 逐年延展；年变化超过 3 分时已截尾",
           "confidenceNote": "年变化超过 3 分时已截尾"
+        },
+        {
+          "method": "民办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 6.17,
+          "backtest_sample_count": 12,
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 109.12,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 109.12,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 109.12,
+              "change": 2.22,
+              "cumulativeChange": 2.22,
+              "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+            },
+            {
+              "year": 2027,
+              "score": 110,
+              "change": 0.88,
+              "cumulativeChange": 3.1,
+              "source": "布吉民办小学2019→2021配对均线变化 +4.46（9 所）"
+            },
+            {
+              "year": 2028,
+              "score": 106.85,
+              "change": -3.15,
+              "cumulativeChange": -0.05,
+              "source": "布吉民办小学2019→2022配对均线变化 -0.05（9 所）"
+            }
+          ],
+          "basis": "民办初中2025线 106.9 叠加布吉民办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉民办小学2019→2020配对均线变化 +2.22（9 所）、布吉民办小学2019→2021配对均线变化 +4.46（9 所）、布吉民办小学2019→2022配对均线变化 -0.05（9 所）",
+          "confidenceNote": null
         }
       ],
-      "auxiliary_method": "民办小学整体 cohort",
-      "auxiliary_score": 110,
-      "auxiliary_2026_score": 110,
+      "auxiliary_method": "近年趋势",
+      "auxiliary_score": 106.57,
+      "auxiliary_2026_score": 106.57,
       "warnings": null
     },
     {
@@ -2677,104 +3060,118 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_year": 2025,
       "latest_score": 62.85,
       "forecast_horizon": 1,
-      "primary_method": "民办小学整体 cohort",
-      "predicted_score": 67.5,
-      "predicted_change": 4.65,
-      "predicted_cumulative_change": 4.65,
-      "predicted_2026_score": 67.5,
-      "predicted_2026_change": 4.65,
-      "predicted_2026_cumulative_change": 4.65,
+      "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
+      "predicted_score": 62.45,
+      "predicted_change": -0.4,
+      "predicted_cumulative_change": -0.4,
+      "predicted_interval": {
+        "low": 60,
+        "high": 69.74,
+        "mae": 4.86,
+        "sample_count": 108
+      },
+      "predicted_2026_score": 62.45,
+      "predicted_2026_change": -0.4,
+      "predicted_2026_cumulative_change": -0.4,
       "all_models": [
         {
-          "method": "民办小学整体 cohort",
+          "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 67.5,
-            "change": 4.65,
-            "cumulativeChange": 4.65,
-            "source": "布吉民办小学2020均线 69.04"
+            "score": 62.45,
+            "change": -0.4,
+            "cumulativeChange": -0.4,
+            "source": "近年加权变化 -0.4"
           },
           "year2026": {
             "year": 2026,
-            "score": 67.5,
-            "change": 4.65,
-            "cumulativeChange": 4.65,
-            "source": "布吉民办小学2020均线 69.04"
+            "score": 62.45,
+            "change": -0.4,
+            "cumulativeChange": -0.4,
+            "source": "近年加权变化 -0.4"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 67.5,
-              "change": 4.65,
-              "cumulativeChange": 4.65,
-              "source": "布吉民办小学2020均线 69.04"
+              "score": 62.45,
+              "change": -0.4,
+              "cumulativeChange": -0.4,
+              "source": "近年加权变化 -0.4"
             },
             {
               "year": 2027,
-              "score": 69.36,
-              "change": 1.86,
-              "cumulativeChange": 6.51,
-              "source": "布吉民办小学2021均线 70.9"
+              "score": 62.05,
+              "change": -0.4,
+              "cumulativeChange": -0.8,
+              "source": "近年加权变化 -0.4"
             },
             {
               "year": 2028,
-              "score": 69.25,
-              "change": -0.11,
-              "cumulativeChange": 6.4,
-              "source": "布吉民办小学2022均线 70.8"
+              "score": 61.65,
+              "change": -0.4,
+              "cumulativeChange": -1.2,
+              "source": "近年加权变化 -0.4"
             }
           ],
-          "basis": "民办初中2025线 62.85 - 布吉民办小学2019均线 64.39；3 年参考 布吉民办小学2020均线 69.04、布吉民办小学2021均线 70.9、布吉民办小学2022均线 70.8",
-          "confidenceNote": null
+          "basis": "2023-2025 同校录取线变化，按 EWMA 加权变化 -0.4 逐年延展；2023 年录取线跳变超过 20 分（结构性断点），仅用断点后历史",
+          "confidenceNote": "2023 年录取线跳变超过 20 分（结构性断点），仅用断点后历史"
         },
         {
-          "method": "近年趋势",
+          "method": "民办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 6.17,
+          "backtest_sample_count": 12,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 61.77,
-            "change": -1.08,
-            "cumulativeChange": -1.08,
-            "source": "近年加权变化 -1.08"
+            "score": 65.07,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
           },
           "year2026": {
             "year": 2026,
-            "score": 61.77,
-            "change": -1.08,
-            "cumulativeChange": -1.08,
-            "source": "近年加权变化 -1.08"
+            "score": 65.07,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 61.77,
-              "change": -1.08,
-              "cumulativeChange": -1.08,
-              "source": "近年加权变化 -1.08"
+              "score": 65.07,
+              "change": 2.22,
+              "cumulativeChange": 2.22,
+              "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
             },
             {
               "year": 2027,
-              "score": 60.69,
-              "change": -1.08,
-              "cumulativeChange": -2.16,
-              "source": "近年加权变化 -1.08"
+              "score": 67.31,
+              "change": 2.24,
+              "cumulativeChange": 4.46,
+              "source": "布吉民办小学2019→2021配对均线变化 +4.46（9 所）"
             },
             {
               "year": 2028,
-              "score": 60,
-              "change": -0.69,
-              "cumulativeChange": -2.85,
-              "source": "近年加权变化 -1.08"
+              "score": 62.8,
+              "change": -4.51,
+              "cumulativeChange": -0.05,
+              "source": "布吉民办小学2019→2022配对均线变化 -0.05（9 所）"
             }
           ],
-          "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 -1.08 逐年延展；年变化超过 3 分时已截尾",
-          "confidenceNote": "年变化超过 3 分时已截尾"
+          "basis": "民办初中2025线 62.85 叠加布吉民办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉民办小学2019→2020配对均线变化 +2.22（9 所）、布吉民办小学2019→2021配对均线变化 +4.46（9 所）、布吉民办小学2019→2022配对均线变化 -0.05（9 所）",
+          "confidenceNote": null
         }
       ],
-      "auxiliary_method": "近年趋势",
-      "auxiliary_score": 61.77,
-      "auxiliary_2026_score": 61.77,
+      "auxiliary_method": "民办小学整体 cohort",
+      "auxiliary_score": 65.07,
+      "auxiliary_2026_score": 65.07,
       "warnings": [
         "cohort delta 异常，已自动降级"
       ]
@@ -2790,15 +3187,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 70,
       "forecast_horizon": 1,
       "primary_method": "小一到初一 cohort 加权",
+      "primary_model_key": "direct_cohort",
+      "primary_backtest_mae": 4.48,
       "predicted_score": 68.14,
       "predicted_change": -1.86,
       "predicted_cumulative_change": -1.86,
+      "predicted_interval": {
+        "low": 61.42,
+        "high": 74.86,
+        "mae": 4.48,
+        "sample_count": 8
+      },
       "predicted_2026_score": 68.14,
       "predicted_2026_change": -1.86,
       "predicted_2026_cumulative_change": -1.86,
       "all_models": [
         {
           "method": "小一到初一 cohort 加权",
+          "model_key": "direct_cohort",
+          "backtest_mae": 4.48,
+          "backtest_sample_count": 8,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -2841,50 +3249,10 @@ window.PREDICTIONS_DATA[2026] = {
           "confidenceNote": "3 届有效 cohort 样本"
         },
         {
-          "method": "民办小学整体 cohort",
-          "target_year": 2026,
-          "target_forecast": {
-            "year": 2026,
-            "score": 74.65,
-            "change": 4.65,
-            "cumulativeChange": 4.65,
-            "source": "布吉民办小学2020均线 69.04"
-          },
-          "year2026": {
-            "year": 2026,
-            "score": 74.65,
-            "change": 4.65,
-            "cumulativeChange": 4.65,
-            "source": "布吉民办小学2020均线 69.04"
-          },
-          "allForecasts": [
-            {
-              "year": 2026,
-              "score": 74.65,
-              "change": 4.65,
-              "cumulativeChange": 4.65,
-              "source": "布吉民办小学2020均线 69.04"
-            },
-            {
-              "year": 2027,
-              "score": 76.51,
-              "change": 1.86,
-              "cumulativeChange": 6.51,
-              "source": "布吉民办小学2021均线 70.9"
-            },
-            {
-              "year": 2028,
-              "score": 76.4,
-              "change": -0.11,
-              "cumulativeChange": 6.4,
-              "source": "布吉民办小学2022均线 70.8"
-            }
-          ],
-          "basis": "民办初中2025线 70 - 布吉民办小学2019均线 64.39；3 年参考 布吉民办小学2020均线 69.04、布吉民办小学2021均线 70.9、布吉民办小学2022均线 70.8",
-          "confidenceNote": null
-        },
-        {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -2925,11 +3293,57 @@ window.PREDICTIONS_DATA[2026] = {
           ],
           "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 +0.2 逐年延展；年变化超过 3 分时已截尾",
           "confidenceNote": "年变化超过 3 分时已截尾"
+        },
+        {
+          "method": "民办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 6.17,
+          "backtest_sample_count": 12,
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 72.22,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 72.22,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 72.22,
+              "change": 2.22,
+              "cumulativeChange": 2.22,
+              "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+            },
+            {
+              "year": 2027,
+              "score": 74.46,
+              "change": 2.24,
+              "cumulativeChange": 4.46,
+              "source": "布吉民办小学2019→2021配对均线变化 +4.46（9 所）"
+            },
+            {
+              "year": 2028,
+              "score": 69.95,
+              "change": -4.51,
+              "cumulativeChange": -0.05,
+              "source": "布吉民办小学2019→2022配对均线变化 -0.05（9 所）"
+            }
+          ],
+          "basis": "民办初中2025线 70 叠加布吉民办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉民办小学2019→2020配对均线变化 +2.22（9 所）、布吉民办小学2019→2021配对均线变化 +4.46（9 所）、布吉民办小学2019→2022配对均线变化 -0.05（9 所）",
+          "confidenceNote": null
         }
       ],
-      "auxiliary_method": "民办小学整体 cohort",
-      "auxiliary_score": 74.65,
-      "auxiliary_2026_score": 74.65,
+      "auxiliary_method": "近年趋势",
+      "auxiliary_score": 70.2,
+      "auxiliary_2026_score": 70.2,
       "warnings": null
     },
     {
@@ -2943,15 +3357,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 65.6,
       "forecast_horizon": 1,
       "primary_method": "小一到初一 cohort 加权",
+      "primary_model_key": "direct_cohort",
+      "primary_backtest_mae": 4.48,
       "predicted_score": 62.15,
       "predicted_change": -3.45,
       "predicted_cumulative_change": -3.45,
+      "predicted_interval": {
+        "low": 60,
+        "high": 68.87,
+        "mae": 4.48,
+        "sample_count": 8
+      },
       "predicted_2026_score": 62.15,
       "predicted_2026_change": -3.45,
       "predicted_2026_cumulative_change": -3.45,
       "all_models": [
         {
           "method": "小一到初一 cohort 加权",
+          "model_key": "direct_cohort",
+          "backtest_mae": 4.48,
+          "backtest_sample_count": 8,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -2994,50 +3419,10 @@ window.PREDICTIONS_DATA[2026] = {
           "confidenceNote": "2 届有效 cohort 样本"
         },
         {
-          "method": "民办小学整体 cohort",
-          "target_year": 2026,
-          "target_forecast": {
-            "year": 2026,
-            "score": 70.25,
-            "change": 4.65,
-            "cumulativeChange": 4.65,
-            "source": "布吉民办小学2020均线 69.04"
-          },
-          "year2026": {
-            "year": 2026,
-            "score": 70.25,
-            "change": 4.65,
-            "cumulativeChange": 4.65,
-            "source": "布吉民办小学2020均线 69.04"
-          },
-          "allForecasts": [
-            {
-              "year": 2026,
-              "score": 70.25,
-              "change": 4.65,
-              "cumulativeChange": 4.65,
-              "source": "布吉民办小学2020均线 69.04"
-            },
-            {
-              "year": 2027,
-              "score": 72.11,
-              "change": 1.86,
-              "cumulativeChange": 6.51,
-              "source": "布吉民办小学2021均线 70.9"
-            },
-            {
-              "year": 2028,
-              "score": 72,
-              "change": -0.11,
-              "cumulativeChange": 6.4,
-              "source": "布吉民办小学2022均线 70.8"
-            }
-          ],
-          "basis": "民办初中2025线 65.6 - 布吉民办小学2019均线 64.39；3 年参考 布吉民办小学2020均线 69.04、布吉民办小学2021均线 70.9、布吉民办小学2022均线 70.8",
-          "confidenceNote": null
-        },
-        {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -3078,11 +3463,57 @@ window.PREDICTIONS_DATA[2026] = {
           ],
           "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 -0.24 逐年延展",
           "confidenceNote": null
+        },
+        {
+          "method": "民办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 6.17,
+          "backtest_sample_count": 12,
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 67.82,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 67.82,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 67.82,
+              "change": 2.22,
+              "cumulativeChange": 2.22,
+              "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+            },
+            {
+              "year": 2027,
+              "score": 70.06,
+              "change": 2.24,
+              "cumulativeChange": 4.46,
+              "source": "布吉民办小学2019→2021配对均线变化 +4.46（9 所）"
+            },
+            {
+              "year": 2028,
+              "score": 65.55,
+              "change": -4.51,
+              "cumulativeChange": -0.05,
+              "source": "布吉民办小学2019→2022配对均线变化 -0.05（9 所）"
+            }
+          ],
+          "basis": "民办初中2025线 65.6 叠加布吉民办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉民办小学2019→2020配对均线变化 +2.22（9 所）、布吉民办小学2019→2021配对均线变化 +4.46（9 所）、布吉民办小学2019→2022配对均线变化 -0.05（9 所）",
+          "confidenceNote": null
         }
       ],
-      "auxiliary_method": "民办小学整体 cohort",
-      "auxiliary_score": 70.25,
-      "auxiliary_2026_score": 70.25,
+      "auxiliary_method": "近年趋势",
+      "auxiliary_score": 65.36,
+      "auxiliary_2026_score": 65.36,
       "warnings": null
     },
     {
@@ -3096,15 +3527,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 66.25,
       "forecast_horizon": 1,
       "primary_method": "小一到初一 cohort 加权",
+      "primary_model_key": "direct_cohort",
+      "primary_backtest_mae": 4.48,
       "predicted_score": 60,
       "predicted_change": -6.25,
       "predicted_cumulative_change": -6.25,
+      "predicted_interval": {
+        "low": 60,
+        "high": 66.72,
+        "mae": 4.48,
+        "sample_count": 8
+      },
       "predicted_2026_score": 60,
       "predicted_2026_change": -6.25,
       "predicted_2026_cumulative_change": -6.25,
       "all_models": [
         {
           "method": "小一到初一 cohort 加权",
+          "model_key": "direct_cohort",
+          "backtest_mae": 4.48,
+          "backtest_sample_count": 8,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -3147,50 +3589,10 @@ window.PREDICTIONS_DATA[2026] = {
           "confidenceNote": "3 届有效 cohort 样本"
         },
         {
-          "method": "民办小学整体 cohort",
-          "target_year": 2026,
-          "target_forecast": {
-            "year": 2026,
-            "score": 70.9,
-            "change": 4.65,
-            "cumulativeChange": 4.65,
-            "source": "布吉民办小学2020均线 69.04"
-          },
-          "year2026": {
-            "year": 2026,
-            "score": 70.9,
-            "change": 4.65,
-            "cumulativeChange": 4.65,
-            "source": "布吉民办小学2020均线 69.04"
-          },
-          "allForecasts": [
-            {
-              "year": 2026,
-              "score": 70.9,
-              "change": 4.65,
-              "cumulativeChange": 4.65,
-              "source": "布吉民办小学2020均线 69.04"
-            },
-            {
-              "year": 2027,
-              "score": 72.76,
-              "change": 1.86,
-              "cumulativeChange": 6.51,
-              "source": "布吉民办小学2021均线 70.9"
-            },
-            {
-              "year": 2028,
-              "score": 72.65,
-              "change": -0.11,
-              "cumulativeChange": 6.4,
-              "source": "布吉民办小学2022均线 70.8"
-            }
-          ],
-          "basis": "民办初中2025线 66.25 - 布吉民办小学2019均线 64.39；3 年参考 布吉民办小学2020均线 69.04、布吉民办小学2021均线 70.9、布吉民办小学2022均线 70.8",
-          "confidenceNote": null
-        },
-        {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -3231,11 +3633,57 @@ window.PREDICTIONS_DATA[2026] = {
           ],
           "basis": "2023-2025 同校录取线变化，按 EWMA 加权变化 +0.81 逐年延展",
           "confidenceNote": null
+        },
+        {
+          "method": "民办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 6.17,
+          "backtest_sample_count": 12,
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 68.47,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 68.47,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 68.47,
+              "change": 2.22,
+              "cumulativeChange": 2.22,
+              "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+            },
+            {
+              "year": 2027,
+              "score": 70.71,
+              "change": 2.24,
+              "cumulativeChange": 4.46,
+              "source": "布吉民办小学2019→2021配对均线变化 +4.46（9 所）"
+            },
+            {
+              "year": 2028,
+              "score": 66.2,
+              "change": -4.51,
+              "cumulativeChange": -0.05,
+              "source": "布吉民办小学2019→2022配对均线变化 -0.05（9 所）"
+            }
+          ],
+          "basis": "民办初中2025线 66.25 叠加布吉民办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉民办小学2019→2020配对均线变化 +2.22（9 所）、布吉民办小学2019→2021配对均线变化 +4.46（9 所）、布吉民办小学2019→2022配对均线变化 -0.05（9 所）",
+          "confidenceNote": null
         }
       ],
-      "auxiliary_method": "民办小学整体 cohort",
-      "auxiliary_score": 70.9,
-      "auxiliary_2026_score": 70.9,
+      "auxiliary_method": "近年趋势",
+      "auxiliary_score": 67.06,
+      "auxiliary_2026_score": 67.06,
       "warnings": null
     },
     {
@@ -3249,15 +3697,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 63.85,
       "forecast_horizon": 1,
       "primary_method": "小一到初一 cohort 加权",
+      "primary_model_key": "direct_cohort",
+      "primary_backtest_mae": 4.48,
       "predicted_score": 62.56,
       "predicted_change": -1.29,
       "predicted_cumulative_change": -1.29,
+      "predicted_interval": {
+        "low": 60,
+        "high": 69.28,
+        "mae": 4.48,
+        "sample_count": 8
+      },
       "predicted_2026_score": 62.56,
       "predicted_2026_change": -1.29,
       "predicted_2026_cumulative_change": -1.29,
       "all_models": [
         {
           "method": "小一到初一 cohort 加权",
+          "model_key": "direct_cohort",
+          "backtest_mae": 4.48,
+          "backtest_sample_count": 8,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -3300,50 +3759,10 @@ window.PREDICTIONS_DATA[2026] = {
           "confidenceNote": "3 届有效 cohort 样本"
         },
         {
-          "method": "民办小学整体 cohort",
-          "target_year": 2026,
-          "target_forecast": {
-            "year": 2026,
-            "score": 68.5,
-            "change": 4.65,
-            "cumulativeChange": 4.65,
-            "source": "布吉民办小学2020均线 69.04"
-          },
-          "year2026": {
-            "year": 2026,
-            "score": 68.5,
-            "change": 4.65,
-            "cumulativeChange": 4.65,
-            "source": "布吉民办小学2020均线 69.04"
-          },
-          "allForecasts": [
-            {
-              "year": 2026,
-              "score": 68.5,
-              "change": 4.65,
-              "cumulativeChange": 4.65,
-              "source": "布吉民办小学2020均线 69.04"
-            },
-            {
-              "year": 2027,
-              "score": 70.36,
-              "change": 1.86,
-              "cumulativeChange": 6.51,
-              "source": "布吉民办小学2021均线 70.9"
-            },
-            {
-              "year": 2028,
-              "score": 70.25,
-              "change": -0.11,
-              "cumulativeChange": 6.4,
-              "source": "布吉民办小学2022均线 70.8"
-            }
-          ],
-          "basis": "民办初中2025线 63.85 - 布吉民办小学2019均线 64.39；3 年参考 布吉民办小学2020均线 69.04、布吉民办小学2021均线 70.9、布吉民办小学2022均线 70.8",
-          "confidenceNote": null
-        },
-        {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -3384,11 +3803,57 @@ window.PREDICTIONS_DATA[2026] = {
           ],
           "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 -1.3 逐年延展",
           "confidenceNote": null
+        },
+        {
+          "method": "民办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 6.17,
+          "backtest_sample_count": 12,
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 66.07,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 66.07,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 66.07,
+              "change": 2.22,
+              "cumulativeChange": 2.22,
+              "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+            },
+            {
+              "year": 2027,
+              "score": 68.31,
+              "change": 2.24,
+              "cumulativeChange": 4.46,
+              "source": "布吉民办小学2019→2021配对均线变化 +4.46（9 所）"
+            },
+            {
+              "year": 2028,
+              "score": 63.8,
+              "change": -4.51,
+              "cumulativeChange": -0.05,
+              "source": "布吉民办小学2019→2022配对均线变化 -0.05（9 所）"
+            }
+          ],
+          "basis": "民办初中2025线 63.85 叠加布吉民办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉民办小学2019→2020配对均线变化 +2.22（9 所）、布吉民办小学2019→2021配对均线变化 +4.46（9 所）、布吉民办小学2019→2022配对均线变化 -0.05（9 所）",
+          "confidenceNote": null
         }
       ],
-      "auxiliary_method": "民办小学整体 cohort",
-      "auxiliary_score": 68.5,
-      "auxiliary_2026_score": 68.5,
+      "auxiliary_method": "近年趋势",
+      "auxiliary_score": 62.55,
+      "auxiliary_2026_score": 62.55,
       "warnings": null
     },
     {
@@ -3402,101 +3867,118 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 107,
       "forecast_horizon": 1,
       "primary_method": "高分民办竞争池 cohort",
-      "predicted_score": 105.92,
-      "predicted_change": -1.08,
-      "predicted_cumulative_change": -1.08,
-      "predicted_2026_score": 105.92,
-      "predicted_2026_change": -1.08,
-      "predicted_2026_cumulative_change": -1.08,
+      "primary_model_key": "high_score_cohort",
+      "primary_backtest_mae": 4.18,
+      "predicted_score": 104.62,
+      "predicted_change": -2.38,
+      "predicted_cumulative_change": -2.38,
+      "predicted_interval": {
+        "low": 98.35,
+        "high": 110,
+        "mae": 4.18,
+        "sample_count": 2
+      },
+      "predicted_2026_score": 104.62,
+      "predicted_2026_change": -2.38,
+      "predicted_2026_cumulative_change": -2.38,
       "all_models": [
         {
           "method": "高分民办竞争池 cohort",
+          "model_key": "high_score_cohort",
+          "backtest_mae": 4.18,
+          "backtest_sample_count": 2,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 105.92,
-            "change": -1.08,
-            "cumulativeChange": -1.08,
-            "source": "布吉100分以上小学2020均线 102.72"
+            "score": 104.62,
+            "change": -2.38,
+            "cumulativeChange": -2.38,
+            "source": "布吉100分以上小学2019→2020配对均线变化 -2.38（3 所）"
           },
           "year2026": {
             "year": 2026,
-            "score": 105.92,
-            "change": -1.08,
-            "cumulativeChange": -1.08,
-            "source": "布吉100分以上小学2020均线 102.72"
+            "score": 104.62,
+            "change": -2.38,
+            "cumulativeChange": -2.38,
+            "source": "布吉100分以上小学2019→2020配对均线变化 -2.38（3 所）"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 105.92,
-              "change": -1.08,
-              "cumulativeChange": -1.08,
-              "source": "布吉100分以上小学2020均线 102.72"
+              "score": 104.62,
+              "change": -2.38,
+              "cumulativeChange": -2.38,
+              "source": "布吉100分以上小学2019→2020配对均线变化 -2.38（3 所）"
             },
             {
               "year": 2027,
-              "score": 106.46,
-              "change": 0.54,
-              "cumulativeChange": -0.54,
-              "source": "布吉100分以上小学2021均线 103.26"
+              "score": 104.27,
+              "change": -0.35,
+              "cumulativeChange": -2.73,
+              "source": "布吉100分以上小学2019→2021配对均线变化 -2.73（3 所）"
             },
             {
               "year": 2028,
-              "score": 106.99,
-              "change": 0.53,
-              "cumulativeChange": -0.01,
-              "source": "布吉100分以上小学2022均线 103.79"
+              "score": 105.93,
+              "change": 1.66,
+              "cumulativeChange": -1.07,
+              "source": "布吉100分以上小学2019→2022配对均线变化 -1.07（3 所）"
             }
           ],
-          "basis": "该校为 100 分以上民办初中，按高积分择校生源池处理；民办初中2025线 107 - 布吉100分以上小学2019均线 103.8（3 所）；3 年参考 布吉100分以上小学2020均线 102.72、布吉100分以上小学2021均线 103.26、布吉100分以上小学2022均线 103.79",
+          "basis": "该校为 100 分以上民办初中，按高积分择校生源池处理；民办初中2025线 107 叠加100分以上小学配对均线变化（池成员由基准年固定）；3 年参考 布吉100分以上小学2019→2020配对均线变化 -2.38（3 所）、布吉100分以上小学2019→2021配对均线变化 -2.73（3 所）、布吉100分以上小学2019→2022配对均线变化 -1.07（3 所）",
           "confidenceNote": "高分民办可能吸引具备公办资格的深户、有房等高积分家庭，不能只按普通民办小学均线估计"
         },
         {
-          "method": "民办小学整体 cohort",
+          "method": "小一到初一 cohort（同向大差值）",
+          "model_key": "direct_cohort",
+          "backtest_mae": 4.48,
+          "backtest_sample_count": 8,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
-            "score": 110,
-            "change": 3,
-            "cumulativeChange": 3,
-            "source": "布吉民办小学2020均线 69.04"
+            "score": 97.65,
+            "change": -9.35,
+            "cumulativeChange": -9.35,
+            "source": "小一2020 62.25"
           },
           "year2026": {
             "year": 2026,
-            "score": 110,
-            "change": 3,
-            "cumulativeChange": 3,
-            "source": "布吉民办小学2020均线 69.04"
+            "score": 97.65,
+            "change": -9.35,
+            "cumulativeChange": -9.35,
+            "source": "小一2020 62.25"
           },
           "allForecasts": [
             {
               "year": 2026,
-              "score": 110,
-              "change": 3,
-              "cumulativeChange": 3,
-              "source": "布吉民办小学2020均线 69.04"
+              "score": 97.65,
+              "change": -9.35,
+              "cumulativeChange": -9.35,
+              "source": "小一2020 62.25"
             },
             {
               "year": 2027,
-              "score": 110,
-              "change": 0,
-              "cumulativeChange": 3,
-              "source": "布吉民办小学2021均线 70.9"
+              "score": 97.6,
+              "change": -0.05,
+              "cumulativeChange": -9.4,
+              "source": "小一2021 62.2"
             },
             {
               "year": 2028,
-              "score": 110,
-              "change": 0,
-              "cumulativeChange": 3,
-              "source": "布吉民办小学2022均线 70.8"
+              "score": 105.55,
+              "change": 7.95,
+              "cumulativeChange": -1.45,
+              "source": "小一2022 70.15"
             }
           ],
-          "basis": "民办初中2025线 107 - 布吉民办小学2019均线 64.39；3 年参考 布吉民办小学2020均线 69.04、布吉民办小学2021均线 70.9、布吉民办小学2022均线 70.8",
-          "confidenceNote": null
+          "basis": "最新映射小一2019 71.6 -> 初一2025 107；各届 delta 中位数 +35.4，样本年 2023、2024、2025；3 届 delta 均超阈值但方向一致，使用自身中位数；3 年参考 小一2020 62.25、小一2021 62.2、小一2022 70.15",
+          "confidenceNote": "3 届 delta 均超阈值但方向一致，使用自身中位数"
         },
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -3535,15 +4017,61 @@ window.PREDICTIONS_DATA[2026] = {
               "source": "近年加权变化 +1.3"
             }
           ],
-          "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 +1.3 逐年延展",
+          "basis": "2022-2025 同校录取线变化，按 EWMA 加权变化 +1.3 逐年延展；2021 年录取线跳变超过 20 分（结构性断点），仅用断点后历史",
+          "confidenceNote": "2021 年录取线跳变超过 20 分（结构性断点），仅用断点后历史"
+        },
+        {
+          "method": "民办小学整体 cohort",
+          "model_key": "grouped_cohort",
+          "backtest_mae": 6.17,
+          "backtest_sample_count": 12,
+          "target_year": 2026,
+          "target_forecast": {
+            "year": 2026,
+            "score": 109.22,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "year2026": {
+            "year": 2026,
+            "score": 109.22,
+            "change": 2.22,
+            "cumulativeChange": 2.22,
+            "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+          },
+          "allForecasts": [
+            {
+              "year": 2026,
+              "score": 109.22,
+              "change": 2.22,
+              "cumulativeChange": 2.22,
+              "source": "布吉民办小学2019→2020配对均线变化 +2.22（9 所）"
+            },
+            {
+              "year": 2027,
+              "score": 110,
+              "change": 0.78,
+              "cumulativeChange": 3,
+              "source": "布吉民办小学2019→2021配对均线变化 +4.46（9 所）"
+            },
+            {
+              "year": 2028,
+              "score": 106.95,
+              "change": -3.05,
+              "cumulativeChange": -0.05,
+              "source": "布吉民办小学2019→2022配对均线变化 -0.05（9 所）"
+            }
+          ],
+          "basis": "民办初中2025线 107 叠加布吉民办小学配对均线变化（只统计两年共有学校）；3 年参考 布吉民办小学2019→2020配对均线变化 +2.22（9 所）、布吉民办小学2019→2021配对均线变化 +4.46（9 所）、布吉民办小学2019→2022配对均线变化 -0.05（9 所）",
           "confidenceNote": null
         }
       ],
-      "auxiliary_method": "民办小学整体 cohort",
-      "auxiliary_score": 110,
-      "auxiliary_2026_score": 110,
+      "auxiliary_method": "小一到初一 cohort（同向大差值）",
+      "auxiliary_score": 97.65,
+      "auxiliary_2026_score": 97.65,
       "warnings": [
-        "cohort delta 异常，已自动降级"
+        "cohort delta 同向且均超阈值，已改用该校自身中位数"
       ]
     },
     {
@@ -3557,15 +4085,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 60,
       "predicted_change": 0,
       "predicted_cumulative_change": 0,
+      "predicted_interval": {
+        "low": 60,
+        "high": 67.29,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 60,
       "predicted_2026_change": 0,
       "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -3624,15 +4163,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 2,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 60,
       "predicted_change": 0,
       "predicted_cumulative_change": 0,
+      "predicted_interval": {
+        "low": 60,
+        "high": 67.29,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 60,
       "predicted_2026_change": 0,
       "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -3691,15 +4241,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 60,
       "predicted_change": 0,
       "predicted_cumulative_change": 0,
+      "predicted_interval": {
+        "low": 60,
+        "high": 67.29,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 60,
       "predicted_2026_change": 0,
       "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -3758,15 +4319,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 60,
       "predicted_change": 0,
       "predicted_cumulative_change": 0,
+      "predicted_interval": {
+        "low": 60,
+        "high": 67.29,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 60,
       "predicted_2026_change": 0,
       "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -3825,15 +4397,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 63.9,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 64.36,
       "predicted_change": 0.46,
       "predicted_cumulative_change": 0.46,
+      "predicted_interval": {
+        "low": 60,
+        "high": 71.65,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 64.36,
       "predicted_2026_change": 0.46,
       "predicted_2026_cumulative_change": 0.46,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -3892,15 +4475,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 68.5,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 67.47,
       "predicted_change": -1.03,
       "predicted_cumulative_change": -1.03,
+      "predicted_interval": {
+        "low": 60.18,
+        "high": 74.76,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 67.47,
       "predicted_2026_change": -1.03,
       "predicted_2026_cumulative_change": -1.03,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -3959,15 +4553,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 60,
       "predicted_change": 0,
       "predicted_cumulative_change": 0,
+      "predicted_interval": {
+        "low": 60,
+        "high": 67.29,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 60,
       "predicted_2026_change": 0,
       "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -4026,15 +4631,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 60,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 60,
       "predicted_change": 0,
       "predicted_cumulative_change": 0,
+      "predicted_interval": {
+        "low": 60,
+        "high": 67.29,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 60,
       "predicted_2026_change": 0,
       "predicted_2026_cumulative_change": 0,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,
@@ -4093,15 +4709,26 @@ window.PREDICTIONS_DATA[2026] = {
       "latest_score": 103.1,
       "forecast_horizon": 1,
       "primary_method": "近年趋势",
+      "primary_model_key": "trend",
+      "primary_backtest_mae": 4.86,
       "predicted_score": 104.6,
       "predicted_change": 1.5,
       "predicted_cumulative_change": 1.5,
+      "predicted_interval": {
+        "low": 97.31,
+        "high": 110,
+        "mae": 4.86,
+        "sample_count": 108
+      },
       "predicted_2026_score": 104.6,
       "predicted_2026_change": 1.5,
       "predicted_2026_cumulative_change": 1.5,
       "all_models": [
         {
           "method": "近年趋势",
+          "model_key": "trend",
+          "backtest_mae": 4.86,
+          "backtest_sample_count": 108,
           "target_year": 2026,
           "target_forecast": {
             "year": 2026,

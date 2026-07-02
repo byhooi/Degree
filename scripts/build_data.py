@@ -24,8 +24,13 @@ MIN_ADMISSION_SCORE = 60
 MAX_ADMISSION_SCORE = 110
 TREND_DECAY = 0.8
 TREND_MAX_YEARLY_CHANGE = 3
+TREND_STRUCTURAL_BREAK_THRESHOLD = 20
 COHORT_DELTA_OUTLIER_THRESHOLD = 10
 COHORT_DELTA_WEIGHT_DECAY = 0.75
+COHORT_CONSISTENT_OUTLIER_MIN_PAIRS = 2
+HIGH_SCORE_PRIVATE_JUNIOR_THRESHOLD = 100
+HIGH_SCORE_PRIMARY_POOL_THRESHOLD = 100
+HIGH_SCORE_POOL_MIN_COUNT = 3
 BACKTEST_LARGE_ERROR_THRESHOLD = 20
 TREND_DECAY_SCAN_VALUES = [round(value / 100, 2) for value in range(30, 91, 5)]
 TREND_MAX_CHANGE_SCAN_VALUES = list(range(3, 11))
@@ -375,6 +380,33 @@ def weighted_cohort_delta(pairs: list[dict]) -> float | None:
     return round(weighted / total_weight, 2) if total_weight else None
 
 
+def school_delta_estimate(pairs: list[dict]) -> dict | None:
+    """按校估计 cohort delta。
+
+    常规路径：剔除超全局阈值的 delta 后按时间加权。
+    特例路径：某校全部 delta 超阈值但方向一致（且不少于
+    COHORT_CONSISTENT_OUTLIER_MIN_PAIRS 届）时，属于该校系统性生源差异
+    而非噪声，改用该校自身 delta 中位数，不再弃用。
+    """
+    usable = [pair for pair in pairs if cohort_pair_usable(pair)]
+    if usable:
+        return {
+            "delta": weighted_cohort_delta(pairs),
+            "mode": "weighted",
+            "pair_count": len(usable),
+        }
+    deltas = [pair["cohort_delta"] for pair in pairs]
+    if len(deltas) >= COHORT_CONSISTENT_OUTLIER_MIN_PAIRS and (
+        all(delta > 0 for delta in deltas) or all(delta < 0 for delta in deltas)
+    ):
+        return {
+            "delta": round(statistics.median(deltas), 2),
+            "mode": "consistent_outlier",
+            "pair_count": len(deltas),
+        }
+    return None
+
+
 def build_cohort_school_summaries(pairs: list[dict]) -> dict[str, dict]:
     grouped: dict[str, list[dict]] = defaultdict(list)
     for pair in pairs:
@@ -387,6 +419,7 @@ def build_cohort_school_summaries(pairs: list[dict]) -> dict[str, dict]:
         deltas = [item["cohort_delta"] for item in items]
         usable_deltas = [item["cohort_delta"] for item in usable]
         latest = items[-1]
+        estimate = school_delta_estimate(items)
         summaries[key] = {
             "school_key": latest["school_key"],
             "school_type": latest["school_type"],
@@ -399,7 +432,9 @@ def build_cohort_school_summaries(pairs: list[dict]) -> dict[str, dict]:
             "latest_primary_year": latest["primary_year"],
             "latest_primary_score": latest["primary_score"],
             "latest_delta": latest["cohort_delta"],
-            "weighted_delta": weighted_cohort_delta(items),
+            "weighted_delta": estimate["delta"] if estimate else None,
+            "delta_mode": estimate["mode"] if estimate else None,
+            "delta_pair_count": estimate["pair_count"] if estimate else 0,
             "mean_delta": round(statistics.mean(usable_deltas), 2) if usable_deltas else None,
             "median_delta": round(statistics.median(usable_deltas), 2) if usable_deltas else None,
             "delta_stdev": round(statistics.pstdev(usable_deltas), 2) if len(usable_deltas) > 1 else 0,
@@ -421,9 +456,10 @@ def collect_direct_cohort_backtest_errors(pairs: list[dict]) -> list[dict]:
         for index in range(1, len(items)):
             actual = items[index]
             prior = items[:index]
-            delta = weighted_cohort_delta(prior)
-            if delta is None:
+            estimate = school_delta_estimate(prior)
+            if estimate is None:
                 continue
+            delta = estimate["delta"]
             predicted = cap_admission_score(actual["primary_score"] + delta)
             errors.append(
                 {
@@ -437,9 +473,146 @@ def collect_direct_cohort_backtest_errors(pairs: list[dict]) -> list[dict]:
                     "predicted_score": predicted,
                     "abs_error": round(abs(predicted - actual["junior_score"]), 2),
                     "weighted_delta": delta,
-                    "used_pair_count": len([item for item in prior if cohort_pair_usable(item)]),
+                    "delta_mode": estimate["mode"],
+                    "used_pair_count": estimate["pair_count"],
                     "history_years": [item["junior_year"] for item in prior],
                     "history_deltas": [item["cohort_delta"] for item in prior],
+                }
+            )
+    return errors
+
+
+def primary_score_map(records: list[dict], year: int, school_type: str | None = None) -> dict[str, float]:
+    scores: dict[str, float] = {}
+    for record in records:
+        if record["stage"] != "小一" or record["admission_type"] != "录取分数线":
+            continue
+        if record["year"] != year or record["score_value"] is None:
+            continue
+        if school_type is not None and record["school_type"] != school_type:
+            continue
+        scores[record["school_key"]] = record["score_value"]
+    return scores
+
+
+def paired_primary_change(records: list[dict], school_type: str, from_year: int, to_year: int) -> dict | None:
+    """同类型小学两年配对均值变化：只统计两年都有分数的学校，避免学校集合逐年进出造成的成分漂移。"""
+    from_map = primary_score_map(records, from_year, school_type)
+    to_map = primary_score_map(records, to_year, school_type)
+    common = sorted(set(from_map) & set(to_map))
+    if not common:
+        return None
+    return {
+        "change": round(statistics.mean([to_map[key] - from_map[key] for key in common]), 2),
+        "school_count": len(common),
+        "from_avg": round(statistics.mean([from_map[key] for key in common]), 2),
+        "to_avg": round(statistics.mean([to_map[key] for key in common]), 2),
+    }
+
+
+def high_score_pool_keys(records: list[dict], year: int) -> dict | None:
+    """高分小一竞争池：口径完全由基准年决定——优先取 ≥阈值 的学校，不足最小数量时取基准年前 25%（至少 3 所）。"""
+    scores = primary_score_map(records, year)
+    if not scores:
+        return None
+    high = [key for key, value in scores.items() if value >= HIGH_SCORE_PRIMARY_POOL_THRESHOLD]
+    if len(high) >= HIGH_SCORE_POOL_MIN_COUNT:
+        return {"keys": sorted(high), "label": f"{HIGH_SCORE_PRIMARY_POOL_THRESHOLD}分以上小学"}
+    top_count = max(HIGH_SCORE_POOL_MIN_COUNT, (len(scores) + 3) // 4)
+    ranked = sorted(scores, key=lambda key: scores[key], reverse=True)[:top_count]
+    return {"keys": ranked, "label": "小一高分段"}
+
+
+def paired_pool_change(records: list[dict], from_year: int, to_year: int) -> dict | None:
+    """高分池配对均值变化：池成员由基准年确定，目标年取交集，两年口径一致。"""
+    pool = high_score_pool_keys(records, from_year)
+    if not pool:
+        return None
+    from_map = primary_score_map(records, from_year)
+    to_map = primary_score_map(records, to_year)
+    common = [key for key in pool["keys"] if key in to_map]
+    if not common:
+        return None
+    return {
+        "change": round(statistics.mean([to_map[key] - from_map[key] for key in common]), 2),
+        "school_count": len(common),
+        "label": pool["label"],
+        "from_avg": round(statistics.mean([from_map[key] for key in common]), 2),
+        "to_avg": round(statistics.mean([to_map[key] for key in common]), 2),
+    }
+
+
+def junior_score_series(records: list[dict]) -> dict[tuple[str, str], list[dict]]:
+    grouped: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    for record in records:
+        if record["stage"] != "初一" or record["admission_type"] != "录取分数线":
+            continue
+        if record["score_value"] is None:
+            continue
+        grouped[(record["school_key"], record["school_type"])].append(record)
+    return {key: sorted(items, key=lambda item: item["year"]) for key, items in grouped.items()}
+
+
+def collect_grouped_cohort_backtest_errors(records: list[dict], lag_years: int) -> list[dict]:
+    errors: list[dict] = []
+    for items in junior_score_series(records).values():
+        for index in range(1, len(items)):
+            actual = items[index]
+            base = items[index - 1]
+            if actual["year"] != base["year"] + 1:
+                continue
+            change = paired_primary_change(
+                records, actual["school_type"], base["year"] - lag_years, actual["year"] - lag_years
+            )
+            if change is None:
+                continue
+            predicted = cap_admission_score(base["score_value"] + change["change"])
+            errors.append(
+                {
+                    "school_key": actual["school_key"],
+                    "school_type": actual["school_type"],
+                    "school_name": actual["school_name"],
+                    "junior_year": actual["year"],
+                    "base_year": base["year"],
+                    "base_score": base["score_value"],
+                    "paired_change": change["change"],
+                    "paired_school_count": change["school_count"],
+                    "actual_score": actual["score_value"],
+                    "predicted_score": predicted,
+                    "abs_error": round(abs(predicted - actual["score_value"]), 2),
+                }
+            )
+    return errors
+
+
+def collect_high_score_cohort_backtest_errors(records: list[dict], lag_years: int) -> list[dict]:
+    errors: list[dict] = []
+    for items in junior_score_series(records).values():
+        for index in range(1, len(items)):
+            actual = items[index]
+            base = items[index - 1]
+            if actual["school_type"] != "民办" or actual["year"] != base["year"] + 1:
+                continue
+            if base["score_value"] < HIGH_SCORE_PRIVATE_JUNIOR_THRESHOLD:
+                continue
+            change = paired_pool_change(records, base["year"] - lag_years, actual["year"] - lag_years)
+            if change is None:
+                continue
+            predicted = cap_admission_score(base["score_value"] + change["change"])
+            errors.append(
+                {
+                    "school_key": actual["school_key"],
+                    "school_type": actual["school_type"],
+                    "school_name": actual["school_name"],
+                    "junior_year": actual["year"],
+                    "base_year": base["year"],
+                    "base_score": base["score_value"],
+                    "pool_label": change["label"],
+                    "paired_change": change["change"],
+                    "paired_school_count": change["school_count"],
+                    "actual_score": actual["score_value"],
+                    "predicted_score": predicted,
+                    "abs_error": round(abs(predicted - actual["score_value"]), 2),
                 }
             )
     return errors
@@ -511,6 +684,18 @@ def build_cohort_model(records: list[dict]) -> dict:
     for item in direct_backtest_errors:
         backtest_by_type[item["school_type"]].append(item)
 
+    grouped_backtest_errors = collect_grouped_cohort_backtest_errors(records, lag_years)
+    grouped_backtest_by_type: dict[str, list[dict]] = defaultdict(list)
+    for item in grouped_backtest_errors:
+        grouped_backtest_by_type[item["school_type"]].append(item)
+    high_score_backtest_errors = collect_high_score_cohort_backtest_errors(records, lag_years)
+    trend_errors = collect_trend_backtest_errors(records)
+    trend_by_stage: dict[str, list[dict]] = defaultdict(list)
+    trend_by_type: dict[str, list[dict]] = defaultdict(list)
+    for item in trend_errors:
+        trend_by_stage[item["stage"]].append(item)
+        trend_by_type[item["school_type"]].append(item)
+
     numeric_changes = [item["projected_change"] for item in pairs if item["projected_change"] is not None]
     deltas = [item["cohort_delta"] for item in pairs]
     outliers = [
@@ -523,10 +708,14 @@ def build_cohort_model(records: list[dict]) -> dict:
         pair_counts[f"{item['school_key']}|{item['school_type']}"] += 1
 
     return {
-        "method": "同校同办学性质小一录取线滞后 6 年映射到初一录取线；下一届预测使用下一年小一录取线叠加已观测 cohort 差值。",
+        "method": "同校同办学性质小一录取线滞后 6 年映射到初一录取线；下一届预测使用下一年小一录取线叠加已观测 cohort 差值。各届 delta 全部超阈值但方向一致的学校改用自身中位数 delta，不再弃用。",
         "lag_years": lag_years,
         "delta_outlier_threshold": COHORT_DELTA_OUTLIER_THRESHOLD,
         "delta_weight_decay": COHORT_DELTA_WEIGHT_DECAY,
+        "consistent_outlier_min_pairs": COHORT_CONSISTENT_OUTLIER_MIN_PAIRS,
+        "high_score_private_junior_threshold": HIGH_SCORE_PRIVATE_JUNIOR_THRESHOLD,
+        "high_score_primary_pool_threshold": HIGH_SCORE_PRIMARY_POOL_THRESHOLD,
+        "high_score_pool_min_count": HIGH_SCORE_POOL_MIN_COUNT,
         "common_school_count": len(common_keys),
         "pair_count": len(pairs),
         "school_pair_counts": dict(sorted(pair_counts.items())),
@@ -550,7 +739,7 @@ def build_cohort_model(records: list[dict]) -> dict:
         },
         "average_projected_change": round(statistics.mean(numeric_changes), 2) if numeric_changes else None,
         "direct_backtest": {
-            "method": "direct cohort 逐年留一回测；使用目标年前已观测同校同办学性质 delta 的时间加权均值预测目标年初一线。",
+            "method": "direct cohort 逐年留一回测；使用目标年前已观测同校同办学性质 delta 的时间加权均值（或同向大差值中位数）预测目标年初一线。",
             "overall": summarize_error_items(direct_backtest_errors),
             "by_school_type": {
                 school_type: summarize_error_items(items)
@@ -558,8 +747,65 @@ def build_cohort_model(records: list[dict]) -> dict:
             },
             "errors": direct_backtest_errors,
         },
+        "model_backtests": {
+            "direct_cohort": {
+                "method": "同校 6 年滞后 cohort，delta 时间加权（同向大差值学校用自身中位数）",
+                "overall": summarize_error_items(direct_backtest_errors),
+                "by_school_type": {
+                    school_type: summarize_error_items(items)
+                    for school_type, items in sorted(backtest_by_type.items())
+                },
+            },
+            "high_score_cohort": {
+                "method": "高分民办竞争池 cohort，池口径由基准年固定并按配对交集计算均线变化",
+                "overall": summarize_error_items(high_score_backtest_errors),
+                "by_school_type": {"民办": summarize_error_items(high_score_backtest_errors)},
+                "errors": high_score_backtest_errors,
+            },
+            "grouped_cohort": {
+                "method": "同类型小学配对均线 cohort，只统计两年共有学校的均值变化",
+                "overall": summarize_error_items(grouped_backtest_errors),
+                "by_school_type": {
+                    school_type: summarize_error_items(items)
+                    for school_type, items in sorted(grouped_backtest_by_type.items())
+                },
+                "errors": grouped_backtest_errors,
+            },
+            "trend": {
+                "method": "近年趋势 EWMA（含结构性断点截断）",
+                "overall": summarize_error_items(trend_errors),
+                "by_stage": {
+                    stage: summarize_error_items(items)
+                    for stage, items in sorted(trend_by_stage.items())
+                },
+                "by_school_type": {
+                    school_type: summarize_error_items(items)
+                    for school_type, items in sorted(trend_by_type.items())
+                },
+            },
+        },
         "pairs": pairs,
     }
+
+
+def truncate_at_structural_break(
+    items: list[dict],
+    threshold: float = TREND_STRUCTURAL_BREAK_THRESHOLD,
+) -> tuple[list[dict], int | None]:
+    """相邻年份录取线跳变超过阈值视为结构性断点（如民办摇号政策），截断断点前的历史。
+
+    返回 (断点后的序列, 断点年份或 None)。存在多个断点时取最近一个。
+    """
+    break_index = None
+    for index in range(1, len(items)):
+        if (
+            items[index]["year"] == items[index - 1]["year"] + 1
+            and abs(items[index]["score_value"] - items[index - 1]["score_value"]) > threshold
+        ):
+            break_index = index
+    if break_index is None:
+        return items, None
+    return items[break_index:], items[break_index]["year"]
 
 
 def robust_trend_change(
@@ -620,9 +866,13 @@ def collect_trend_backtest_errors(
             latest = prior[-1]
             if actual["year"] != latest["year"] + 1:
                 continue
-            change = robust_trend_change(prior, decay, max_yearly_change)
+            truncated, break_year = truncate_at_structural_break(prior)
+            change = robust_trend_change(truncated, decay, max_yearly_change)
             if change is None:
-                continue
+                if break_year is None:
+                    continue
+                # 断点后样本不足时按持平预测，仍纳入回测
+                change = 0.0
             predicted = cap_admission_score(latest["score_value"] + change)
             errors.append(
                 {
@@ -637,8 +887,9 @@ def collect_trend_backtest_errors(
                     "latest_year": latest["year"],
                     "latest_score": latest["score_value"],
                     "weighted_change": round(change, 2),
-                    "history_years": [item["year"] for item in prior[-4:]],
-                    "history_scores": [item["score_value"] for item in prior[-4:]],
+                    "structural_break_year": break_year,
+                    "history_years": [item["year"] for item in truncated[-4:]],
+                    "history_scores": [item["score_value"] for item in truncated[-4:]],
                 }
             )
     return errors
@@ -699,8 +950,10 @@ def build_trend_parameter_scan(records: list[dict]) -> dict:
 def build_backtest(records: list[dict]) -> dict:
     errors = collect_trend_backtest_errors(records)
     stage_errors: dict[str, list[dict]] = defaultdict(list)
+    type_errors: dict[str, list[dict]] = defaultdict(list)
     for item in errors:
         stage_errors[item["stage"]].append(item)
+        type_errors[item["school_type"]].append(item)
 
     large_errors = sorted(
         [item for item in errors if item["abs_error"] >= BACKTEST_LARGE_ERROR_THRESHOLD],
@@ -710,10 +963,14 @@ def build_backtest(records: list[dict]) -> dict:
 
     return {
         "method": "近年趋势留一回测",
-        "description": f"每个学校组合使用目标年前历史录取线预测下一年，年变化按 EWMA 加权并以 ±{TREND_MAX_YEARLY_CHANGE} 分截尾。",
+        "description": f"每个学校组合使用目标年前历史录取线预测下一年，年变化按 EWMA 加权并以 ±{TREND_MAX_YEARLY_CHANGE} 分截尾；相邻年跳变超过 {TREND_STRUCTURAL_BREAK_THRESHOLD} 分视为结构性断点，只用断点后历史。",
         "large_error_threshold": BACKTEST_LARGE_ERROR_THRESHOLD,
+        "structural_break_threshold": TREND_STRUCTURAL_BREAK_THRESHOLD,
         "overall": summarize_error_items(errors),
         "by_stage": {stage: summarize_error_items(items) for stage, items in sorted(stage_errors.items())},
+        "by_school_type": {
+            school_type: summarize_error_items(items) for school_type, items in sorted(type_errors.items())
+        },
         "large_errors": large_errors,
         "parameter_scan": build_trend_parameter_scan(records),
     }

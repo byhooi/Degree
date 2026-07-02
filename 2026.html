@@ -743,6 +743,13 @@
         const score = scoreOf(item);
         const method = item.primary_method || "未知";
         const warning = item.warnings?.length ? `<span class="tag warn">${item.warnings[0]}</span>` : "";
+        const interval = item.predicted_interval;
+        const intervalSub = interval
+          ? `<div class="sub" title="按主模型留一回测 MAE ${formatScore(interval.mae)} 分（${interval.sample_count} 样本）× 1.5 计算">区间 ${formatScore(interval.low)}-${formatScore(interval.high)}</div>`
+          : "";
+        const maeTitle = item.primary_backtest_mae !== null && item.primary_backtest_mae !== undefined
+          ? ` title="主模型留一回测 MAE ${formatScore(item.primary_backtest_mae)} 分"`
+          : "";
         return `
           <tr>
             <td data-label="学校">
@@ -761,10 +768,10 @@
                 <span class="sub">分</span>
               </div>
             </td>
-            <td data-label="2026 预测"><span class="score-cell">${formatScore(score)}</span></td>
+            <td data-label="2026 预测"><span class="score-cell">${formatScore(score)}</span>${intervalSub}</td>
             <td data-label="变化"><span class="delta">${formatDelta(item.predicted_change ?? item.predicted_2026_change)}</span></td>
             <td data-label="方法">
-              <span class="tag ${methodClass(method)}">${method}</span>
+              <span class="tag ${methodClass(method)}"${maeTitle}>${method}</span>
               ${warning}
             </td>
             <td data-label="期限">${item.forecast_horizon || "-"} 年</td>
@@ -793,7 +800,7 @@
         meta.generated_at ? `生成 ${new Date(meta.generated_at).toLocaleDateString("zh-CN")}` : ""
       ].filter(Boolean).join(" / ");
       document.getElementById("footnote").textContent =
-        "同校 cohort、高分民办竞争池、整体 cohort 和近年趋势会按可用性择优使用；预测线和积分试算口径按 60-110 分区间处理。";
+        "主预测模型按各模型留一回测 MAE 择优选择（同校 cohort、高分民办竞争池、同类小学配对 cohort、近年趋势）；预测分数下方的区间为首年置信区间（预测值 ± 主模型回测 MAE × 1.5），无回测数据的模型不显示区间。预测线和积分试算口径按 60-110 分区间处理。";
 
       document.getElementById("searchInput").addEventListener("input", event => {
         state.query = event.target.value;

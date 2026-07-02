@@ -57,10 +57,18 @@ const MAX_ADMISSION_SCORE = 110;
 const FORECAST_YEAR_COUNT = 3;
 const TREND_DECAY = 0.8;
 const TREND_MAX_YEARLY_CHANGE = 3;
+const TREND_STRUCTURAL_BREAK_THRESHOLD =
+  data.backtest?.structural_break_threshold || 20;
 const COHORT_DELTA_OUTLIER_THRESHOLD =
   data.cohort_model?.delta_outlier_threshold || 10;
-const HIGH_SCORE_PRIVATE_JUNIOR_THRESHOLD = 100;
-const HIGH_SCORE_PRIMARY_POOL_THRESHOLD = 100;
+const HIGH_SCORE_PRIVATE_JUNIOR_THRESHOLD =
+  data.cohort_model?.high_score_private_junior_threshold || 100;
+const HIGH_SCORE_PRIMARY_POOL_THRESHOLD =
+  data.cohort_model?.high_score_primary_pool_threshold || 100;
+const HIGH_SCORE_POOL_MIN_COUNT =
+  data.cohort_model?.high_score_pool_min_count || 3;
+const MODEL_BACKTEST_MIN_SAMPLES = 2;
+const PREDICTION_INTERVAL_MAE_MULTIPLIER = 1.5;
 
 // ============================================================
 // 工具函数（与 index.html 保持一致）
@@ -217,20 +225,36 @@ function forecastResult(payload) {
   };
 }
 
+function truncateAtStructuralBreak(history) {
+  let breakIndex = null;
+  for (let index = 1; index < history.length; index += 1) {
+    if (
+      history[index].year === history[index - 1].year + 1 &&
+      Math.abs(history[index].score_value - history[index - 1].score_value) >
+        TREND_STRUCTURAL_BREAK_THRESHOLD
+    ) {
+      breakIndex = index;
+    }
+  }
+  if (breakIndex === null) return { history, breakYear: null };
+  return { history: history.slice(breakIndex), breakYear: history[breakIndex].year };
+}
+
 function recentTrendPrediction(stage, schoolKey, schoolType, admissionType) {
   if (!admissionType) admissionType = "录取分数线";
-  const history = recordsForSchool(
+  const fullHistory = recordsForSchool(
     stage,
     schoolKey,
     schoolType,
     admissionType
   ).filter((record) => record.score_value !== null);
-  if (history.length < 2) return null;
+  if (fullHistory.length < 2) return null;
+  const { history, breakYear } = truncateAtStructuralBreak(fullHistory);
   const recent = history.slice(-4);
   const changes = recent
     .slice(1)
     .map((record, index) => record.score_value - recent[index].score_value);
-  const weightedChange = weightedRecentChange(changes) ?? 0;
+  const weightedChange = changes.length ? weightedRecentChange(changes) ?? 0 : 0;
   const latest = recent[recent.length - 1];
   const futureScores = [];
   let previousScore = latest.score_value;
@@ -248,11 +272,16 @@ function recentTrendPrediction(stage, schoolKey, schoolType, admissionType) {
     (change) => Math.abs(change) > TREND_MAX_YEARLY_CHANGE
   );
   const notes = [
-    lowConfidence ? "仅 2 年有效数据，趋势仅供参考" : "",
+    breakYear
+      ? `${breakYear} 年录取线跳变超过 ${TREND_STRUCTURAL_BREAK_THRESHOLD} 分（结构性断点），仅用断点后历史`
+      : "",
+    breakYear && history.length < 2 ? "断点后样本不足，按持平延展" : "",
+    lowConfidence ? "有效数据不足 3 年，趋势仅供参考" : "",
     clipped ? `年变化超过 ${TREND_MAX_YEARLY_CHANGE} 分时已截尾` : "",
   ].filter(Boolean);
   return forecastResult({
     method: "近年趋势",
+    modelKey: "trend",
     latestYear: latest.year,
     forecasts: forecastItemsFromScores(latest.score_value, futureScores),
     basis: `${recent[0].year}-${latest.year} 同校录取线变化，按 EWMA 加权变化 ${formatDelta(roundDelta(weightedChange))} 逐年延展${notes.length ? `；${notes.join("；")}` : ""}`,
@@ -287,17 +316,26 @@ function cohortPrediction(stage, schoolKey, schoolType) {
       source: `小一${primaryYear} ${formatScore(primary.score_value)}`,
     });
   }
-  const multiPair = summary.usable_pair_count > 1;
-  const method = multiPair ? "小一到初一 cohort 加权" : "小一到初一 cohort";
-  const confidence =
-    summary.usable_pair_count > 1
-      ? `${summary.usable_pair_count} 届有效 cohort 样本`
+  const consistentOutlier = summary.delta_mode === "consistent_outlier";
+  const multiPair = summary.delta_pair_count > 1;
+  const method = consistentOutlier
+    ? "小一到初一 cohort（同向大差值）"
+    : multiPair
+      ? "小一到初一 cohort 加权"
+      : "小一到初一 cohort";
+  const confidence = consistentOutlier
+    ? `${summary.delta_pair_count} 届 delta 均超阈值但方向一致，使用自身中位数`
+    : multiPair
+      ? `${summary.delta_pair_count} 届有效 cohort 样本`
       : "仅 1 届有效 cohort 样本";
-  const deltaBasis = multiPair
-    ? `有效 delta 加权均值 ${formatDelta(summary.weighted_delta)}，样本年 ${summary.years.join("、")}`
-    : `cohort delta ${formatDelta(summary.weighted_delta)}`;
+  const deltaBasis = consistentOutlier
+    ? `各届 delta 中位数 ${formatDelta(summary.weighted_delta)}，样本年 ${summary.years.join("、")}`
+    : multiPair
+      ? `有效 delta 加权均值 ${formatDelta(summary.weighted_delta)}，样本年 ${summary.years.join("、")}`
+      : `cohort delta ${formatDelta(summary.weighted_delta)}`;
   return forecastResult({
     method,
+    modelKey: "direct_cohort",
     latestYear: summary.latest_junior_year,
     forecasts: forecastItemsFromScores(
       summary.latest_junior_score,
@@ -309,6 +347,34 @@ function cohortPrediction(stage, schoolKey, schoolType) {
   });
 }
 
+function primaryScoreMapByYear(schoolType, year) {
+  const map = new Map();
+  data.records.forEach((record) => {
+    if (
+      record.stage === "小一" &&
+      record.admission_type === "录取分数线" &&
+      record.year === year &&
+      record.score_value !== null &&
+      (!schoolType || record.school_type === schoolType)
+    ) {
+      map.set(record.school_key, record.score_value);
+    }
+  });
+  return map;
+}
+
+function pairedPrimaryChange(schoolType, fromYear, toYear) {
+  // 只统计两年都有分数的学校，避免学校集合逐年进出造成的成分漂移
+  const fromMap = primaryScoreMapByYear(schoolType, fromYear);
+  const toMap = primaryScoreMapByYear(schoolType, toYear);
+  const common = [...fromMap.keys()].filter((key) => toMap.has(key));
+  if (!common.length) return null;
+  return {
+    change: average(common.map((key) => toMap.get(key) - fromMap.get(key))),
+    schoolCount: common.length,
+  };
+}
+
 function groupedPrimaryCohortPrediction(stage, schoolKey, schoolType, admissionType) {
   if (stage !== "初一") return null;
   if (!admissionType) admissionType = "录取分数线";
@@ -317,75 +383,54 @@ function groupedPrimaryCohortPrediction(stage, schoolKey, schoolType, admissionT
   const latest = latestRecordForSchool(stage, schoolKey, schoolType, admissionType);
   if (!latest || latest.score_value === null) return null;
   const primaryYear = latest.year - lagYears;
-  const primaryRecords = data.records.filter(
-    (record) =>
-      record.stage === "小一" &&
-      record.school_type === schoolType &&
-      record.admission_type === "录取分数线" &&
-      record.year === primaryYear &&
-      record.score_value !== null
-  );
-  const primaryAvg = average(primaryRecords.map((record) => record.score_value));
-  if (primaryAvg === null) return null;
-  const cohortDelta = latest.score_value - primaryAvg;
   const futureScores = [];
   for (let step = 1; step <= FORECAST_YEAR_COUNT; step += 1) {
-    const futurePrimaryYear = primaryYear + step;
-    const futurePrimaryRecords = data.records.filter(
-      (record) =>
-        record.stage === "小一" &&
-        record.school_type === schoolType &&
-        record.admission_type === "录取分数线" &&
-        record.year === futurePrimaryYear &&
-        record.score_value !== null
-    );
-    const futurePrimaryAvg = average(
-      futurePrimaryRecords.map((record) => record.score_value)
-    );
-    if (futurePrimaryAvg === null) break;
+    const paired = pairedPrimaryChange(schoolType, primaryYear, primaryYear + step);
+    if (!paired) break;
     futureScores.push({
       year: latest.year + step,
-      score: futurePrimaryAvg + cohortDelta,
-      source: `布吉${schoolType}小学${futurePrimaryYear}均线 ${formatScore(futurePrimaryAvg)}`,
+      score: latest.score_value + paired.change,
+      source: `布吉${schoolType}小学${primaryYear}→${primaryYear + step}配对均线变化 ${formatDelta(roundDelta(paired.change))}（${paired.schoolCount} 所）`,
     });
   }
   return forecastResult({
     method: `${schoolType}小学整体 cohort`,
+    modelKey: "grouped_cohort",
     latestYear: latest.year,
     forecasts: forecastItemsFromScores(latest.score_value, futureScores),
-    basis: `${schoolType}初中${latest.year}线 ${formatScore(latest.score_value)} - 布吉${schoolType}小学${primaryYear}均线 ${formatScore(primaryAvg)}；${futureScores.length} 年参考 ${futureScores.map((item) => item.source).join("、")}`,
-    cohortDelta: Math.round(cohortDelta * 100) / 100,
+    basis: `${schoolType}初中${latest.year}线 ${formatScore(latest.score_value)} 叠加布吉${schoolType}小学配对均线变化（只统计两年共有学校）；${futureScores.length} 年参考 ${futureScores.map((item) => item.source).join("、")}`,
   });
 }
 
-function highScorePrimaryPool(year) {
-  const records = data.records.filter(
-    (record) =>
-      record.stage === "小一" &&
-      record.admission_type === "录取分数线" &&
-      record.year === year &&
-      record.score_value !== null
-  );
-  if (!records.length) return null;
-  const highScore = records.filter(
-    (record) => record.score_value >= HIGH_SCORE_PRIMARY_POOL_THRESHOLD
-  );
-  const pool =
-    highScore.length >= 3
-      ? highScore
-      : records
-          .slice()
-          .sort((a, b) => b.score_value - a.score_value)
-          .slice(0, Math.max(3, Math.ceil(records.length * 0.25)));
-  const avg = average(pool.map((record) => record.score_value));
-  if (avg === null) return null;
+function highScorePoolKeys(year) {
+  // 池口径完全由基准年决定：优先取 ≥阈值 的学校，不足最小数量时取基准年前 25%（至少 3 所）
+  const scores = primaryScoreMapByYear(null, year);
+  if (!scores.size) return null;
+  const high = [...scores.entries()]
+    .filter(([, value]) => value >= HIGH_SCORE_PRIMARY_POOL_THRESHOLD)
+    .map(([key]) => key);
+  if (high.length >= HIGH_SCORE_POOL_MIN_COUNT) {
+    return { keys: high, label: `${HIGH_SCORE_PRIMARY_POOL_THRESHOLD}分以上小学` };
+  }
+  const topCount = Math.max(HIGH_SCORE_POOL_MIN_COUNT, Math.ceil(scores.size * 0.25));
+  const ranked = [...scores.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, topCount)
+    .map(([key]) => key);
+  return { keys: ranked, label: "小一高分段" };
+}
+
+function pairedPoolChange(fromYear, toYear) {
+  const pool = highScorePoolKeys(fromYear);
+  if (!pool) return null;
+  const fromMap = primaryScoreMapByYear(null, fromYear);
+  const toMap = primaryScoreMapByYear(null, toYear);
+  const common = pool.keys.filter((key) => toMap.has(key));
+  if (!common.length) return null;
   return {
-    avg,
-    count: pool.length,
-    label:
-      highScore.length >= 3
-        ? `${HIGH_SCORE_PRIMARY_POOL_THRESHOLD}分以上小学`
-        : "小一高分段",
+    change: average(common.map((key) => toMap.get(key) - fromMap.get(key))),
+    schoolCount: common.length,
+    label: pool.label,
   };
 }
 
@@ -416,26 +461,24 @@ function highScorePrivateCohortPrediction(
     return null;
   const lagYears = data.cohort_model?.lag_years || 6;
   const primaryYear = latest.year - lagYears;
-  const primaryPool = highScorePrimaryPool(primaryYear);
-  if (!primaryPool) return null;
-  const cohortDelta = latest.score_value - primaryPool.avg;
   const futureScores = [];
+  let poolLabel = "";
   for (let step = 1; step <= FORECAST_YEAR_COUNT; step += 1) {
-    const futurePrimaryYear = primaryYear + step;
-    const futurePool = highScorePrimaryPool(futurePrimaryYear);
-    if (!futurePool) break;
+    const paired = pairedPoolChange(primaryYear, primaryYear + step);
+    if (!paired) break;
+    poolLabel = paired.label;
     futureScores.push({
       year: latest.year + step,
-      score: futurePool.avg + cohortDelta,
-      source: `布吉${futurePool.label}${futurePrimaryYear}均线 ${formatScore(futurePool.avg)}`,
+      score: latest.score_value + paired.change,
+      source: `布吉${paired.label}${primaryYear}→${primaryYear + step}配对均线变化 ${formatDelta(roundDelta(paired.change))}（${paired.schoolCount} 所）`,
     });
   }
   return forecastResult({
     method: "高分民办竞争池 cohort",
+    modelKey: "high_score_cohort",
     latestYear: latest.year,
     forecasts: forecastItemsFromScores(latest.score_value, futureScores),
-    basis: `该校为 ${HIGH_SCORE_PRIVATE_JUNIOR_THRESHOLD} 分以上民办初中，按高积分择校生源池处理；民办初中${latest.year}线 ${formatScore(latest.score_value)} - 布吉${primaryPool.label}${primaryYear}均线 ${formatScore(primaryPool.avg)}（${primaryPool.count} 所）；${futureScores.length} 年参考 ${futureScores.map((item) => item.source).join("、")}`,
-    cohortDelta: Math.round(cohortDelta * 100) / 100,
+    basis: `该校为 ${HIGH_SCORE_PRIVATE_JUNIOR_THRESHOLD} 分以上民办初中，按高积分择校生源池处理；民办初中${latest.year}线 ${formatScore(latest.score_value)} 叠加${poolLabel || "高分池"}配对均线变化（池成员由基准年固定）；${futureScores.length} 年参考 ${futureScores.map((item) => item.source).join("、")}`,
     confidenceNote:
       "高分民办可能吸引具备公办资格的深户、有房等高积分家庭，不能只按普通民办小学均线估计",
   });
@@ -444,6 +487,23 @@ function highScorePrivateCohortPrediction(
 // ============================================================
 // 主预测函数（与 index.html 保持一致）
 // ============================================================
+function modelBacktestStats(modelKey, schoolType) {
+  const entry = data.cohort_model?.model_backtests?.[modelKey];
+  if (!entry) return null;
+  const candidates = [entry.by_school_type?.[schoolType], entry.overall];
+  for (const item of candidates) {
+    if (
+      item &&
+      item.mae !== null &&
+      item.mae !== undefined &&
+      item.sample_count >= MODEL_BACKTEST_MIN_SAMPLES
+    ) {
+      return { mae: item.mae, sampleCount: item.sample_count };
+    }
+  }
+  return null;
+}
+
 function predictionForSchool(stage, schoolKey, schoolType, admissionType) {
   if (!admissionType) admissionType = "录取分数线";
   const latest = latestRecordForSchool(
@@ -464,7 +524,11 @@ function predictionForSchool(stage, schoolKey, schoolType, admissionType) {
   const warnings =
     summary?.outlier_pair_count ||
     (pair && cohortPairOutlier(pair))
-      ? [`cohort delta 异常，已自动降级`]
+      ? [
+          summary?.delta_mode === "consistent_outlier"
+            ? "cohort delta 同向且均超阈值，已改用该校自身中位数"
+            : "cohort delta 异常，已自动降级",
+        ]
       : [];
 
   const direct =
@@ -499,10 +563,20 @@ function predictionForSchool(stage, schoolKey, schoolType, admissionType) {
     admissionType
   );
 
-  const candidates =
+  const prioritized =
     stage === "初一" && admissionType === "录取分数线"
       ? [direct, highScorePrivate, grouped, trend].filter(Boolean)
       : [trend].filter(Boolean);
+  prioritized.forEach((model, index) => {
+    model.priority = index;
+    model.backtest = modelBacktestStats(model.modelKey, schoolType);
+  });
+  // 按各模型留一回测 MAE 升序选择主预测模型；无可用回测数据的模型保持原有优先级
+  const candidates = prioritized.slice().sort((a, b) => {
+    const maeA = a.backtest ? a.backtest.mae : Infinity;
+    const maeB = b.backtest ? b.backtest.mae : Infinity;
+    return maeA === maeB ? a.priority - b.priority : maeA - maeB;
+  });
 
   const forecast = candidates[0] || null;
   const auxiliary = candidates.find((model) => model !== forecast) || null;
@@ -513,6 +587,23 @@ function predictionForSchool(stage, schoolKey, schoolType, admissionType) {
   const auxiliaryTargetForecast =
     auxiliary?.forecasts?.find((f) => f.year === TARGET_YEAR) || null;
 
+  // 按主模型回测 MAE 计算目标年置信区间
+  const interval =
+    targetForecast && forecast?.backtest
+      ? {
+          low: capScore(
+            targetForecast.score -
+              forecast.backtest.mae * PREDICTION_INTERVAL_MAE_MULTIPLIER
+          ),
+          high: capScore(
+            targetForecast.score +
+              forecast.backtest.mae * PREDICTION_INTERVAL_MAE_MULTIPLIER
+          ),
+          mae: forecast.backtest.mae,
+          sample_count: forecast.backtest.sampleCount,
+        }
+      : null;
+
   // 收集所有模型的首年预测
   const allModelForecasts = candidates
     .filter((m) => m?.forecasts?.length)
@@ -521,6 +612,9 @@ function predictionForSchool(stage, schoolKey, schoolType, admissionType) {
         m.forecasts.find((f) => f.year === TARGET_YEAR) || null;
       return {
         method: m.method,
+        model_key: m.modelKey || null,
+        backtest_mae: m.backtest?.mae ?? null,
+        backtest_sample_count: m.backtest?.sampleCount ?? null,
         target_year: TARGET_YEAR,
         target_forecast: modelTargetForecast,
         [`year${TARGET_YEAR}`]: modelTargetForecast,
@@ -543,9 +637,12 @@ function predictionForSchool(stage, schoolKey, schoolType, admissionType) {
     latest_score: latest?.score_value ?? null,
     forecast_horizon: forecastHorizon,
     primary_method: forecast?.method || null,
+    primary_model_key: forecast?.modelKey || null,
+    primary_backtest_mae: forecast?.backtest?.mae ?? null,
     predicted_score: targetForecast?.score ?? null,
     predicted_change: targetForecast?.change ?? null,
     predicted_cumulative_change: targetForecast?.cumulativeChange ?? null,
+    predicted_interval: interval,
     [`predicted_${TARGET_YEAR}_score`]: targetForecast?.score ?? null,
     [`predicted_${TARGET_YEAR}_change`]: targetForecast?.change ?? null,
     [`predicted_${TARGET_YEAR}_cumulative_change`]:

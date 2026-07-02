@@ -53,20 +53,19 @@ data/admission-data.json  ──→  data/admission-data.js (window.ADMISSION_DA
 | 状态管理 | `state` 对象 | 保存当前筛选条件（stage/year/admissionType/query）、计算器输入、选中行 |
 | 数据筛选 | `visibleRecords()`, `recordsForTable()` | 按 stage/年份/搜索词/录取类型过滤 |
 | 积分试算 | `calculateScore()`, `baseCategory()` | 按 2026 规则：匹配基础类别 → 逐项计算加分 → 合计封顶 10 分 → 总分封顶 110 分 |
-| 初一预测 | `predictionForTarget()` | 优先使用 cohort 模型（同校小一滞后 6 年映射），其次 grouped primary cohort，最后兜底趋势预测 |
-| 趋势预测 | `recentTrendPrediction()` | EWMA 加权年变化（衰减系数 0.8），年变化截尾 ±3 分 |
-| Cohort 模型 | `cohortPrediction()`, `groupedPrimaryCohortPrediction()` | 小一-初一 6 年滞后映射；无映射表时公办/民办分离使用各自均线 |
+| 初一预测 | `predictionForTarget()` | 候选模型按留一回测 MAE 升序选主模型（`model_backtests`），无回测数据时按 direct cohort → 高分民办池 → grouped → 趋势兜底 |
+| 趋势预测 | `recentTrendPrediction()` | EWMA 加权年变化（衰减系数 0.8），年变化截尾 ±3 分；相邻年跳变超 20 分视为结构性断点，只用断点后历史 |
+| Cohort 模型 | `cohortPrediction()`, `groupedPrimaryCohortPrediction()` | 小一-初一 6 年滞后映射；grouped 用同类型小学**配对均线变化**（只统计两年共有学校），公办/民办分离 |
 | SVG 图表 | `renderAverageChart()`, `renderRankChart()`, `renderSchoolSvg()` | 手写 SVG，无图表库依赖 |
 | UI 渲染 | `render()`, `renderFilters()`, `renderTable()`, `renderCalculator()` | 声明式 DOM 更新，直接操作 innerHTML |
 
 ## 预测逻辑约定
 
 1. **积分试算**：先匹配基础类别（7 类，分值 60-100），再按产权日期、租赁备案日期、学区户籍迁入日期、社保月数计算加分，**加分合计封顶 10 分**，总分封顶 110 分。小一有"优享学区第一志愿"开关（+2.5 分，纳入封顶）。
-2. **初一预测优先级**：
-   - 优先：同校同办学性质 `小一→初一` 6 年 cohort
-   - 次级：无映射表时，公办初中用布吉公办小学均线，民办初中用民办小学均线，**不混合公/民办**
-   - 兜底：初中自身近年趋势（仅辅助参考）
-3. **预测仅供填报参考**，不表述为保证录取。
+2. **初一预测模型选择**：候选模型 = direct cohort（同校同办学性质 `小一→初一` 6 年滞后）、高分民办竞争池 cohort（最新线 ≥100 的民办）、grouped cohort（同类型小学配对均线，**不混合公/民办**）、近年趋势；**主模型按各模型留一回测 MAE 升序选择**（优先同办学性质分段，样本 ≥2 才参与），无回测数据时按上述顺序兜底。某校各届 cohort delta 均超 10 分但方向一致（≥2 届）时用该校自身中位数，不弃用。
+3. **不确定度展示**：主模型有回测数据时展示首年置信区间（预测值 ± MAE × 1.5）；趋势模型遇结构性断点（相邻年跳变 >20 分）只用断点后历史并标注低置信度。
+4. **预测仅供填报参考**，不表述为保证录取。
+5. **修改预测逻辑需三处同步**：`index.html`、`scripts/export_2026_predictions.js`（复制了一份前端逻辑）、`scripts/build_data.py`（回测须与前端公式一致），并更新 `prediction-algorithm.md`。
 
 ## 部署
 
